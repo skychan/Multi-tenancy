@@ -90,7 +90,7 @@ public class TenantS {
 	}
 	
 	public Map.Entry<Integer, Integer> getDistance(int index){
-		return list.get(index);
+		return this.list.get(index);
 	}
 
 }

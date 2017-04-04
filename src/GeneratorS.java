@@ -1,57 +1,77 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 public class GeneratorS {
-
-	public static void main(String[] args) {
-		int num = 7;
-		int width = 200;
-		int height = 200;
-		Random generator = new Random(8);
-		
+	
+	private int width, height;
+	private Random generator = new Random(8);
+	private int maxTime, maxProcessing;
+	
+	public GeneratorS(int width, int height){
+		this.setWidth(width);
+		this.setHeight(height);
+	}
+	
+	public List<Resource> generateResources(int num){
 		List<Resource> resources = new ArrayList<Resource>();
-		
 		for (int i = 0; i < num; i++) {
 			Resource L = new Resource();
 			L.setId(i);
-			
-			L.setX(generator.nextInt(width));
-			L.setY(generator.nextInt(height));
+			L.setX(generator.nextInt(this.getWidth()));
+			L.setY(generator.nextInt(this.getHeight()));
 			resources.add(L);
 		}
-		
-		for (int i = 0; i < num; i++) {
-			System.out.println(resources.get(i));
-		}
-		
-		int nbTenant = 8;
-		int maxTime = 100;
-		int maxProcessing = 10;
-		
+		return resources;
+	}
+
+	public List<TenantS> generateTenants(int nbTenant, List<Resource> res){
 		List<TenantS> tenants = new ArrayList<TenantS>();
 		for (int i = 0; i < nbTenant; i++) {
-			int x = generator.nextInt(width);
-			int y = generator.nextInt(height);
+			int x = generator.nextInt(this.getWidth());
+			int y = generator.nextInt(this.getHeight());
 			
-			TenantS tenant = new TenantS(x,y,resources);
+			TenantS tenant = new TenantS(x,y,res);
 			tenant.setId(i);
 			
-			tenant.setRelease(generator.nextInt(maxTime));
-			tenant.setProcessing(generator.nextInt(maxProcessing));
+			tenant.setRelease(generator.nextInt(this.getMaxTime()));
+			tenant.setProcessing(generator.nextInt(this.getMaxProcessing()));
 			
 			tenants.add(tenant);
 		}
 		
-		for (int i = 0; i < nbTenant; i++) {
-			System.out.println(tenants.get(i));
-		}
-		
-		for (int i = 0; i < 7; i++) {
-			System.out.println(tenants.get(0).getDistance(i));
-		}
-		
+		return tenants;
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public int getMaxTime() {
+		return maxTime;
+	}
+
+	public void setMaxTime(int maxTime) {
+		this.maxTime = maxTime;
+	}
+
+	public int getMaxProcessing() {
+		return maxProcessing;
+	}
+
+	public void setMaxProcessing(int maxProcessing) {
+		this.maxProcessing = maxProcessing;
 	}
 
 }
