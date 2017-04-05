@@ -66,6 +66,7 @@ public class Alice {
 			
 			
 			List<Integer> id_resource_candidates = t.getNearest(resources);
+//			System.out.println(id_resource_candidates);
 //			System.out.println(Arrays.toString(id_resource_candidates));
 			int[] y = t.fill(id_resource_candidates);
 			

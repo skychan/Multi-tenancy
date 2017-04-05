@@ -8,7 +8,9 @@ public class TenantS {
 	private int processing;
 	private Map<Integer,Integer> start, end;
 	private Integer release;
-	private List<Map.Entry<Integer,Integer>> distance;
+	private Map<Integer,Integer> distance;
+	
+//	private Map<Integer, Integer> location;
 	
 	// sorting the nearest location with constructor?
 	public TenantS(int x, int y) {
@@ -64,7 +66,11 @@ public class TenantS {
 			}
 		});
 		
-		this.setDistance(list);
+		Map<Integer, Integer> dists = new LinkedHashMap<Integer, Integer>();
+		for (Map.Entry<Integer, Integer> ent : list) {
+			dists.put(ent.getKey(), ent.getValue());
+		}
+		this.setDistance(dists);
 //		System.out.println(this.getDistance());
 		return ids;
 	}
@@ -129,25 +135,29 @@ public class TenantS {
 		int n_max = idResource.size();
 		int sum_b = 0;
 		int[] y = new int[n_max];
-
+		
 		for (int id : idResource) {
-			sum_b += this.getStart().get(id);
+			sum_b += (this.getStart().get(id) + this.getDistance().get(id));
 		}
+//		System.out.println(sum_b);
 
 		for (int n = n_max; n > 0; n--) {
-			int y_n = this.getProcessing() + sum_b - this.getStart().get(idResource.get(n-1))*n;
+			int y_n = this.getProcessing() + sum_b - (this.getStart().get(idResource.get(n-1)) + this.getDistance().get(idResource.get(n-1)))*n;
+//			System.out.println(y_n);
 			if(y_n >= n){
+//				System.out.println(n);
 				for (int i = 0; i < n; i++) {
-					y[i] = (int) (this.getProcessing() + sum_b - this.getStart().get(idResource.get(i))*n)/n ;
+					y[i] = (int) (this.getProcessing() + sum_b - (this.getStart().get(idResource.get(i))+ this.getDistance().get(idResource.get(i)))*n)/n ;
 				}
 				int residual = this.getProcessing() - IntStream.of(y).sum();
 				List<Integer> chosen = idResource.subList(0, n);
 //				System.out.println(chosen);
-				for (int i = 0; i < this.getDistance().size(); i++) {
-					int id = this.getDistance().get(i).getKey();
+				for (Map.Entry<Integer, Integer> dist : this.getDistance().entrySet()) {
+					int id = dist.getKey();
 					if(residual >0 && chosen.contains(id)){
-						y[id] += 1;
-						residual -= 1;						
+						y[idResource.indexOf(id)] += 1;
+						residual -= 1;
+//						System.out.println(idResource.indexOf(id) + ", " + chosen);
 					}					
 				}
 				
@@ -155,7 +165,7 @@ public class TenantS {
 
 				break;
 			}else{
-				sum_b -= this.getStart().get(idResource.get(n-1));
+				sum_b -= (this.getStart().get(idResource.get(n-1)) + this.getDistance().get(idResource.get(n-1)));
 			}
 		}
 		return y;
@@ -177,11 +187,11 @@ public class TenantS {
 		this.end = end;
 	}
 
-	public List<Map.Entry<Integer,Integer>> getDistance() {
+	public Map<Integer,Integer> getDistance() {
 		return distance;
 	}
 
-	public void setDistance(List<Map.Entry<Integer,Integer>> distance) {
+	public void setDistance(Map<Integer,Integer> distance) {
 		this.distance = distance;
 	}
 	
