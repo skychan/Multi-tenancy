@@ -1,3 +1,4 @@
+import java.io.ObjectInputStream.GetField;
 import java.util.*;
 
 public class Alice {
@@ -46,12 +47,29 @@ public class Alice {
 
 		
 		/**
-		 * II. Filling each resource repeatedly according to tenant timeline.
+		 * II. Filling each resource repeatedly according to tenant time line sequence.
 		 */
 		int timetick = 0; // start with 0
+//		int container = 5; // determine container numbers
 		for (TenantS t : tenants) {
 			int p = t.getProcessing();
 			int r = t.getRelease();
+			
+			// determine the starts
+			Map<Integer,Integer> start = new HashMap<Integer,Integer>();
+			for (Resource resource : resources) {
+				int id = resource.getId();
+				int a = resource.getAvailable();
+				start.put(id,Math.max(a, r));
+			}
+			t.setStart(start);
+			
+			
+			List<Integer> id_resource_candidates = t.getNearest(resources);
+//			System.out.println(Arrays.toString(id_resource_candidates));
+			int[] y = t.fill(id_resource_candidates);
+			
+			System.out.println(Arrays.toString(y) + ", " + t.getProcessing());
 		}
 		
 		
