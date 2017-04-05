@@ -65,12 +65,28 @@ public class Alice {
 			t.setStart(start);
 			
 			
-			List<Integer> id_resource_candidates = t.getNearest(resources);
+			List<Integer> id_resource_candidates = t.getNearest(resources).subList(0, 5);
 //			System.out.println(id_resource_candidates);
 //			System.out.println(Arrays.toString(id_resource_candidates));
 			int[] y = t.fill(id_resource_candidates);
 			
 			System.out.println(Arrays.toString(y) + ", " + t.getProcessing());
+			
+			// update available and ends
+			Map<Integer, Integer> end = new HashMap<Integer, Integer>();
+			for (int i = 0; i < y.length; i++) {
+				if (y[i] >0) {
+					int id = id_resource_candidates.get(i);
+					int old_a = resources.get(id).getAvailable();
+					resources.get(id).setAvailable(old_a + y[i]);
+					
+					end.put(id, start.get(id) + y[i] + t.getDistance().get(id));
+				}
+			}
+			
+			t.setEnd(end);
+			System.out.println(end);
+			
 		}
 		
 		
