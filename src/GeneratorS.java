@@ -24,13 +24,13 @@ public class GeneratorS {
 		return resources;
 	}
 
-	public List<TenantS> generateTenants(int nbTenant, List<Resource> res){
+	public List<TenantS> generateTenants(int nbTenant){
 		List<TenantS> tenants = new ArrayList<TenantS>();
 		for (int i = 0; i < nbTenant; i++) {
 			int x = generator.nextInt(this.getWidth());
 			int y = generator.nextInt(this.getHeight());
 			
-			TenantS tenant = new TenantS(x,y,res);
+			TenantS tenant = new TenantS(x,y);
 			tenant.setId(i);
 			
 			tenant.setRelease(generator.nextInt(this.getMaxTime()));

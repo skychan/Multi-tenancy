@@ -32,7 +32,7 @@ public class Alice {
 		gen.setMaxTime(maxTime);
 		gen.setMaxProcessing(maxProcessing);
 		
-		List<TenantS> tenants = gen.generateTenants(nbTenant, resources);
+		List<TenantS> tenants = gen.generateTenants(nbTenant);
 		
 		/*
 		 * Set up time line, sorting it by release time

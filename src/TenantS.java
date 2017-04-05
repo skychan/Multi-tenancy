@@ -9,9 +9,29 @@ public class TenantS {
 	private Integer release;
 	private List<Map.Entry<Integer,Integer>> list;
 	
-	public TenantS(int x, int y, List<Resource> resources) {
+	// sorting the nearest location with constructor?
+	public TenantS(int x, int y) {
 		this.setX(x);
 		this.setY(y);
+//		Map<Integer, Integer> distances = new HashMap<Integer, Integer>();
+//		int dist = 0;
+//		for (Resource resource : resources) {
+//			dist = (int) Math.sqrt(Math.pow(this.getX()-resource.getX(),2) + Math.pow(this.getY()-resource.getY(), 2));
+//			distances.put(resource.getId(), dist);
+//		}
+//		
+//		this.list = new ArrayList<Map.Entry<Integer,Integer>>(distances.entrySet());
+//		
+//		Collections.sort(this.list, new Comparator<Map.Entry<Integer, Integer>>() {
+//			public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2)
+//			{
+//				return o1.getValue().compareTo(o2.getValue());
+//			}
+//		});
+//		
+	}
+	
+	public List<Map.Entry<Integer, Integer>> getNearest(List<Resource> resources){
 		Map<Integer, Integer> distances = new HashMap<Integer, Integer>();
 		int dist = 0;
 		for (Resource resource : resources) {
@@ -28,7 +48,10 @@ public class TenantS {
 			}
 		});
 		
+		return list;
 	}
+	
+	
 	
 	public int getId() {
 		return id;
