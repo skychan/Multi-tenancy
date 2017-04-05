@@ -34,7 +34,7 @@ public class GeneratorS {
 			tenant.setId(i);
 			
 			tenant.setRelease(generator.nextInt(this.getMaxTime()));
-			tenant.setProcessing(generator.nextInt(this.getMaxProcessing()));
+			tenant.setProcessing(generator.nextInt(this.getMaxProcessing())+1);
 			
 			tenants.add(tenant);
 		}

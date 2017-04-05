@@ -4,8 +4,9 @@ import java.util.*;
 public class TenantS {
 	private int id;
 	private int x,y;
-	private int processing, release;
+	private int processing;
 	private int start, end;
+	private Integer release;
 	private List<Map.Entry<Integer,Integer>> list;
 	
 	public TenantS(int x, int y, List<Resource> resources) {
@@ -42,11 +43,11 @@ public class TenantS {
 	public void setProcessing(int processing) {
 		this.processing = processing;
 	}
-	public int getRelease() {
+	public Integer getRelease() {
 		return release;
 	}
 	public void setRelease(int release) {
-		this.release = release;
+		this.release = new Integer(release);
 	}
 	public int getStart() {
 		return start;

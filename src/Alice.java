@@ -35,12 +35,24 @@ public class Alice {
 		List<TenantS> tenants = gen.generateTenants(nbTenant, resources);
 		
 		/*
-		 * Set up timeline
+		 * Set up time line, sorting it by release time
 		 */
+		Collections.sort(tenants, new Comparator<TenantS>(){
+			public int compare(TenantS o1, TenantS o2){
+				return o1.getRelease().compareTo(o2.getRelease());
+			}
+		});
+		
+
 		
 		/**
 		 * II. Filling each resource repeatedly according to tenant timeline.
 		 */
+		int timetick = 0; // start with 0
+		for (TenantS t : tenants) {
+			int p = t.getProcessing();
+			int r = t.getRelease();
+		}
 		
 		
 		// Need to find a way to solve the problem of perfect 
