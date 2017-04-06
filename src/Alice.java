@@ -44,13 +44,10 @@ public class Alice {
 			}
 		});
 		
-
-		
 		/**
 		 * II. Filling each resource repeatedly according to tenant time line sequence.
 		 */
-		int timetick = 0; // start with 0
-//		int container = 5; // determine container numbers
+		int container = 5; // determine container numbers
 		for (TenantS t : tenants) {
 			int p = t.getProcessing();
 			int r = t.getRelease();
@@ -60,12 +57,14 @@ public class Alice {
 			for (Resource resource : resources) {
 				int id = resource.getId();
 				int a = resource.getAvailable();
+//				System.out.print(a+ ",");
 				start.put(id,Math.max(a, r));
 			}
 			t.setStart(start);
+			System.out.println(start + ", " + r);
 			
-			
-			List<Integer> id_resource_candidates = t.getNearest(resources).subList(0, 5);
+			t.setDistance(resources);
+			List<Integer> id_resource_candidates = t.getNearest(resources).subList(0, container);
 //			System.out.println(id_resource_candidates);
 //			System.out.println(Arrays.toString(id_resource_candidates));
 			int[] y = t.fill(id_resource_candidates);
@@ -89,7 +88,7 @@ public class Alice {
 			
 		}
 		
-		
+
 		// Need to find a way to solve the problem of perfect 
 	}
 
