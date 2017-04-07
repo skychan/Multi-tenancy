@@ -9,7 +9,9 @@ public class TenantC extends Tenant {
 	private List<TenantS> tenants;
 	private Map<Integer,List<Integer>> predecessors;
 //	private List<Integer> services;
-	
+//	public TenantC(int id) {
+//		super(id);
+//	}
 	public TenantC(int x, int y, int id) {
 		super(x, y, id);
 		this.setSuccessors(new ArrayList<int[]>());
@@ -28,7 +30,7 @@ public class TenantC extends Tenant {
 			for (int i = 0; i < this.getNbTnents(); i++) {
 				int processing = data.next();
 //				this.getProcessing().add(data.next());
-				TenantS subt = new TenantS(this.getX(), this.getY(), this.getId(), i);
+				TenantS subt = new TenantS(this.getX(), this.getY(), i, this.getId());
 				subt.setProcessing(processing);
 				for (int j = 0; j < this.getNbServices(); j++) {
 					int amount = data.next();

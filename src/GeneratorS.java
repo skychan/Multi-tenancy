@@ -9,6 +9,10 @@ public class GeneratorS extends Generator{
 	public GeneratorS(int width, int height, int seed) {
 		super(width, height, seed);
 	}
+	
+	public int nextInt(int num) {
+		return this.generator.nextInt(num);
+	}
 	//	private int width, height;
 
 //	private int maxTime, maxProcessing;
@@ -17,26 +21,6 @@ public class GeneratorS extends Generator{
 //		this.setWidth(width);
 //		this.setHeight(height);
 //	}
-	public List<TenantS> generateTenants(int nbTenant){
-		List<TenantS> tenants = new ArrayList<TenantS>();
-		for (int i = 0; i < nbTenant; i++) {
-			int x = generator.nextInt(this.getWidth());
-			int y = generator.nextInt(this.getHeight());
-			
-			TenantS tenant = new TenantS(x,y,i);
-//			tenant.setId(i);
-			
-			tenant.setRelease(generator.nextInt(this.getMaxTime()));
-			tenant.setProcessing(generator.nextInt(this.getMaxProcessing())+1);
-			
-			tenants.add(tenant);
-		}
-		
-		return tenants;
-	}
-	
-
-
 	
 //	public int getWidth() {
 //		return width;

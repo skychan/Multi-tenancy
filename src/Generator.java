@@ -1,11 +1,13 @@
+import java.io.IOException;
 import java.util.*;
 
 public class Generator {
 
 	private int width, height;
 //	private Random generator = new Random(8);
-	private int maxTime, maxProcessing;
+	private int maxTime;
 	protected Random generator = new Random(8);
+	
 	public Generator(int width, int height){
 		this.setWidth(width);
 		this.setHeight(height);
@@ -16,7 +18,7 @@ public class Generator {
 		this.setHeight(height);
 		generator = new Random(seed);
 	}
-
+	
 	public int getWidth() {
 		return width;
 	}
@@ -41,14 +43,6 @@ public class Generator {
 		this.maxTime = maxTime;
 	}
 
-	public int getMaxProcessing() {
-		return maxProcessing;
-	}
-
-	public void setMaxProcessing(int maxProcessing) {
-		this.maxProcessing = maxProcessing;
-	}
-	
 	public List<Resource> generateResources(int num){
 		List<Resource> resources = new ArrayList<Resource>();
 		for (int i = 0; i < num; i++) {
@@ -59,6 +53,32 @@ public class Generator {
 			resources.add(L);
 		}
 		return resources;
+	}
+	
+	public int[] generateReleaseTime(int nbTenant) {
+		int[] release = new int[nbTenant];
+		for (int i = 0; i < nbTenant; i++) {
+			release[i] = generator.nextInt(this.getMaxTime());
+		}
+		return release;
+	}
+	
+	public List<TenantS> generateTenants(int[] processing){
+		List<TenantS> tenants = new ArrayList<TenantS>();
+		for (int i = 0; i < processing.length; i++) {
+			int x = generator.nextInt(this.getWidth());
+			int y = generator.nextInt(this.getHeight());
+			
+			TenantS tenant = new TenantS(x,y,i);
+//			tenant.setId(i);
+			
+//			tenant.setRelease(generator.nextInt(this.getMaxTime()));
+			tenant.setProcessing(processing[i]);
+			
+			tenants.add(tenant);
+		}
+		
+		return tenants;
 	}
 	
 	

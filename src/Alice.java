@@ -1,9 +1,11 @@
+import java.io.File;
+import java.io.IOException;
 import java.io.ObjectInputStream.GetField;
 import java.util.*;
 
 public class Alice {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		/**
 		 * 
 		 * I. Initialization 
@@ -29,13 +31,25 @@ public class Alice {
 		 * Tenant follows
 		 */
 		int maxTime = 100;
-		int maxProcessing = 10;
-		int nbTenant = 8;
 		gen.setMaxTime(maxTime);
-		gen.setMaxProcessing(maxProcessing);
 		
-		List<TenantS> tenants = gen.generateTenants(nbTenant);
 		
+		String fileprefix = "data/j30rcp/";
+			
+		File dir = new File(fileprefix);
+		File[] files = dir.listFiles();
+//		List<TenantC> tenants = new ArrayList<TenantC>();
+		
+		String filename = files[gen.nextInt(files.length)].getName();
+		int[] processing = ReadData(fileprefix + filename);
+
+		
+		List<TenantS> tenants = gen.generateTenants(processing);
+		int [] release = gen.generateReleaseTime(tenants.size());
+		
+		for (int i = 0; i < release.length; i++) {
+			tenants.get(i).setRelease(release[i]);
+		}
 		/*
 		 * Set up time line, sorting it by release time
 		 */
@@ -48,9 +62,8 @@ public class Alice {
 		/**
 		 * II. Filling each resource repeatedly according to tenant time line sequence.
 		 */
-		int container = 5; // determine container numbers
+		int container = 4; // determine container numbers
 		for (TenantS t : tenants) {
-			int p = t.getProcessing();
 			int r = t.getRelease();
 			
 			// determine the starts
@@ -92,6 +105,36 @@ public class Alice {
 		
 
 		// Need to find a way to solve the problem of perfect 
+	}
+	
+	public static int[] ReadData(String filename) throws IOException {
+		DataReader data = new DataReader(filename);
+		try {
+			int nbTenant = data.next();
+			int nbService = data.next();
+			int[] processing = new int[nbTenant];
+			for (int i = 0; i < nbService; i++) {
+				data.next();
+			}
+			for (int i = 0; i < nbTenant; i++) {
+				processing[i] = data.next();
+//				this.getProcessing().add(data.next());
+				for (int j = 0; j < nbService; j++) {
+					data.next();
+				}
+				int nbSuccessors = data.next();
+				for (int j = 0; j < nbSuccessors; j++) {
+					data.next();
+				}
+				
+			}
+			return processing;
+		} catch (IOException e) {
+			// TODO: handle exception
+			System.err.println("Error: " + e);
+			return null;
+		}
+		
 	}
 
 }
