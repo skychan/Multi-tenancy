@@ -7,9 +7,10 @@ public class Tenant {
 	
 	private Integer release;
 	private Map<Integer,Integer> distance;	
-	public Tenant(int x, int y) {
+	public Tenant(int x, int y, int id) {
 		this.setX(x);
 		this.setY(y);
+		this.setId(id);
 	}
 	
 	public int getX() {
@@ -29,10 +30,10 @@ public class Tenant {
 		return distance;
 	}
 
-	public void setDistance(List<Resource> resources) {
+	public void setDistance(Service resources) {
 		Map<Integer, Integer> distances = new HashMap<Integer, Integer>();
 //		 list = new ArrayList<Map.Entry<Integer,Integer>>(distanceplus.entrySet());
-		for (Resource resource : resources) {
+		for (Resource resource : resources.getResources()) {
 			int dist = (int) Math.sqrt(Math.pow(this.getX()-resource.getX(),2) + Math.pow(this.getY()-resource.getY(), 2));
 			int id = resource.getId();
 //			distanceplus.put(id, dist + this.getStart().get(id));

@@ -22,7 +22,8 @@ public class Alice {
 		 * Resource first
 		 */
 		int nbResource = 7;
-		List<Resource> resources =  gen.generateResources(nbResource);
+		Service resources =  new Service(0);
+		resources.setResources(gen.generateResources(nbResource));
 		
 		/*
 		 * Tenant follows
@@ -54,7 +55,7 @@ public class Alice {
 			
 			// determine the starts
 			Map<Integer,Integer> start = new HashMap<Integer,Integer>();
-			for (Resource resource : resources) {
+			for (Resource resource : resources.getResources()) {
 				int id = resource.getId();
 				int a = resource.getAvailable();
 //				System.out.print(a+ ",");
@@ -64,27 +65,28 @@ public class Alice {
 			System.out.println(start + ", " + r);
 			
 			t.setDistance(resources);
-			List<Integer> id_resource_candidates = t.getNearest(resources).subList(0, container);
+//			List<Integer> id_resource_candidates = t.getNearest(resources).subList(0, container);
 //			System.out.println(id_resource_candidates);
 //			System.out.println(Arrays.toString(id_resource_candidates));
-			int[] y = t.fill(id_resource_candidates);
+			Map<Integer, Integer> y = t.fill(resources,container);
 			
-			System.out.println(Arrays.toString(y) + ", " + t.getProcessing());
+			System.out.println(y.values() + ", " + t.getProcessing());
 			
 			// update available and ends
-			Map<Integer, Integer> end = new HashMap<Integer, Integer>();
-			for (int i = 0; i < y.length; i++) {
-				if (y[i] >0) {
-					int id = id_resource_candidates.get(i);
-					int old_a = resources.get(id).getAvailable();
-					resources.get(id).setAvailable(old_a + y[i]);
-					
-					end.put(id, start.get(id) + y[i] + t.getDistance().get(id));
-				}
-			}
-			
-			t.setEnd(end);
-			System.out.println(end);
+//			Map<Integer, Integer> end = new HashMap<Integer, Integer>();
+//			for (int i = 0; i < y.length; i++) {
+//				if (y[i] >0) {
+//					int id = id_resource_candidates.get(i);
+//					int old_a = resources.get(id).getAvailable();
+//					resources.get(id).setAvailable(old_a + y[i]);
+//					
+//					end.put(id, start.get(id) + y[i] + t.getDistance().get(id));
+//				}
+//			}
+//			
+//			t.setEnd(end);
+//			System.out.println(t.getStart());
+			System.out.println(t.getEnd());
 			
 		}
 		

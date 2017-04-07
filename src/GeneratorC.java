@@ -18,6 +18,20 @@ public class GeneratorC extends Generator{
 //			System.err.println("Error: " + e);
 //		}
 	}
+	public GeneratorC(int width, int height, int seed) {
+		super(width, height, seed);
+	}
 	
+	public List<Service> generateServices(int num) {
+		List<Service> services = new ArrayList<Service>();
+		
+		for (int i = 0; i < num; i++) {
+			int nbResource = generator.nextInt(6) + 1;
+			Service S = new Service(i);
+			S.setResources(this.generateResources(nbResource));
+			services.add(S);
+		}		
+		return services;
+	}
 
 }
