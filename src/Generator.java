@@ -70,11 +70,7 @@ public class Generator {
 			int y = generator.nextInt(this.getHeight());
 			
 			TenantS tenant = new TenantS(x,y,i);
-//			tenant.setId(i);
-			
-//			tenant.setRelease(generator.nextInt(this.getMaxTime()));
 			tenant.setProcessing(processing[i]);
-			
 			tenants.add(tenant);
 		}
 		

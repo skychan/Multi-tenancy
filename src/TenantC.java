@@ -4,7 +4,7 @@ import java.util.*;
 public class TenantC extends Tenant {
 
 	private int nbTnents, nbServices;
-//	private List<Integer> processing;
+	private int[] processings;
 	private List<int[]> successors;
 	private List<TenantS> tenants;
 	private Map<Integer,List<Integer>> predecessors;
@@ -24,14 +24,15 @@ public class TenantC extends Tenant {
 		try {
 			this.setNbTnents(data.next());
 			this.setNbServices(data.next());
+			this.setProcessings(new int[this.getNbTnents()]);
 			for (int i = 0; i < this.getNbServices(); i++) {
 				data.next();
 			}
 			for (int i = 0; i < this.getNbTnents(); i++) {
-				int processing = data.next();
+				this.getProcessings()[i] = data.next();
 //				this.getProcessing().add(data.next());
 				TenantS subt = new TenantS(this.getX(), this.getY(), i, this.getId());
-				subt.setProcessing(processing);
+				subt.setRelease(this.getRelease());
 				for (int j = 0; j < this.getNbServices(); j++) {
 					int amount = data.next();
 					if (amount > 0) {
@@ -112,6 +113,14 @@ public class TenantC extends Tenant {
 
 	public void setPredecessors(Map<Integer, List<Integer>> predecessors) {
 		this.predecessors = predecessors;
+	}
+
+	public int[] getProcessings() {
+		return processings;
+	}
+
+	public void setProcessings(int[] processings) {
+		this.processings = processings;
 	}
 
 }
