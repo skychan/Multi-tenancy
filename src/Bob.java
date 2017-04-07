@@ -36,6 +36,8 @@ public class Bob {
 			
 			
 		}
+		
+		
 		System.out.println("没毛病，law tear");
 		
 	}

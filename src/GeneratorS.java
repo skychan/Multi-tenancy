@@ -13,6 +13,20 @@ public class GeneratorS extends Generator{
 	public int nextInt(int num) {
 		return this.generator.nextInt(num);
 	}
+	
+	public List<TenantS> generateTenants(int[] processing){
+		List<TenantS> tenants = new ArrayList<TenantS>();
+		for (int i = 0; i < processing.length; i++) {
+			int x = generator.nextInt(this.getWidth());
+			int y = generator.nextInt(this.getHeight());
+			
+			TenantS tenant = new TenantS(x,y,i);
+			tenant.setProcessing(processing[i]);
+			tenants.add(tenant);
+		}
+		
+		return tenants;
+	}
 	//	private int width, height;
 
 //	private int maxTime, maxProcessing;

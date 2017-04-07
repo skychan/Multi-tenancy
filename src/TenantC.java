@@ -8,6 +8,9 @@ public class TenantC extends Tenant {
 	private List<int[]> successors;
 	private List<TenantS> tenants;
 	private Map<Integer,List<Integer>> predecessors;
+	
+	private boolean[] finish;
+	
 //	private List<Integer> services;
 //	public TenantC(int id) {
 //		super(id);
@@ -25,6 +28,7 @@ public class TenantC extends Tenant {
 			this.setNbTnents(data.next());
 			this.setNbServices(data.next());
 			this.setProcessings(new int[this.getNbTnents()]);
+			this.setFinish(new boolean[this.getNbTnents()]);
 			for (int i = 0; i < this.getNbServices(); i++) {
 				data.next();
 			}
@@ -122,5 +126,14 @@ public class TenantC extends Tenant {
 	public void setProcessings(int[] processings) {
 		this.processings = processings;
 	}
+
+	public boolean[] getFinish() {
+		return finish;
+	}
+
+	public void setFinish(boolean[] finish) {
+		this.finish = finish;
+	}
+
 
 }
