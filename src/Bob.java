@@ -9,7 +9,7 @@ public class Bob {
 		int nbService = 4;
 		int nbTenant = 9;
 		int maxTime = 100;
-		String fileprefix = "data/j30rcp/";
+		String fileprefix = "test/";
 		
 		GeneratorC gen = new GeneratorC(width, height, 8);
 		gen.setMaxTime(maxTime);

@@ -34,7 +34,7 @@ public class Alice {
 		gen.setMaxTime(maxTime);
 		
 		
-		String fileprefix = "data/j30rcp/";
+		String fileprefix = "test/";
 			
 		File dir = new File(fileprefix);
 		File[] files = dir.listFiles();
