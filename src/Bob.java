@@ -19,6 +19,10 @@ public class Bob {
 		 */
 		List<Service> services = gen.generateServices(nbService);
 		/*
+		 * Construct active list
+		 */
+		List<TenantS> active = new LinkedList<TenantS>();
+		/*
 		 * Generate Complex Tenant
 		 */
 		File dir = new File(fileprefix);
@@ -33,9 +37,18 @@ public class Bob {
 			TenantC t = new TenantC(width, height, i);
 			t.setRelease(release[i]);
 			t.ReadData(fileprefix + filename);
-			
-			
+			active.add(t.get(0));
 		}
+		
+		Collections.sort(active, new Comparator<TenantS>(){
+			public int compare(TenantS o1, TenantS o2){
+				return o1.getRelease().compareTo(o2.getRelease());
+			}
+		});
+		
+		
+		System.out.println(active);
+		
 		
 		
 		System.out.println("没毛病，law tear");

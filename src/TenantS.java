@@ -5,8 +5,9 @@ import java.util.stream.IntStream;
 public class TenantS extends Tenant {
 	
 	private int processing;
-	private Map<Integer,Integer> start, end;
+	private Map<Integer, Integer> start, end;
 	private int superid, servicetype;
+	private Map<Integer, Integer> predends;
 
 	// sorting the nearest location with constructor?
 	public TenantS(int x, int y, int id) {
@@ -178,5 +179,10 @@ public class TenantS extends Tenant {
 
 	public void setServicetype(int servicetype) {
 		this.servicetype = servicetype;
+	}
+
+	@Override
+	public String toString() {
+		return "Tenant " + superid + "-" + this.getId();
 	}
 }
