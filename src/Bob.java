@@ -47,7 +47,17 @@ public class Bob {
 		});
 		
 		
-		System.out.println(active);
+//		System.out.println(active);
+		while (!active.isEmpty()) {
+			List<TenantS> tempList = new LinkedList<>(active);
+			for (TenantS t : tempList) {
+				// process
+				// fill
+				// grab new out and insert right position
+				// remove itself from active
+			}
+			
+		}
 		
 		
 		
