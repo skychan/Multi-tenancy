@@ -62,15 +62,12 @@ public class Bob {
 			for (int j : succid) {
 				TenantS tS = tC.getTenants().get(j);
 				tS.setRelease(releaseTime);
-//				Map<Integer, Integer> starts = new HashMap<Integer, Integer>();
 				for (Resource resource : services.get(tS.getServicetype()).getResources()) {
 					tS.setStart(resource.getId(), releaseTime);
 				}
 				
 				active.add(tS);
-			}
-//			active.add(t.get(2));
-			
+			}			
 		}
 		
 		
