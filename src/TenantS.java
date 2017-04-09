@@ -12,11 +12,13 @@ public class TenantS extends Tenant {
 	// sorting the nearest location with constructor?
 	public TenantS(int x, int y, int id) {
 		super(x,y,id);
+		this.setStart(new HashMap<Integer, Integer>());
 	}
 	
 	public TenantS(int x, int y, int id, int superid) {
 		super(x,y,id);
 		this.setSuperid(superid);
+		this.setStart(new HashMap<Integer, Integer>());
 	}
 	
 	public List<Integer> getNearest(Service service){
@@ -73,53 +75,58 @@ public class TenantS extends Tenant {
 	
 	
 	public Map<Integer, Integer> fill(Service service, int n_max){
-		List<Integer> sortedResource = this.getNearest(service);
-//		System.out.println(service.size());
-//		int n_max = idResource.size();
-		int sum_b = 0;
-		int[] y = new int[service.size()];
-		
-		for (int i = 0; i< n_max ; i++) {
-			int id = sortedResource.get(i);
-			sum_b += (this.getStart().get(id) + this.getDistance().get(id));
-		}
-//		System.out.println(sum_b);
-
-		for (int n = n_max; n > 0; n--) {
-			int y_n = this.getProcessing() + sum_b - (this.getStart().get(sortedResource.get(n-1)) + this.getDistance().get(sortedResource.get(n-1)))*n;
-//			System.out.println(y_n);
-			if(y_n >= n){
-//				System.out.println(n);
-				for (int i = 0; i < n; i++) {
-					y[i] = (int) (this.getProcessing() + sum_b - (this.getStart().get(sortedResource.get(i))+ this.getDistance().get(sortedResource.get(i)))*n)/n ;
-				}
-				int residual = this.getProcessing() - IntStream.of(y).sum();
-				List<Integer> chosen = sortedResource.subList(0, n);
-//				System.out.println(chosen);
-				for (Map.Entry<Integer, Integer> dist : this.getDistance().entrySet()) {
-					int id = dist.getKey();
-					if(residual >0 && chosen.contains(id)){
-						y[sortedResource.indexOf(id)] += 1;
-						residual -= 1;
-//						System.out.println(idResource.indexOf(id) + ", " + chosen);
-					}
-				}
-				
-//				System.out.println(residual);
-
-				break;
-			}else{
-				sum_b -= (this.getStart().get(sortedResource.get(n-1)) + this.getDistance().get(sortedResource.get(n-1)));
+		if (this.getProcessing() == 0) {
+			return null;
+		}else{
+			List<Integer> sortedResource = this.getNearest(service);
+	//		System.out.println(service.size());
+	//		int n_max = idResource.size();
+			int sum_b = 0;
+			int[] y = new int[service.size()];
+			
+			for (int i = 0; i< n_max ; i++) {
+				int id = sortedResource.get(i);
+				sum_b += (this.getStart().get(id) + this.getDistance().get(id));
 			}
+	//		System.out.println(sum_b);
+
+			for (int n = n_max; n > 0; n--) {
+				int y_n = this.getProcessing() + sum_b - (this.getStart().get(sortedResource.get(n-1)) + this.getDistance().get(sortedResource.get(n-1)))*n;
+	//			System.out.println(y_n);
+				if(y_n >= n){
+	//				System.out.println(n);
+					for (int i = 0; i < n; i++) {
+						y[i] = (int) (this.getProcessing() + sum_b - (this.getStart().get(sortedResource.get(i))+ this.getDistance().get(sortedResource.get(i)))*n)/n ;
+					}
+					int residual = this.getProcessing() - IntStream.of(y).sum();
+					List<Integer> chosen = sortedResource.subList(0, n);
+	//				System.out.println(chosen);
+					for (Map.Entry<Integer, Integer> dist : this.getDistance().entrySet()) {
+						int id = dist.getKey();
+						if(residual >0 && chosen.contains(id)){
+							y[sortedResource.indexOf(id)] += 1;
+							residual -= 1;
+	//						System.out.println(idResource.indexOf(id) + ", " + chosen);
+						}
+					}
+					
+	//				System.out.println(residual);
+
+					break;
+				}else{
+					sum_b -= (this.getStart().get(sortedResource.get(n-1)) + this.getDistance().get(sortedResource.get(n-1)));
+				}
+			}
+			Map<Integer, Integer> result = new HashMap<Integer, Integer>();
+			for (int i = 0; i < y.length; i++) {
+				result.put(sortedResource.get(i), y[i]);
+			}
+	//		System.out.println(Arrays.toString(y));
+			this.update(result, service);
+			
+			return result;		
 		}
-		Map<Integer, Integer> result = new HashMap<Integer, Integer>();
-		for (int i = 0; i < y.length; i++) {
-			result.put(sortedResource.get(i), y[i]);
-		}
-//		System.out.println(Arrays.toString(y));
-		this.update(result, service);
 		
-		return result;		
 	}
 	
 	public void update(Map<Integer, Integer> allocation, Service service){
@@ -143,6 +150,10 @@ public class TenantS extends Tenant {
 
 	public void setStart(Map<Integer, Integer> start) {
 		this.start = start;
+	}
+	
+	public void setStart(int id, int time) {
+		this.getStart().put(id, time);
 	}
 
 	public Map<Integer, Integer> getEnd() {

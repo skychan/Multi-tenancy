@@ -134,6 +134,10 @@ public class TenantC extends Tenant {
 	public void setFinish(boolean[] finish) {
 		this.finish = finish;
 	}
+	
+	public void finish(int i) {
+		this.finish[i] = true;
+	}
 
 
 }

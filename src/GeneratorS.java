@@ -19,7 +19,6 @@ public class GeneratorS extends Generator{
 		for (int i = 0; i < processing.length; i++) {
 			int x = generator.nextInt(this.getWidth());
 			int y = generator.nextInt(this.getHeight());
-			
 			TenantS tenant = new TenantS(x,y,i);
 			tenant.setProcessing(processing[i]);
 			tenants.add(tenant);
@@ -27,45 +26,4 @@ public class GeneratorS extends Generator{
 		
 		return tenants;
 	}
-	//	private int width, height;
-
-//	private int maxTime, maxProcessing;
-	
-//	public GeneratorS(int width, int height){
-//		this.setWidth(width);
-//		this.setHeight(height);
-//	}
-	
-//	public int getWidth() {
-//		return width;
-//	}
-//
-//	public void setWidth(int width) {
-//		this.width = width;
-//	}
-//
-//	public int getHeight() {
-//		return height;
-//	}
-//
-//	public void setHeight(int height) {
-//		this.height = height;
-//	}
-//
-//	public int getMaxTime() {
-//		return maxTime;
-//	}
-//
-//	public void setMaxTime(int maxTime) {
-//		this.maxTime = maxTime;
-//	}
-//
-//	public int getMaxProcessing() {
-//		return maxProcessing;
-//	}
-//
-//	public void setMaxProcessing(int maxProcessing) {
-//		this.maxProcessing = maxProcessing;
-//	}
-
 }
