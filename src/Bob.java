@@ -51,25 +51,35 @@ public class Bob {
 		
 		PriorityQueue<TenantS> active = new PriorityQueue<>(comparator);
 		
-		for (TenantC tC: tenants) {
-			String filename;
-			filename = files[rangen.nextInt(files.length)].getName();
-			
-			tC.ReadData(fileprefix + filename);
-			tC.finish(0);
-			int[] succid = tC.getSuccessors().get(0);
-			int releaseTime = tC.getRelease();
-			for (int j : succid) {
-				TenantS tS = tC.getTenants().get(j);
-				tS.setRelease(releaseTime);
-				for (Resource resource : services.get(tS.getServicetype()).getResources()) {
-					tS.setStart(resource.getId(), releaseTime);
-				}
-				
-				active.add(tS);
-			}			
-		}
+//		for (TenantC tC: tenants) {
+//			String filename;
+//			filename = files[rangen.nextInt(files.length)].getName();
+//			
+//			tC.ReadData(fileprefix + filename);
+//			tC.finish(0);
+//			int[] succid = tC.getSuccessors().get(0);
+//			int releaseTime = tC.getRelease();
+//			for (int j : succid) {
+//				TenantS tS = tC.getTenants().get(j);
+//				tS.setRelease(releaseTime);
+//				for (Resource resource : services.get(tS.getServicetype()).getResources()) {
+//					tS.setStart(resource.getId(), releaseTime);
+//				}
+//				
+//				active.add(tS);
+//			}			
+//		}
 		
+		for (TenantC tC : tenants) {
+			String filename = files[rangen.nextInt(files.length)].getName();
+			tC.ReadData(fileprefix + filename);
+			TenantS tS = tC.get(0);
+			tS.setRelease(tC.getRelease());
+			tS.setStart(-1,tC.getRelease());
+			active.add(tS);
+			
+			
+		}
 		
 		
 		
@@ -77,20 +87,40 @@ public class Bob {
 		
 		int n_max = 3;
 		
-//		System.out.println(active);
+		System.out.println(active);
 		while (!active.isEmpty()) {
-			TenantS t = active.poll();
+			TenantS tS = active.poll();
+			TenantC tC = tenants.get(tS.getSuperid());
 			// set distances
-			t.setDistance(services.get(t.getServicetype()));
+			tS.setDistance(services.get(tS.getServicetype()));
 //			System.out.println(t.getDistance() + "," + t.getServicetype());
 			// process
 			// fill
-			t.fill(services.get(t.getServicetype()), n_max);
-//			System.out.println(t.getSuperid());
-			tenants.get(t.getSuperid()).finish(t.getId());
-			
-			
-			
+//			System.out.println(tS.getProcessing());
+			Map<Integer, Integer> y = tS.fill(services.get(tS.getServicetype()), n_max);
+//			System.out.println(y);
+			int end = tS.getEndWhole();
+			tC.finish(tS.getId());
+			// and to finish it
+			for (int sid : tC.getSuccessors().get(tS.getId())) { // check successor's predecessors
+				boolean c = true;
+				for (int pid : tC.getPredecessors().get(sid)) {
+					c &= tC.getFinish()[pid];
+				}
+				if (c) {
+					TenantS t = tC.get(sid);
+					// set release
+					t.setRelease(end);
+					// set start 
+					for (Resource resource : services.get(t.getServicetype()).getResources()) {
+						int id = resource.getId();
+						int a = resource.getAvailable();
+						t.setStart(id, Math.max(a, end));
+					}
+					// add to active
+					active.add(tC.get(sid));
+				}
+			} 
 		}
 		
 		

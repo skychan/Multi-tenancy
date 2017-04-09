@@ -13,12 +13,14 @@ public class TenantS extends Tenant {
 	public TenantS(int x, int y, int id) {
 		super(x,y,id);
 		this.setStart(new HashMap<Integer, Integer>());
+		this.setEnd(new HashMap<Integer, Integer>());
 	}
 	
 	public TenantS(int x, int y, int id, int superid) {
 		super(x,y,id);
 		this.setSuperid(superid);
 		this.setStart(new HashMap<Integer, Integer>());
+		this.setEnd(new HashMap<Integer, Integer>());
 	}
 	
 	public List<Integer> getNearest(Service service){
@@ -76,6 +78,7 @@ public class TenantS extends Tenant {
 	
 	public Map<Integer, Integer> fill(Service service, int n_max){
 		if (this.getProcessing() == 0) {
+			this.setEnd(-1, this.getRelease());
 			return null;
 		}else{
 			List<Integer> sortedResource = this.getNearest(service);
@@ -136,7 +139,6 @@ public class TenantS extends Tenant {
 				int id = d.getKey();
 				int old_a = service.get(id).getAvailable();
 				service.get(id).setAvailable(old_a + d.getValue());
-				
 				end.put(id, this.getStart().get(id) + d.getValue() + this.getDistance().get(id));
 			}
 		}
@@ -163,6 +165,11 @@ public class TenantS extends Tenant {
 	public void setEnd(Map<Integer, Integer> end) {
 		this.end = end;
 	}
+	
+	public void setEnd(int id, int end) {
+		this.getEnd().put(id, end);
+	}
+	
 	public int getProcessing() {
 		return processing;
 	}
@@ -173,6 +180,7 @@ public class TenantS extends Tenant {
 		return Collections.min(start.values());
 	}
 	public int getEndWhole() {
+//		System.out.println(end);
 		return Collections.max(end.values());
 	}
 

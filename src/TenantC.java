@@ -33,10 +33,12 @@ public class TenantC extends Tenant {
 				data.next();
 			}
 			for (int i = 0; i < this.getNbTnents(); i++) {
-				this.getProcessings()[i] = data.next();
+				int processing = data.next();
+				this.getProcessings()[i] = processing;
 //				this.getProcessing().add(data.next());
 				TenantS subt = new TenantS(this.getX(), this.getY(), i, this.getId());
 				subt.setRelease(this.getRelease());
+				subt.setProcessing(processing);
 				for (int j = 0; j < this.getNbServices(); j++) {
 					int amount = data.next();
 					if (amount > 0) {
@@ -46,7 +48,7 @@ public class TenantC extends Tenant {
 				int nbSuccessors = data.next();
 				int[] successors = new int[nbSuccessors];
 				for (int j = 0; j < nbSuccessors; j++) {
-					int succid = data.next();
+					int succid = data.next() - 1;
 					successors[j] = succid;
 					if (this.getPredecessors().containsKey(succid)) {
 						this.getPredecessors().get(succid).add(i);
