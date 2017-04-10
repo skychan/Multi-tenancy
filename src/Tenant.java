@@ -3,26 +3,26 @@ import java.util.stream.IntStream;
 
 public class Tenant {
 	private int id;
-	private int x,y;
+	private double x,y;
 	
 	private Integer release;
 	private Map<Integer,Integer> distance;	
-	public Tenant(int x, int y, int id) {
+	public Tenant(double x, double y, int id) {
 		this.setX(x);
 		this.setY(y);
 		this.setId(id);
 	}
 	
-	public int getX() {
+	public double getX() {
 		return x;
 	}
-	public void setX(int x) {
+	public void setX(double x) {
 		this.x = x;
 	}
-	public int getY() {
+	public double getY() {
 		return y;
 	}
-	public void setY(int y) {
+	public void setY(double y) {
 		this.y = y;
 	}
 
@@ -30,7 +30,7 @@ public class Tenant {
 		return distance;
 	}
 
-	public void setDistance(Service resources) {
+	public Map setDistance(Service resources) {
 		Map<Integer, Integer> distances = new HashMap<Integer, Integer>();
 //		 list = new ArrayList<Map.Entry<Integer,Integer>>(distanceplus.entrySet());
 		for (Resource resource : resources.getResources()) {
@@ -51,6 +51,9 @@ public class Tenant {
 			distance.put(ent.getKey(), ent.getValue());
 		}
 		this.distance = distance;
+		
+		
+		return distance;
 	}
 	public int getId() {
 		return id;

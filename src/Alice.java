@@ -25,7 +25,7 @@ public class Alice {
 		 */
 		int nbResource = 7;
 		Service resources =  new Service(0);
-		resources.setResources(gen.generateResources(nbResource));
+		resources.setResources(gen.generateResources(nbResource,0));
 		
 		/*
 		 * Tenant follows
@@ -84,21 +84,7 @@ public class Alice {
 			Map<Integer, Integer> y = t.fill(resources,container);
 			
 			System.out.println(y.values() + ", " + t.getProcessing());
-			
-			// update available and ends
-//			Map<Integer, Integer> end = new HashMap<Integer, Integer>();
-//			for (int i = 0; i < y.length; i++) {
-//				if (y[i] >0) {
-//					int id = id_resource_candidates.get(i);
-//					int old_a = resources.get(id).getAvailable();
-//					resources.get(id).setAvailable(old_a + y[i]);
-//					
-//					end.put(id, start.get(id) + y[i] + t.getDistance().get(id));
-//				}
-//			}
-//			
-//			t.setEnd(end);
-//			System.out.println(t.getStart());
+
 			System.out.println(t.getEnd());
 			
 		}

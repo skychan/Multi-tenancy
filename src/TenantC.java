@@ -8,14 +8,11 @@ public class TenantC extends Tenant {
 	private List<int[]> successors;
 	private List<TenantS> tenants;
 	private Map<Integer,List<Integer>> predecessors;
-	
+	private int start, end;
 	private boolean[] finish;
+	private int finish_counter = 0;
 	
-//	private List<Integer> services;
-//	public TenantC(int id) {
-//		super(id);
-//	}
-	public TenantC(int x, int y, int id) {
+	public TenantC(double x, double y, int id) {
 		super(x, y, id);
 		this.setSuccessors(new ArrayList<int[]>());
 		this.setTenants(new ArrayList<TenantS>());
@@ -35,16 +32,28 @@ public class TenantC extends Tenant {
 			for (int i = 0; i < this.getNbTnents(); i++) {
 				int processing = data.next();
 				this.getProcessings()[i] = processing;
-//				this.getProcessing().add(data.next());
 				TenantS subt = new TenantS(this.getX(), this.getY(), i, this.getId());
 				subt.setRelease(this.getRelease());
 				subt.setProcessing(processing);
-				for (int j = 0; j < this.getNbServices(); j++) {
-					int amount = data.next();
-					if (amount > 0) {
-						subt.setServicetype(j);
+				if (processing > 0) {
+//					List<Integer> amount = new ArrayList<Integer>();
+					for (int j = 0; j < this.getNbServices(); j++) {
+						int amount = data.next();
+						if (amount > 0) {
+							subt.setServicetype(j);
+						}
 					}
+//					subt.setServicetype(amount.indexOf((Collections.max(amount))));
+				} else {
+					for (int j = 0; j < this.getNbServices(); j++) {
+						data.next();
+//						if (amount > 0) {
+//							subt.setServicetype(j);
+//						}
+					}
+					subt.setServicetype(-1);
 				}
+				
 				int nbSuccessors = data.next();
 				int[] successors = new int[nbSuccessors];
 				for (int j = 0; j < nbSuccessors; j++) {
@@ -62,7 +71,6 @@ public class TenantC extends Tenant {
 				
 			}
 		} catch (IOException e) {
-			// TODO: handle exception
 			System.err.println("Error: " + e);
 		}
 	}
@@ -139,6 +147,41 @@ public class TenantC extends Tenant {
 	
 	public void finish(int i) {
 		this.finish[i] = true;
+		if( this.finish_counter == 1 ) {
+//			System.out.println(i);
+			this.setStart(this.get(i).getStartWhole());
+		} // set start 
+		
+		if( this.finish_counter == this.finish.length - 2) {
+			this.setEnd(this.get(i).getEndWhole());
+		} // set end
+		
+		this.finish_counter ++ ;
+	}
+
+	public int getStart() {
+		return start;
+	}
+
+	public void setStart(int start) {
+		this.start = start;
+	}
+
+	public int getEnd() {
+		return end;
+	}
+
+	public void setEnd(int end) {
+		this.end = end;
+	}
+
+//	@Override
+//	public String toString() {
+//		return "Tenant " + this.getId() + ", release=" + this.getRelease() +  ", start=" + start + ", end=" + end;
+//	}
+	@Override
+	public String toString() {
+		return Arrays.toString(this.getProcessings());
 	}
 
 

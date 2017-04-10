@@ -38,5 +38,12 @@ public class Service {
 	public void setResources(List<Resource> resources) {
 		this.resources = resources;
 	}
-
+	
+	public List getAvailable() {
+		List<Integer> available = new ArrayList<Integer>();
+		for (Resource res : this.getResources()) {
+			available.add(res.getAvailable());
+		}
+		return available;
+	}
 }

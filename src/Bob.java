@@ -3,12 +3,11 @@ import java.io.*;
 public class Bob {
 
 	public static void main(String[] args) throws IOException {
-		int width = 200;
-		int height = 200;
-		Random rangen = new Random(2);
-		int nbService = 4;
-		int nbTenant = 9;
-		int maxTime = 100;
+		int width = 20;
+		int height = 20;
+		int nbService = 10;
+		int nbTenant = 10;
+		int maxTime = 10;
 		String fileprefix = "test/";
 		
 		GeneratorC gen = new GeneratorC(width, height, 8);
@@ -24,15 +23,14 @@ public class Bob {
 		 */
 		File dir = new File(fileprefix);
 		File[] files = dir.listFiles();
-		List<TenantC> tenants = new ArrayList<TenantC>();
-		
 		
 		int[] release = gen.generateReleaseTime(nbTenant);
-		for (int i = 0; i < nbTenant; i++) {
-			TenantC t = new TenantC(width, height, i);
-			t.setRelease(release[i]);
-			tenants.add(t);
-		}
+		List<TenantC> tenants = gen.generateTenants(release);
+//		for (int i = 0; i < nbTenant; i++) {
+//			TenantC t = new TenantC(width, height, i);
+//			t.setRelease(release[i]);
+//			tenants.add(t);
+//		}
 		
 		/*
 		 * Use priority queue to store the simple tenants
@@ -71,14 +69,21 @@ public class Bob {
 //		}
 		
 		for (TenantC tC : tenants) {
-			String filename = files[rangen.nextInt(files.length)].getName();
+			String filename = files[gen.nextInt(files.length)].getName();
 			tC.ReadData(fileprefix + filename);
 			TenantS tS = tC.get(0);
 			tS.setRelease(tC.getRelease());
 			tS.setStart(-1,tC.getRelease());
 			active.add(tS);
-			
-			
+//			System.out.println(filename);
+//			System.out.println(tS);
+//			System.out.println(tC.getSuccessors());
+//			System.out.println(tC.getPredecessors());
+//			for (TenantS tenantS2 : tC.getTenants()) {
+//				System.out.print(tenantS2.getServicetype() + ",");
+//			}
+//			System.out.println(" ");
+//			
 		}
 		
 		
@@ -87,17 +92,30 @@ public class Bob {
 		
 		int n_max = 3;
 		
-		System.out.println(active);
+//		System.out.println(active);
 		while (!active.isEmpty()) {
 			TenantS tS = active.poll();
 			TenantC tC = tenants.get(tS.getSuperid());
+//			System.out.println(tS.getRelease() + ", " + tS.getSuperid());
 			// set distances
-			tS.setDistance(services.get(tS.getServicetype()));
+			if (tS.getProcessing() > 0) {
+				Map result = tS.setDistance(services.get(tS.getServicetype()));
+//				if (tS.getServicetype() == 3) {
+//					System.out.println(result);
+//				}
+				Map y = tS.fill(services.get(tS.getServicetype()), services.get(tS.getServicetype()).size());
+//				if (tS.getServicetype() == 3) {
+//					System.out.println(y + "," + tS.getProcessing());
+//				}
+			} else {
+				tS.setEnd(-1, tS.getRelease());
+			}
+			
 //			System.out.println(t.getDistance() + "," + t.getServicetype());
 			// process
 			// fill
 //			System.out.println(tS.getProcessing());
-			Map<Integer, Integer> y = tS.fill(services.get(tS.getServicetype()), n_max);
+//			Map<Integer, Integer> y = 
 //			System.out.println(y);
 			int end = tS.getEndWhole();
 			tC.finish(tS.getId());
@@ -107,7 +125,7 @@ public class Bob {
 				for (int pid : tC.getPredecessors().get(sid)) {
 					c &= tC.getFinish()[pid];
 				}
-				if (c) {
+				if (c && sid < tC.getTenants().size() - 1) {
 					TenantS t = tC.get(sid);
 					// set release
 					t.setRelease(end);
@@ -123,8 +141,17 @@ public class Bob {
 			} 
 		}
 		
+//		for (Service s : services) {
+//			System.out.println(s.getAvailable());
+//		}
+//		for (Resource res : services.get(3).getResources()) {
+//			System.out.println(res);
+//		}
 		
-		
+//		for (TenantC tC : tenants) {
+//			System.out.println(tC);
+//		}
+			
 		System.out.println("没毛病，law tear");
 		
 	}

@@ -1,6 +1,6 @@
 
 public class Resource {
-	private int x,y;
+	private double x,y;
 	private int id;
 	private int available;
 	private int sid;
@@ -9,19 +9,19 @@ public class Resource {
 		this.available = 0;
 	}
 
-	public int getX() {
+	public double getX() {
 		return x;
 	}
 
-	public void setX(int x) {
+	public void setX(double x) {
 		this.x = x;
 	}
 
-	public int getY() {
+	public double getY() {
 		return y;
 	}
 
-	public void setY(int y) {
+	public void setY(double y) {
 		this.y = y;
 	}
 
@@ -35,7 +35,7 @@ public class Resource {
 
 	@Override
 	public String toString() {
-		return "Location: "+ id + ", [x=" + x + ", y=" + y + "]";
+		return "Res " + sid + "-" + id + ", [x=" + x + ", y=" + y + "]";
 	}
 
 	public int getAvailable() {

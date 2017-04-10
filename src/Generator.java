@@ -43,13 +43,14 @@ public class Generator {
 		this.maxTime = maxTime;
 	}
 
-	public List<Resource> generateResources(int num){
+	public List<Resource> generateResources(int num, int sid){
 		List<Resource> resources = new ArrayList<Resource>();
 		for (int i = 0; i < num; i++) {
 			Resource L = new Resource();
 			L.setId(i);
-			L.setX(generator.nextInt(this.getWidth()));
-			L.setY(generator.nextInt(this.getHeight()));
+			L.setX(generator.nextDouble()*this.getWidth());
+			L.setY(generator.nextDouble()*this.getWidth());
+			L.setSid(sid);
 			resources.add(L);
 		}
 		return resources;
@@ -63,7 +64,9 @@ public class Generator {
 		return release;
 	}
 	
-	
+	public int nextInt(int num) {
+		return this.generator.nextInt(num);
+	}
 	
 	
 }

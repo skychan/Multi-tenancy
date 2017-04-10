@@ -10,10 +10,6 @@ public class GeneratorS extends Generator{
 		super(width, height, seed);
 	}
 	
-	public int nextInt(int num) {
-		return this.generator.nextInt(num);
-	}
-	
 	public List<TenantS> generateTenants(int[] processing){
 		List<TenantS> tenants = new ArrayList<TenantS>();
 		for (int i = 0; i < processing.length; i++) {

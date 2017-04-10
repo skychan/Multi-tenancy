@@ -26,12 +26,25 @@ public class GeneratorC extends Generator{
 		List<Service> services = new ArrayList<Service>();
 		
 		for (int i = 0; i < num; i++) {
-			int nbResource = generator.nextInt(6) + 1;
+			int nbResource = generator.nextInt(20) + 1;
 			Service S = new Service(i);
-			S.setResources(this.generateResources(nbResource));
+			S.setResources(this.generateResources(nbResource,i));
 			services.add(S);
+			
 		}		
 		return services;
+	}
+	
+	public List<TenantC> generateTenants(int[] releases) {
+		List<TenantC> tenants = new ArrayList<TenantC>();
+		for (int i = 0; i < releases.length; i++) {
+			double x = generator.nextDouble()*this.getWidth();
+			double y = generator.nextDouble()*this.getWidth();
+			TenantC tenant = new TenantC(x,y,i);
+			tenant.setRelease(releases[i]);
+			tenants.add(tenant);
+		}
+		return tenants;
 	}
 
 }
