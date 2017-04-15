@@ -68,6 +68,8 @@ public class Bob {
 //			}			
 //		}
 		
+		
+		
 		for (TenantC tC : tenants) {
 			String filename = files[gen.nextInt(files.length)].getName();
 			tC.ReadData(fileprefix + filename);
