@@ -91,6 +91,42 @@ public class Alice {
 		
 
 		// Need to find a way to solve the problem of perfect 
+		
+		
+		// initialize the original cell
+		List<Cell> stateSpace = new LinkedList<Cell>();
+		
+		/*
+		 * Define the cell comparator to sort the list for later new cells
+		 */
+		Comparator<Cell> cellComparator = new Comparator<Cell>() {
+			
+			@Override
+			public int compare(Cell o1, Cell o2) {
+				// TODO Auto-generated method stub
+				int c;
+				c = Integer.compare(o1.getNum_max(), o2.getNum_max());
+				if (c == 0) {
+					c = Integer.compare(o1.getGap_max(), o2.getGap_max());
+					if (c == 0) {
+						c = Integer.compare(o1.getP_max(), o2.getMean_max());
+						if (c == 0) {
+							c = Integer.compare(o1.getMean_max(), o2.getMean_max());
+							if (c == 0) {
+								c = Double.compare(o1.getVar_max(), o2.getVar_max());
+							}
+						}
+					}
+				}
+				
+				return c;
+			}
+		};
+		
+		// the origin cell
+		Cell originCell = new Cell();
+		
+		
 	}
 	
 	public static int[] ReadData(String filename) throws IOException {
