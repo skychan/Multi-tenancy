@@ -59,25 +59,43 @@ public class Alice {
 			}
 		});
 		
-		/**
-		 * II. Filling each resource repeatedly according to tenant time line sequence.
-		 */
-		int container = 4; // determine container numbers
 		for (TenantS t : tenants) {
 			int r = t.getRelease();
-			
-			// determine the starts
 			Map<Integer,Integer> start = new HashMap<Integer,Integer>();
 			for (Resource resource : resources.getResources()) {
 				int id = resource.getId();
 				int a = resource.getAvailable();
-//				System.out.print(a+ ",");
 				start.put(id,Math.max(a, r));
 			}
 			t.setStart(start);
-			System.out.println(start + ", " + r);
-			
 			t.setDistance(resources);
+		}
+		
+		// generate Tenants OK, use it as the learning template board
+		
+		
+		/**
+		 * II. Filling each resource repeatedly according to tenant time line sequence.
+		 */
+		int container; // = 4; // determine container numbers
+		for (TenantS t : tenants) {
+//			int r = t.getRelease();
+//			// determine the starts			
+//			Map<Integer,Integer> start = new HashMap<Integer,Integer>();
+//			for (Resource resource : resources.getResources()) {
+//				int id = resource.getId();
+//				int a = resource.getAvailable();
+////				System.out.print(a+ ",");
+//				start.put(id,Math.max(a, r));
+//			}
+//			t.setStart(start);
+//			System.out.println(start + ", " + r);
+//			
+//			t.setDistance(resources);
+			
+			container = gen.nextInt(5) + 1;
+			
+			
 //			List<Integer> id_resource_candidates = t.getNearest(resources).subList(0, container);
 //			System.out.println(id_resource_candidates);
 //			System.out.println(Arrays.toString(id_resource_candidates));
@@ -100,7 +118,6 @@ public class Alice {
 		 * Define the cell comparator to sort the list for later new cells
 		 */
 		Comparator<Cell> cellComparator = new Comparator<Cell>() {
-			
 			@Override
 			public int compare(Cell o1, Cell o2) {
 				// TODO Auto-generated method stub
@@ -123,8 +140,14 @@ public class Alice {
 			}
 		};
 		
-		// the origin cell
+		/*
+		 * The original cell
+		 * 1. set lower and upper bounds
+		 */
 		Cell originCell = new Cell();
+		
+		stateSpace.add(originCell);
+		
 		
 		
 	}
@@ -158,5 +181,6 @@ public class Alice {
 		}
 		
 	}
+	
 
 }
