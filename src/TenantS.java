@@ -47,20 +47,6 @@ public class TenantS extends Tenant {
 		for (int i = 0; i < list.size(); i++) {
 			sortedResource.add(list.get(i).getKey());
 		}
-//		System.out.println(list);
-//		list = new ArrayList<Map.Entry<Integer, Integer>>(distances.entrySet());
-//		Collections.sort(list, new Comparator<Map.Entry<Integer, Integer>>() {
-//			public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2){
-//				return o1.getValue().compareTo(o2.getValue());
-//			}
-//		});
-//		
-//		Map<Integer, Integer> dists = new LinkedHashMap<Integer, Integer>();
-//		for (Map.Entry<Integer, Integer> ent : list) {
-//			dists.put(ent.getKey(), ent.getValue());
-//		}
-//		this.setDistance(dists);
-//		System.out.println(this.getDistance());
 		return sortedResource;
 	}
 	
@@ -121,7 +107,7 @@ public class TenantS extends Tenant {
 			result.put(sortedResource.get(i), y[i]);
 		}
 //		System.out.println(Arrays.toString(y));
-		this.update(result, service);
+		// this.update(result, service);
 		
 		return result;		
 //		}

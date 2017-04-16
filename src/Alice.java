@@ -100,6 +100,7 @@ public class Alice {
 //			System.out.println(id_resource_candidates);
 //			System.out.println(Arrays.toString(id_resource_candidates));
 			Map<Integer, Integer> y = t.fill(resources,container);
+			t.update(y, resources);
 			
 			System.out.println(y.values() + ", " + t.getProcessing());
 
