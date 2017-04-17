@@ -44,7 +44,7 @@ public class Alice {
 		
 		String filename = files[gen.nextInt(files.length)].getName();
 		int[] processing = ReadData(fileprefix + filename);
-
+//		System.out.println(Arrays.toString(processing));
 		
 		List<TenantS> tenants = gen.generateTenants(processing);
 		int [] release = gen.generateReleaseTime(tenants.size());
@@ -87,11 +87,12 @@ public class Alice {
 		
 		int container; // = 4; // determine container numbers
 		int logistic = 0;
-		for (TenantS t : tenants) {
+		for (int i = 0; i< tenants.size() ; i++) {
+			TenantS t = tenants.get(i);
 			container = gen.nextInt(nbResource) + 1;
 //			container = 2;
 			// calculate gap
-			System.out.println(t.getDistance());
+//			System.out.println(t.getDistance());
 			
 //			List<Integer> id_resource_candidates = t.getNearest(resources).subList(0, container);
 //			System.out.println(id_resource_candidates);
@@ -105,14 +106,15 @@ public class Alice {
 				}
 			}
 			
-			Map end = t.update(y, available);
-			System.out.println(logistic);
+			Map<Integer, Integer> end = t.update(y, available);
+
+//			System.out.println(end);
 			System.out.println(y.values() + ", " + t.getProcessing());
 //			System.out.println(available);
 //			System.out.println(t.getEnd());
-			
-			
-			
+			if (i == tenants.size() - 1) {
+				System.out.println(Collections.max(end.values()));
+			}
 			
 		}
 		

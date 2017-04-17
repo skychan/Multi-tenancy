@@ -117,12 +117,14 @@ public class TenantS extends Tenant {
 	public Map<Integer,Integer> update(Map<Integer, Integer> allocation, Map<Integer,Integer> availableMap){
 		Map<Integer, Integer> end = new HashMap<Integer, Integer>();
 		for (Map.Entry<Integer, Integer> d: allocation.entrySet()) {
-			if (d.getValue() >0) {
-				int id = d.getKey();
+			int id = d.getKey();
+			if (d.getValue() >0) {				
 				int old_a = availableMap.get(id);
 				availableMap.put(id,old_a + d.getValue());
 				// service.get(id).setAvailable(old_a + d.getValue());
 				end.put(id, this.getStart().get(id) + d.getValue() + this.getDistance().get(id));
+			}else {
+				end.put(id, 0);
 			}
 		}
 		
