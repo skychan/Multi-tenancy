@@ -14,8 +14,8 @@ public class Alice {
 		 * 2. Sort all the resource within tenants by distance
 		 * 3. Set up the time line according to the arrival sequence of tenants.
 		 */
-		int width = 200;
-		int height = 200;
+		int width = 5;
+		int height = 5;
 		int seed = 8;
 		
 		GeneratorS gen = new GeneratorS(width,height,seed);
@@ -86,17 +86,29 @@ public class Alice {
 		Map available = new HashMap(resourceAvailable);
 		
 		int container; // = 4; // determine container numbers
+		int logistic = 0;
 		for (TenantS t : tenants) {
-			container = gen.nextInt(5) + 1;
+			container = gen.nextInt(nbResource) + 1;
+//			container = 2;
+			// calculate gap
+			System.out.println(t.getDistance());
 			
 //			List<Integer> id_resource_candidates = t.getNearest(resources).subList(0, container);
 //			System.out.println(id_resource_candidates);
 //			System.out.println(Arrays.toString(id_resource_candidates));
 			Map<Integer, Integer> y = t.fill(resources,container);
-			Map end = t.update(y, available);
+			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), available, t.getDistance());
 			
+			for (Map.Entry<Integer, Integer> sol : y.entrySet()) {
+				if (sol.getValue() > 0) {
+					logistic += t.getDistance().get(sol.getKey());
+				}
+			}
+			
+			Map end = t.update(y, available);
+			System.out.println(logistic);
 			System.out.println(y.values() + ", " + t.getProcessing());
-
+//			System.out.println(available);
 //			System.out.println(t.getEnd());
 			
 			
@@ -173,5 +185,15 @@ public class Alice {
 			System.err.println("Error: " + e);
 			return null;
 		}
+	}
+	
+	public static Statistics CalculateState(int r, int p, Map<Integer,Integer> a, Map<Integer,Integer> dist) {
+		List<Integer> resut = new ArrayList<Integer>();
+		for (Map.Entry<Integer, Integer> av : a.entrySet()) {
+			resut.add(Math.max(av.getValue(), r) + dist.get(av.getKey()));
+		}
+		
+		Statistics state = new Statistics(resut, p);
+		return state;
 	}
 }
