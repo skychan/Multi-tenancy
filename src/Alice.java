@@ -16,8 +16,9 @@ public class Alice {
 		 */
 		int width = 200;
 		int height = 200;
+		int seed = 8;
 		
-		GeneratorS gen = new GeneratorS(width,height);
+		GeneratorS gen = new GeneratorS(width,height,seed);
 		
 		
 		/*
@@ -26,6 +27,7 @@ public class Alice {
 		int nbResource = 7;
 		Service resources =  new Service(0);
 		resources.setResources(gen.generateResources(nbResource,0));
+		Map<Integer,Integer> resourceAvailable = resources.getAvailable();
 		
 		/*
 		 * Tenant follows
@@ -76,35 +78,29 @@ public class Alice {
 		
 		/**
 		 * II. Filling each resource repeatedly according to tenant time line sequence.
+		 * 
+		 * Need a copy of available map
+		 * 
 		 */
+		
+		Map available = new HashMap(resourceAvailable);
+		
 		int container; // = 4; // determine container numbers
 		for (TenantS t : tenants) {
-//			int r = t.getRelease();
-//			// determine the starts			
-//			Map<Integer,Integer> start = new HashMap<Integer,Integer>();
-//			for (Resource resource : resources.getResources()) {
-//				int id = resource.getId();
-//				int a = resource.getAvailable();
-////				System.out.print(a+ ",");
-//				start.put(id,Math.max(a, r));
-//			}
-//			t.setStart(start);
-//			System.out.println(start + ", " + r);
-//			
-//			t.setDistance(resources);
-			
 			container = gen.nextInt(5) + 1;
-			
 			
 //			List<Integer> id_resource_candidates = t.getNearest(resources).subList(0, container);
 //			System.out.println(id_resource_candidates);
 //			System.out.println(Arrays.toString(id_resource_candidates));
 			Map<Integer, Integer> y = t.fill(resources,container);
-			t.update(y, resources);
+			Map end = t.update(y, available);
 			
 			System.out.println(y.values() + ", " + t.getProcessing());
 
-			System.out.println(t.getEnd());
+//			System.out.println(t.getEnd());
+			
+			
+			
 			
 		}
 		
@@ -121,7 +117,6 @@ public class Alice {
 		Comparator<Cell> cellComparator = new Comparator<Cell>() {
 			@Override
 			public int compare(Cell o1, Cell o2) {
-				// TODO Auto-generated method stub
 				int c;
 				c = Integer.compare(o1.getNum_max(), o2.getNum_max());
 				if (c == 0) {
@@ -136,7 +131,6 @@ public class Alice {
 						}
 					}
 				}
-				
 				return c;
 			}
 		};
@@ -172,7 +166,6 @@ public class Alice {
 				for (int j = 0; j < nbSuccessors; j++) {
 					data.next();
 				}
-				
 			}
 			return processing;
 		} catch (IOException e) {
@@ -180,8 +173,5 @@ public class Alice {
 			System.err.println("Error: " + e);
 			return null;
 		}
-		
 	}
-	
-
 }

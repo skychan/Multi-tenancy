@@ -39,10 +39,10 @@ public class Service {
 		this.resources = resources;
 	}
 	
-	public List getAvailable() {
-		List<Integer> available = new ArrayList<Integer>();
+	public Map getAvailable() {
+		Map<Integer,Integer> available = new HashMap<Integer,Integer>();
 		for (Resource res : this.getResources()) {
-			available.add(res.getAvailable());
+			available.put(res.getId(),res.getAvailable());
 		}
 		return available;
 	}

@@ -114,18 +114,20 @@ public class TenantS extends Tenant {
 		
 	}
 	
-	public void update(Map<Integer, Integer> allocation, Service service){
+	public Map<Integer,Integer> update(Map<Integer, Integer> allocation, Map<Integer,Integer> availableMap){
 		Map<Integer, Integer> end = new HashMap<Integer, Integer>();
 		for (Map.Entry<Integer, Integer> d: allocation.entrySet()) {
 			if (d.getValue() >0) {
 				int id = d.getKey();
-				int old_a = service.get(id).getAvailable();
-				service.get(id).setAvailable(old_a + d.getValue());
+				int old_a = availableMap.get(id);
+				availableMap.put(id,old_a + d.getValue());
+				// service.get(id).setAvailable(old_a + d.getValue());
 				end.put(id, this.getStart().get(id) + d.getValue() + this.getDistance().get(id));
 			}
 		}
 		
-		this.setEnd(end);
+		// this.setEnd(end);
+		return end;
 	}
 
 	public Map<Integer, Integer> getStart() {
