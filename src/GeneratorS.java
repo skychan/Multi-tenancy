@@ -71,7 +71,7 @@ public class GeneratorS extends Generator{
 	public int processing(TenantS t, Service resources, int logistic, int container) {
 //		TenantS t = tenants.get(i);
 		int r = t.getRelease();
-//		int nbResource = resources.getAmount();
+		int nbResource = resources.getAmount();
 		for (Resource resource : resources.getResources()) {
 			int id = resource.getId();
 			int a = resource.getAvailable();
@@ -80,7 +80,25 @@ public class GeneratorS extends Generator{
 		}
 		
 		Map<Integer, Integer> y = t.fill(resources.getAvailable(),container);
+		
+		// start to explore actions
+		for (int action = 1; action <= nbResource; action++) {
+			Map<Integer, Integer> ay = t.fill(resources.getAvailable(), action);
+			Map<Integer, Integer> end = new HashMap<Integer, Integer>();
+			Map<Integer, Integer> available = new HashMap<Integer, Integer>(resources.getAvailable());
+			for (Map.Entry<Integer, Integer> d: ay.entrySet()) {
+				int id = d.getKey();
+				if (d.getValue() >0) {				
+					available.put(id, t.getStart().get(id) + d.getValue());
+					end.put(id, t.getStart().get(id) + d.getValue());
+				}else {
+					end.put(id, 0);
+				}
+			}
+		}
+		
 		Statistics s = CalculateState(t.getRelease(), t.getProcessing(), resources.getAvailable(), t.getDistance());
+		State state = new State(s.getGap(), container, s.getMean(), s.getSTD(), t.getProcessing());
 		
 		for (Map.Entry<Integer, Integer> sol : y.entrySet()) {
 			if (sol.getValue() > 0) {
@@ -91,11 +109,5 @@ public class GeneratorS extends Generator{
 		t.update(y, resources);
 		
 		return logistic;
-	}
-	
-	public Vector<Integer> explore() {
-		Vector<Integer> reward = new Vector<>(2);
-		
-		return reward;
 	}
 }

@@ -26,9 +26,6 @@ public class Cell {
 	private int counter = 0;
 	
 	public Cell() {
-		this.reward = new Vector<Integer>(2);
-		this.reward.add(0);
-		this.reward.add(0);
 		Comparator<State> comparator = new Comparator<State>(){
 			public int compare(State o1, State o2){
 				int c;
@@ -66,18 +63,6 @@ public class Cell {
 	
 	public Cell(int ni, int nx, int gi, int gx, int pi, int px, int mi, int mx, double vi, double vx) {
 //		this.set
-	}
-
-	public Vector<Integer> getReward() {
-		return reward;
-	}
-
-	public void setMakespan(int m) {
-		this.reward.set(0, m);
-	}
-	
-	public void setLogistic(int l) {
-		this.reward.set(1, l);
 	}
 	
 	public int getGap_min() {
@@ -187,9 +172,15 @@ public class Cell {
 			return true;
 		} else {
 			return false;
-		}
-		
+		}		
 	}
 	
-	
+	public Vector<Double> getReward() {
+		// decay when new instance comes and add its reward
+		return this.reward;
+	}
+
+	public void setReward(Vector<Double> reward) {
+		return this.reward = reward;
+	}
 }

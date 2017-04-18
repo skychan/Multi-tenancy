@@ -68,5 +68,12 @@ public class Generator {
 		return this.generator.nextInt(num);
 	}
 	
+	public boolean dominance(Vector<Integer> v1, Vector<Integer> v2) {
+		if ((v1.get(0) >= v2.get(0) && v1.get(1) > v2.get(1)) || (v1.get(0) > v2.get(0) && v1.get(1) >= v2.get(1))) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 }
