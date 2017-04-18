@@ -23,6 +23,7 @@ public class Cell {
 	
 	private PriorityQueue<State> sampleStates;
 	
+	private int counter = 0;
 	
 	public Cell() {
 		this.reward = new Vector<Integer>(2);
@@ -165,9 +166,30 @@ public class Cell {
 	
 	public void addSample(State s) {
 		this.sampleStates.add(s);
+		this.counter++;
 	}
 	
 	public State removeSample() {
+		this.counter--;
 		return this.sampleStates.poll();
 	}
+	
+	public int getAmount() {
+		return this.counter;
+	}
+	
+	public boolean checkState(State state) {
+		if (state.getNum() >= this.getNum_min() && state.getNum() <= this.getNum_max() &&
+			state.getGap() >= this.getGap_min() && state.getGap() <= this.getGap_max() &&
+			state.getP() >= this.getGap_min() && state.getP() <= this.getP_max() &&
+			state.getMean() >= this.getMean_min() && state.getMean() <= this.getMean_max() &&
+			state.getVar() >= this.getVar_min() && state.getVar() <= this.getVar_max() ) {
+			return true;
+		} else {
+			return false;
+		}
+		
+	}
+	
+	
 }

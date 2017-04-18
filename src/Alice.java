@@ -98,17 +98,9 @@ public class Alice {
 		logistic = 0;
 		System.out.println(reward_bench);
 		
-		// One pass end
-//		resources.reset();
-//		for (TenantS t : tenants) {
-//			t.reset();
-//		}
-//		logistic = 0;
-		// Need to find a way to solve the problem of perfect 
-		
+		// End of init pass
 		
 		// initialize the original cell
-		List<Cell> stateSpace = new LinkedList<Cell>();
 		
 		/*
 		 * Define the cell comparator to sort the list for later new cells
@@ -134,15 +126,20 @@ public class Alice {
 			}
 		};
 		
-		/*
-		 * The original cell
-		 * 1. set lower and upper bounds
-		 */
+		PriorityQueue<Cell> stateCells = new PriorityQueue<>(cellComparator);
+
 		Cell originCell = new Cell();
 		
-		stateSpace.add(originCell);
+		stateCells.add(originCell);
 		
+		/**
+		 *  The main pass of the presetted tenants
+		 */
 		
+		for (int i = 0; i < 8; i++) {
+			List<State> instances = gen.onePass(tenants, resources, stateCells);
+			System.out.println(instances.get(instances.size()-1));
+		}
 		
 	}
 	

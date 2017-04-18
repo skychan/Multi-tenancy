@@ -102,5 +102,8 @@ public class State {
 		this.end = end;
 	}
 
-
+	@Override
+	public String toString() {
+		return "Reward: " + this.reward;
+	}
 }

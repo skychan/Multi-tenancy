@@ -23,7 +23,7 @@ public class GeneratorS extends Generator{
 		return tenants;
 	}
 	
-	public List<State> onePass(List<TenantS> tenants, Service resources) {
+	public List<State> onePass(List<TenantS> tenants, Service resources, PriorityQueue stateCells) {
 		// reset first
 		resources.reset();
 		for (TenantS t : tenants) {
@@ -46,7 +46,11 @@ public class GeneratorS extends Generator{
 				reward.add(t.getEndWhole());
 				state.setEnd(true);
 				state.setReward(reward);
+				// add the state
+			}else {
+				// add the final-1 state's reward
 			}
+			
 			instances.add(state);
 			
 		}
@@ -67,7 +71,7 @@ public class GeneratorS extends Generator{
 	public int processing(TenantS t, Service resources, int logistic, int container) {
 //		TenantS t = tenants.get(i);
 		int r = t.getRelease();
-		int nbResource = resources.getAmount();
+//		int nbResource = resources.getAmount();
 		for (Resource resource : resources.getResources()) {
 			int id = resource.getId();
 			int a = resource.getAvailable();
