@@ -92,4 +92,10 @@ public class GeneratorS extends Generator{
 		
 		return logistic;
 	}
+	
+	public Vector<Integer> explore() {
+		Vector<Integer> reward = new Vector<>(2);
+		
+		return reward;
+	}
 }
