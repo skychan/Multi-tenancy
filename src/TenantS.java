@@ -23,13 +23,13 @@ public class TenantS extends Tenant {
 		this.setEnd(new HashMap<Integer, Integer>());
 	}
 	
-	public List<Integer> getNearest(Service service){
+	public List<Integer> getNearest(Set<Integer> resource_id){
 		// calculate distances considering the available time
 		Map<Integer, Integer> distanceplus = new HashMap<Integer, Integer>();
 //		Map<Integer, Integer> distances = new HashMap<Integer, Integer>();
-		for (Resource resource : service.getResources()) {
+		for (int id : resource_id) {
 //			int dist = (int) Math.sqrt(Math.pow(this.getX()-resource.getX(),2) + Math.pow(this.getY()-resource.getY(), 2));
-			int id = resource.getId();
+//			int id = resource.getId();
 			distanceplus.put(id, this.getDistance().get(id) + this.getStart().get(id));
 //			distances.put(id, dist);
 		}
@@ -62,12 +62,12 @@ public class TenantS extends Tenant {
 
 	
 	
-	public Map<Integer, Integer> fill(Service service, int n_max){
-		List<Integer> sortedResource = this.getNearest(service);
+	public Map<Integer, Integer> fill(Map<Integer,Integer> available, int n_max){
+		List<Integer> sortedResource = this.getNearest(available.keySet());
 //		System.out.println(service.size());
 //		int n_max = idResource.size();
 		int sum_b = 0;
-		int[] y = new int[service.size()];
+		int[] y = new int[available.size()];
 		
 		for (int i = 0; i< n_max ; i++) {
 			int id = sortedResource.get(i);
@@ -114,22 +114,23 @@ public class TenantS extends Tenant {
 		
 	}
 	
-	public Map<Integer,Integer> update(Map<Integer, Integer> allocation, Map<Integer,Integer> availableMap){
+	public void update(Map<Integer, Integer> allocation, Service resources){
 		Map<Integer, Integer> end = new HashMap<Integer, Integer>();
 		for (Map.Entry<Integer, Integer> d: allocation.entrySet()) {
 			int id = d.getKey();
 			if (d.getValue() >0) {				
-				int old_a = availableMap.get(id);
-				availableMap.put(id,old_a + d.getValue());
+				int old_a = resources.getAvailable().get(id);
+				resources.setAvailable(id, this.getStart().get(id) + d.getValue());
 				// service.get(id).setAvailable(old_a + d.getValue());
-				end.put(id, this.getStart().get(id) + d.getValue() + this.getDistance().get(id));
+//				end.put(id, this.getStart().get(id) + d.getValue() + this.getDistance().get(id));
+				this.setEnd(id,this.getStart().get(id) + d.getValue());
 			}else {
-				end.put(id, 0);
+				this.setEnd(id, 0);
 			}
 		}
 		
 		// this.setEnd(end);
-		return end;
+//		return end;
 	}
 
 	public Map<Integer, Integer> getStart() {
@@ -185,7 +186,12 @@ public class TenantS extends Tenant {
 	public void setServicetype(int servicetype) {
 		this.servicetype = servicetype;
 	}
-
+	
+	public void reset() {
+		this.start.clear();
+		this.end.clear();
+	}
+	
 	@Override
 	public String toString() {
 		return "Tenant " + superid + "-" + this.getId() + "[" + this.getX() + "," + this.getY() + "]";

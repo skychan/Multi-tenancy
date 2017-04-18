@@ -39,11 +39,25 @@ public class Service {
 		this.resources = resources;
 	}
 	
-	public Map getAvailable() {
+	public Map<Integer, Integer> getAvailable() {
 		Map<Integer,Integer> available = new HashMap<Integer,Integer>();
 		for (Resource res : this.getResources()) {
 			available.put(res.getId(),res.getAvailable());
 		}
 		return available;
+	}
+	
+	public void setAvailable(int id, int a) {
+		this.getResources().get(id).setAvailable(a);
+	}
+	
+	public void reset() {
+		for (Resource resource : this.resources) {
+			resource.reset();
+		}
+	}
+	
+	public int getAmount() {
+		return this.getResources().size();
 	}
 }

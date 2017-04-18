@@ -61,20 +61,11 @@ public class Alice {
 			}
 		});
 		
+		
+
 		for (TenantS t : tenants) {
-			int r = t.getRelease();
-			Map<Integer,Integer> start = new HashMap<Integer,Integer>();
-			for (Resource resource : resources.getResources()) {
-				int id = resource.getId();
-				int a = resource.getAvailable();
-				start.put(id,Math.max(a, r));
-			}
-			t.setStart(start);
 			t.setDistance(resources);
 		}
-		
-		// generate Tenants OK, use it as the learning template board
-		
 		
 		/**
 		 * II. Filling each resource repeatedly according to tenant time line sequence.
@@ -83,42 +74,36 @@ public class Alice {
 		 * 
 		 */
 		
-		Map available = new HashMap(resourceAvailable);
+		/*
+		 * Marker pass start
+		 * Use the first pass to set as a marker
+		 */
+		Vector<Integer> reward_bench = new Vector<>(2);
 		
-		int container; // = 4; // determine container numbers
+//		for (int i = 0; i < 20; i++) {
+//			System.out.println(gen.onePass(tenants, resources));
+//		}
+
 		int logistic = 0;
+		int container;
 		for (int i = 0; i< tenants.size() ; i++) {
 			TenantS t = tenants.get(i);
 			container = gen.nextInt(nbResource) + 1;
-//			container = 2;
-			// calculate gap
-//			System.out.println(t.getDistance());
-			
-//			List<Integer> id_resource_candidates = t.getNearest(resources).subList(0, container);
-//			System.out.println(id_resource_candidates);
-//			System.out.println(Arrays.toString(id_resource_candidates));
-			Map<Integer, Integer> y = t.fill(resources,container);
-			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), available, t.getDistance());
-			
-			for (Map.Entry<Integer, Integer> sol : y.entrySet()) {
-				if (sol.getValue() > 0) {
-					logistic += t.getDistance().get(sol.getKey());
-				}
-			}
-			
-			Map<Integer, Integer> end = t.update(y, available);
-
-//			System.out.println(end);
-			System.out.println(y.values() + ", " + t.getProcessing());
-//			System.out.println(available);
-//			System.out.println(t.getEnd());
+			logistic = gen.processing(t, resources, logistic, container);
 			if (i == tenants.size() - 1) {
-				System.out.println(Collections.max(end.values()));
-			}
-			
+				reward_bench.add(logistic);
+				reward_bench.add(t.getEndWhole());
+			}	
 		}
+		logistic = 0;
+		System.out.println(reward_bench);
 		
-
+		// One pass end
+//		resources.reset();
+//		for (TenantS t : tenants) {
+//			t.reset();
+//		}
+//		logistic = 0;
 		// Need to find a way to solve the problem of perfect 
 		
 		
@@ -136,9 +121,9 @@ public class Alice {
 				if (c == 0) {
 					c = Integer.compare(o1.getGap_max(), o2.getGap_max());
 					if (c == 0) {
-						c = Integer.compare(o1.getP_max(), o2.getMean_max());
+						c = Integer.compare(o1.getP_max(), o2.getP_max());
 						if (c == 0) {
-							c = Integer.compare(o1.getMean_max(), o2.getMean_max());
+							c = Double.compare(o1.getMean_max(), o2.getMean_max());
 							if (c == 0) {
 								c = Double.compare(o1.getVar_max(), o2.getVar_max());
 							}

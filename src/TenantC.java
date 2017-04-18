@@ -174,6 +174,12 @@ public class TenantC extends Tenant {
 	public void setEnd(int end) {
 		this.end = end;
 	}
+	
+	public void reset() {
+		for (TenantS t : this.tenants) {
+			t.reset();
+		}
+	}
 
 //	@Override
 //	public String toString() {

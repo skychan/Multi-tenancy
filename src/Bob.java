@@ -105,7 +105,7 @@ public class Bob {
 //				if (tS.getServicetype() == 3) {
 //					System.out.println(result);
 //				}
-				Map y = tS.fill(services.get(tS.getServicetype()), services.get(tS.getServicetype()).size());
+				Map y = tS.fill(services.get(tS.getServicetype()).getAvailable(), services.get(tS.getServicetype()).size());
 //				if (tS.getServicetype() == 3) {
 //					System.out.println(y + "," + tS.getProcessing());
 //				}

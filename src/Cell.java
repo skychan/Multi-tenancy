@@ -17,7 +17,7 @@ public class Cell {
 	
 	private int gap_min, gap_max;
 	private int num_min, num_max;
-	private int mean_min, mean_max;
+	private double mean_min, mean_max;
 	private double var_min, var_max;
 	private int p_min, p_max;
 	
@@ -37,7 +37,7 @@ public class Cell {
 					if (c == 0) {
 						c = Integer.compare(o1.getP(), o2.getP());
 						if (c == 0) {
-							c = Integer.compare(o1.getMean(), o2.getMean());
+							c = Double.compare(o1.getMean(), o2.getMean());
 							if (c == 0) {
 								c = Double.compare(o1.getVar(), o2.getVar());
 							}
@@ -57,7 +57,7 @@ public class Cell {
 		this.setP_min(1);
 		this.setP_max(Integer.MAX_VALUE);
 		this.setMean_min(0);
-		this.setMean_max(Integer.MAX_VALUE);
+		this.setMean_max(Double.MAX_VALUE);
 		this.setVar_min(0);
 		this.setVar_max(Double.MAX_VALUE);
 		
@@ -111,7 +111,7 @@ public class Cell {
 		this.num_max = num_max;
 	}
 
-	public int getMean_min() {
+	public double getMean_min() {
 		return mean_min;
 	}
 
@@ -119,11 +119,11 @@ public class Cell {
 		this.mean_min = mean_min;
 	}
 
-	public int getMean_max() {
+	public double getMean_max() {
 		return mean_max;
 	}
 
-	public void setMean_max(int mean_max) {
+	public void setMean_max(double mean_max) {
 		this.mean_max = mean_max;
 	}
 

@@ -1,6 +1,4 @@
-import java.util.Comparator;
-import java.util.PriorityQueue;
-import java.util.Vector;
+import java.util.*;
 
 
 public class State {
@@ -19,12 +17,14 @@ public class State {
 	
 	private int gap;
 	private int num;
-	private int mean;
+	private double mean;
 	private double var;
 	private int p;
 	
+	private Vector<Integer> reward;
+	private boolean end = false;
 	
-	public State(int gap, int num, int mean, double var, int p) {
+	public State(int gap, int num, double mean, double var, int p) {
 		this.setGap(gap);
 		this.setNum(num);
 		this.setMean(mean);
@@ -53,12 +53,12 @@ public class State {
 	}
 
 
-	public int getMean() {
+	public double getMean() {
 		return mean;
 	}
 
 
-	public void setMean(int mean) {
+	public void setMean(double mean) {
 		this.mean = mean;
 	}
 
@@ -80,6 +80,26 @@ public class State {
 
 	public void setP(int p) {
 		this.p = p;
+	}
+
+
+	public Vector<Integer> getReward() {
+		return reward;
+	}
+
+
+	public void setReward(Vector<Integer> reward) {
+		this.reward = reward;
+	}
+
+
+	public boolean isEnd() {
+		return end;
+	}
+
+
+	public void setEnd(boolean end) {
+		this.end = end;
 	}
 
 

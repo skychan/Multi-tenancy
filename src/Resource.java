@@ -54,5 +54,8 @@ public class Resource {
 		this.sid = sid;
 	}
 	
+	public void reset() {
+		this.available = 0;
+	}
 
 }
