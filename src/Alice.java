@@ -38,8 +38,10 @@ public class Alice {
 		
 		/*
 		 * for RL we need to set the decay for Bellman's EQ
+		 * and cell capacity
 		 */
 		double decay = 0.8;
+		int cellCapacity = 50;
 		gen.setDecay(decay);
 		
 		String fileprefix = "test/";
@@ -150,6 +152,7 @@ public class Alice {
 		List<Cell> stateCells = new LinkedList<>(); //cellComparator
 
 		Cell originCell = new Cell();
+		originCell.setCapacity(cellCapacity);
 		originCell.setDecay(decay);
 		
 		stateCells.add(originCell);

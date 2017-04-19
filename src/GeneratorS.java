@@ -37,15 +37,6 @@ public class GeneratorS extends Generator{
 		for (int i = 0; i< tenants.size() ; i++) {
 			container = this.nextInt(nbResource) + 1; // is the current action
 			TenantS t = tenants.get(i);
-//			// explore first
-//			Map<Integer, Double> Qset = new HashMap<Integer, Double>();
-//			if (isNotFinal) {
-//				Qset = this.explore(resources, t, tenants.get(i+1));
-//				
-//			}else {
-//				// TODO
-//			}
-			
 			
 			Map<Integer, Integer> available = new HashMap<Integer, Integer>(resources.getAvailable());
 			this.processing(t, resources, container);
@@ -76,12 +67,18 @@ public class GeneratorS extends Generator{
 						// TODO add the new Q to state
 						double Q = R + this.getDecay() * Q_next;
 						state.setReward(container, Q);
-						cell.addSample(state);
+						boolean isFull = cell.addSample(state);
 						cell.setReward(container, Q);
-//						Q = R + this.getDecay()*Q;
-//						state.setReward(Q);
-//						cell.addSample(state);
-//						cell.setReward(Q);
+						
+						if (isFull){
+							// TODO split the cellSpace
+							// first sort by the bound var, record the bound
+							// then chose the biggest, sort the states
+							// create a new cell, 
+							// copy all the old cell's information
+							// modify the bounds, 
+							// remove old 
+						}
 						break;
 					}
 				}
@@ -134,11 +131,7 @@ public class GeneratorS extends Generator{
 			if (t.isFinal()) {
 				double q = this.getBench() - Collections.max(end.values());
 				Q.put(action,q);
-//				state.setReward(q);
 			} else {
-//				state.setReward(0);
-//				Q.put(action, 0.0);
-				// TODO
 				for (Cell cell: this.getStateCells()) {
 					if (cell.checkState(state)) {
 						double q = cell.getReward(action);

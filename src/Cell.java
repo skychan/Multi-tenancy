@@ -21,34 +21,42 @@ public class Cell {
 	private double var_min, var_max;
 	private int p_min, p_max;
 	
-	private PriorityQueue<State> sampleStates;
+	private List<Integer> gap;
+	private List<Integer> num;
+	private List<Double> mean;
+	private List<Double> var;
+	private List<Integer> p;
+	
+	private List<State> sampleStates;
 	
 	private int counter = 0;
 	
 	private double decay;
 	
+	private int capacity;
+	
 	public Cell() {
-		Comparator<State> comparator = new Comparator<State>(){
-			public int compare(State o1, State o2){
-				int c;
-				c = Integer.compare(o1.getNum(), o2.getNum());
-				if (c == 0) {
-					c = Integer.compare(o1.getGap(), o2.getGap());
-					if (c == 0) {
-						c = Integer.compare(o1.getP(), o2.getP());
-						if (c == 0) {
-							c = Double.compare(o1.getMean(), o2.getMean());
-							if (c == 0) {
-								c = Double.compare(o1.getVar(), o2.getVar());
-							}
-						}
-					}
-				}
-				return c;
-			}
-		};
+//		Comparator<State> comparator = new Comparator<State>(){
+//			public int compare(State o1, State o2){
+//				int c;
+//				c = Integer.compare(o1.getNum(), o2.getNum());
+//				if (c == 0) {
+//					c = Integer.compare(o1.getGap(), o2.getGap());
+//					if (c == 0) {
+//						c = Integer.compare(o1.getP(), o2.getP());
+//						if (c == 0) {
+//							c = Double.compare(o1.getMean(), o2.getMean());
+//							if (c == 0) {
+//								c = Double.compare(o1.getVar(), o2.getVar());
+//							}
+//						}
+//					}
+//				}
+//				return c;
+//			}
+//		};
 		
-		this.setSampleStates(new PriorityQueue<>(comparator));
+		this.sampleStates = new LinkedList<State>();
 		
 		this.setNum_min(1);
 		this.setNum_max(Integer.MAX_VALUE);
@@ -150,19 +158,21 @@ public class Cell {
 		this.p_max = p_max;
 	}
 
-	public void setSampleStates(PriorityQueue<State> sampleStates) {
-		this.sampleStates = sampleStates;
-	}
 	
-	public void addSample(State s) {
+	public boolean addSample(State s) {
 		this.sampleStates.add(s);
 		this.counter++;
 		// if the amount is full of capacity, then split into two sub cells
+		if (this.counter >= this.capacity) {
+			return true;
+		}else {
+			return false;
+		}
 	}
 	
-	public State removeSample() {
+	public void removeSample(State s) {
 		this.counter--;
-		return this.sampleStates.poll();
+		this.sampleStates.remove(s);
 	}
 	
 	public int getAmount() {
@@ -201,5 +211,17 @@ public class Cell {
 
 	public void setDecay(double decay) {
 		this.decay = decay;
+	}
+
+	public int getCapacity() {
+		return capacity;
+	}
+
+	public void setCapacity(int capacity) {
+		this.capacity = capacity;
+	}
+	
+	public void copy(Cell oldCell) {
+		// TODO copy all the old information here
 	}
 }
