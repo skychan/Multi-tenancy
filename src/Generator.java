@@ -4,6 +4,9 @@ import java.util.*;
 public class Generator {
 
 	private int width, height;
+	private int bench;
+	private double decay;
+	private List<Cell> stateCells;
 //	private Random generator = new Random(8);
 	private int maxTime;
 	protected Random generator = new Random(8);
@@ -74,6 +77,30 @@ public class Generator {
 		} else {
 			return false;
 		}
+	}
+
+	public int getBench() {
+		return bench;
+	}
+
+	public void setBench(int bench) {
+		this.bench = bench;
+	}
+
+	public double getDecay() {
+		return decay;
+	}
+
+	public void setDecay(double decay) {
+		this.decay = decay;
+	}
+
+	public List<Cell> getStateCells() {
+		return stateCells;
+	}
+
+	public void setStateCells(List<Cell> stateCells) {
+		this.stateCells = stateCells;
 	}
 	
 }

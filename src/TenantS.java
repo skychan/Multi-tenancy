@@ -8,6 +8,7 @@ public class TenantS extends Tenant {
 	private Map<Integer, Integer> start, end;
 	private int superid, servicetype;
 	private Map<Integer, Integer> predends;
+	private boolean isFinal = false;
 
 	// sorting the nearest location with constructor?
 	public TenantS(double x, double y, int id) {
@@ -63,6 +64,7 @@ public class TenantS extends Tenant {
 	
 	
 	public Map<Integer, Integer> fill( Map<Integer,Integer> available, int n_max ){
+//		System.out.println(available.keySet());
 		List<Integer> sortedResource = this.getNearest(available.keySet());
 //		System.out.println(service.size());
 //		int n_max = idResource.size();
@@ -204,5 +206,13 @@ public class TenantS extends Tenant {
 	@Override
 	public String toString() {
 		return "Tenant " + superid + "-" + this.getId() + "[" + this.getX() + "," + this.getY() + "] "  + this.getProcessing();
+	}
+
+	public boolean isFinal() {
+		return isFinal;
+	}
+
+	public void setFinal(boolean isFinal) {
+		this.isFinal = isFinal;
 	}
 }

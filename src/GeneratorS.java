@@ -23,15 +23,14 @@ public class GeneratorS extends Generator{
 		return tenants;
 	}
 	
-	public List<State> onePass(List<TenantS> tenants, Service resources, PriorityQueue stateCells) {
+	public void onePass(List<TenantS> tenants, Service resources) {
 		// reset first
 		resources.reset();
 		for (TenantS t : tenants) {
 			t.reset();
 		}
 		
-		List<State> instances = new ArrayList<State>();
-		int reward = 0;
+//		int reward = 0;
 		int nbResource = resources.getAmount();
 		int container;
 		boolean isNotFinal = true;
@@ -44,25 +43,32 @@ public class GeneratorS extends Generator{
 			}
 			
 			// explore first
-			
+			Map<Integer, Double> Qset = new HashMap<Integer, Double>();
 			if (isNotFinal) {
-				this.explore();
+				Qset = this.explore(resources, t, tenants.get(i+1));
+				
+			}else {
+				// TODO
 			}
 			
 			this.processing(t, resources, container);
 			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), resources.getAvailable(), t.getDistance());
 			State state = new State(s.getGap(), container, s.getMean(), s.getSTD(), t.getProcessing());
-			if (isNotFinal) {
-				reward = t.getEndWhole();
-				state.setEnd(true);
-				state.setReward(reward);
-				// add the state
-			}else {
-				// add the final-1 state's reward
+			double Q = Collections.max(Qset.values()) + 0.0;
+			
+			// TODO check if in the state, add to the cell
+			// if the amount is full, split it 
+			for (Cell cell : this.getStateCells()) {
+				if (cell.checkState(state)) {
+					double R = cell.getReward();
+					Q = R + this.getDecay()*Q;
+					state.setReward(Q);
+					cell.addSample(state);
+					cell.setReward(Q);
+					break;
+				}
 			}
-			instances.add(state);
 		}
-		return instances;
 	}
 	
 	public Statistics CalculateState(int r, int p, Map<Integer,Integer> a, Map<Integer,Integer> dist) {
@@ -94,20 +100,57 @@ public class GeneratorS extends Generator{
 		t.setEnd(end);
 	}
 	
-	public void explore(Service resources) {
+	public Map<Integer, Double> explore(Service resources, TenantS t_current, TenantS t_next) {
+		int r = t_current.getRelease();
+		int nbResource = resources.getAmount();
+		for (Resource resource : resources.getResources()) {
+			int id = resource.getId();
+			int a = resource.getAvailable();
+			t_current.setStart(id, Math.max(a, r));
+			t_current.setEnd(id, 0);
+		}
 		// start to explore actions, and we only explore before the final state.
 		Map<Integer, Integer> availabe_a = new HashMap<>(resources.getAvailable());
-		if (isNotFinal) {  // if the next state is the final state, get the reward
-			for (int action = 1; action <= nbResource; action++) {
-				Map<Integer, Integer> y_a = t.fill(resources.getAvailable(), action);
-				Map<Integer, Integer> end_a = t.update(y_a, availabe_a);
+		Map<Integer, Double> Q = new HashMap<Integer, Double>();
+			
+		for (int action = 1; action <= nbResource; action++) {
+			Map<Integer, Integer> y_a = t_current.fill(resources.getAvailable(), action);
+			Map<Integer, Integer> end_a = t_current.update(y_a, availabe_a);
+			Statistics s = CalculateState(t_current.getRelease(), t_current.getProcessing(), resources.getAvailable(), t_current.getDistance());
+			State state = new State(s.getGap(), action, s.getMean(), s.getSTD(), t_current.getProcessing());
+			if (t_next.isFinal()) {
+				double q = this.getBench() - Collections.max(end_a.values());
+				Q.put(action,q);
+				state.setReward(q);
+			} else {
+//				state.setReward(0);
+//				Q.put(action, 0.0);
+				// TODO
+				int r_next = t_next.getRelease();
+				Map<Integer, Integer> available_next = new HashMap<Integer, Integer>();
+				for (int i = 0; i < nbResource; i++) {
+					int a_next = t_current.getStart().get(i) + y_a.get(i);
+					available_next.put(i, a_next);
+					t_next.setStart(i, Math.max(r_next, a_next));
+					t_next.setEnd(i , 0);
+				}
+				Statistics s_next = CalculateState(t_next.getRelease(), t_next.getProcessing(), available_next, t_next.getDistance());
 				
-				Statistics s = CalculateState(t.getRelease(), t.getProcessing(), resources.getAvailable(), t.getDistance());
-				State state = new State(s.getGap(), container, s.getMean(), s.getSTD(), t.getProcessing());
-				
+				Map<Integer, Double> Q_next = new HashMap<Integer, Double>();
+				for (int action_next = 1; action_next <= nbResource ; action_next++) {
+					State state_next = new State(s_next.getGap(), action_next, s_next.getMean(), s_next.getSTD(), t_next.getProcessing());
+					for (Cell cell: this.getStateCells()) {
+						if (cell.checkState(state_next)) {
+							Q_next.put(action_next, cell.getReward());
+							break;
+						}
+					}
+				}
+				double q = Collections.max(Q_next.values());
+				state.setReward(q);
+				Q.put(action, q);
 			}
-		} else { // normal state, not to get the reward 
-
 		}
+		return Q;
 	}
 }

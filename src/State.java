@@ -19,7 +19,7 @@ public class State {
 	private double var;
 	private int p;
 	
-	private int reward;
+	private double reward;
 	private boolean end = false;
 	
 	public State(int gap, int num, double mean, double var, int p) {
@@ -81,12 +81,12 @@ public class State {
 	}
 
 
-	public int getReward() {
+	public double getReward() {
 		return reward;
 	}
 
 
-	public void setReward(int reward) {
+	public void setReward(double reward) {
 		this.reward = reward;
 	}
 

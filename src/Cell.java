@@ -13,7 +13,7 @@ public class Cell {
 	 * 6. reward vector
 	 */
 	
-	private int reward; // (d_makespan,d_logistic)
+	private double reward; // (d_makespan,d_logistic)
 	
 	private int gap_min, gap_max;
 	private int num_min, num_max;
@@ -24,6 +24,8 @@ public class Cell {
 	private PriorityQueue<State> sampleStates;
 	
 	private int counter = 0;
+	
+	private double decay;
 	
 	public Cell() {
 		Comparator<State> comparator = new Comparator<State>(){
@@ -152,6 +154,7 @@ public class Cell {
 	public void addSample(State s) {
 		this.sampleStates.add(s);
 		this.counter++;
+		// if the amount is full of capacity, then split into two sub cells
 	}
 	
 	public State removeSample() {
@@ -175,12 +178,20 @@ public class Cell {
 		}		
 	}
 	
-	public int getReward() {
+	public double getReward() {
 		// decay when new instance comes and add its reward
 		return this.reward;
 	}
 
-	public void setReward(int reward) {
-		this.reward = reward;
+	public void setReward(double reward) {
+		this.reward = this.decay*this.reward + reward;
+	}
+
+	public double getDecay() {
+		return decay;
+	}
+
+	public void setDecay(double decay) {
+		this.decay = decay;
 	}
 }

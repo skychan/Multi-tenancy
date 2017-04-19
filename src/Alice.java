@@ -36,6 +36,12 @@ public class Alice {
 		gen.setMaxTime(maxTime);
 		
 		
+		/*
+		 * for RL we need to set the decay for Bellman's EQ
+		 */
+		double decay = 0.8;
+		gen.setDecay(decay);
+		
 		String fileprefix = "test/";
 			
 		File dir = new File(fileprefix);
@@ -75,6 +81,9 @@ public class Alice {
 			t.setRelease(release.poll());
 			t.setDistance(resources);
 			System.out.println(t);
+			if (tenants.indexOf(t) == tenants.size() -1 ) {
+				t.setFinal(true);
+			}
 		}
 		
 		/**
@@ -101,10 +110,12 @@ public class Alice {
 			container = gen.nextInt(nbResource) + 1;
 			gen.processing(t, resources, container);
 			if (i == tenants.size() - 1) {
-				reward_bench += t.getEndWhole();
+				reward_bench = t.getEndWhole();
 			}
 //			System.out.println(t.getEndWhole());
 		}
+		
+		gen.setBench(reward_bench);
 
 		System.out.println(reward_bench);
 		
@@ -115,40 +126,42 @@ public class Alice {
 		/*
 		 * Define the cell comparator to sort the list for later new cells
 		 */
-		Comparator<Cell> cellComparator = new Comparator<Cell>() {
-			@Override
-			public int compare(Cell o1, Cell o2) {
-				int c;
-				c = Integer.compare(o1.getNum_max(), o2.getNum_max());
-				if (c == 0) {
-					c = Integer.compare(o1.getGap_max(), o2.getGap_max());
-					if (c == 0) {
-						c = Integer.compare(o1.getP_max(), o2.getP_max());
-						if (c == 0) {
-							c = Double.compare(o1.getMean_max(), o2.getMean_max());
-							if (c == 0) {
-								c = Double.compare(o1.getVar_max(), o2.getVar_max());
-							}
-						}
-					}
-				}
-				return c;
-			}
-		};
+//		Comparator<Cell> cellComparator = new Comparator<Cell>() {
+//			@Override
+//			public int compare(Cell o1, Cell o2) {
+//				int c;
+//				c = Integer.compare(o1.getNum_max(), o2.getNum_max());
+//				if (c == 0) {
+//					c = Integer.compare(o1.getGap_max(), o2.getGap_max());
+//					if (c == 0) {
+//						c = Integer.compare(o1.getP_max(), o2.getP_max());
+//						if (c == 0) {
+//							c = Double.compare(o1.getMean_max(), o2.getMean_max());
+//							if (c == 0) {
+//								c = Double.compare(o1.getVar_max(), o2.getVar_max());
+//							}
+//						}
+//					}
+//				}
+//				return c;
+//			}
+//		};
 		
-		PriorityQueue<Cell> stateCells = new PriorityQueue<>(cellComparator);
+		List<Cell> stateCells = new LinkedList<>(); //cellComparator
 
 		Cell originCell = new Cell();
+		originCell.setDecay(decay);
 		
 		stateCells.add(originCell);
 		
+		gen.setStateCells(stateCells);
 		/**
 		 *  The main pass of the presetted tenants
 		 */
 		
 		for (int i = 0; i < 20; i++) {
-			List<State> instances = gen.onePass(tenants, resources, stateCells);
-			System.out.println(instances.get(instances.size()-1));
+			gen.onePass(tenants, resources);
+//			System.out.println(instances.get(instances.size()-1));
 		}
 		
 	}
