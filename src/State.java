@@ -19,7 +19,7 @@ public class State {
 	private double var;
 	private int p;
 	
-	private double reward;
+	private Map<Integer, Double> reward;
 	private boolean end = false;
 	
 	public State(int gap, int num, double mean, double var, int p) {
@@ -28,6 +28,7 @@ public class State {
 		this.setMean(mean);
 		this.setVar(var);
 		this.setP(p);
+		this.reward = new HashMap<Integer, Double>();
 	}
 
 
@@ -81,13 +82,13 @@ public class State {
 	}
 
 
-	public double getReward() {
-		return reward;
+	public double getReward(int action) {
+		return reward.get(action);
 	}
 
 
-	public void setReward(double reward) {
-		this.reward = reward;
+	public void setReward(int action, double reward) {
+		this.reward.put(action, reward);
 	}
 
 

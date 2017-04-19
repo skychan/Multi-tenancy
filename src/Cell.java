@@ -13,7 +13,7 @@ public class Cell {
 	 * 6. reward vector
 	 */
 	
-	private double reward; // (d_makespan,d_logistic)
+	private Map<Integer, Double> reward; // (d_makespan,d_logistic)
 	
 	private int gap_min, gap_max;
 	private int num_min, num_max;
@@ -60,6 +60,9 @@ public class Cell {
 		this.setMean_max(Double.MAX_VALUE);
 		this.setVar_min(0);
 		this.setVar_max(Double.MAX_VALUE);
+		
+		this.reward = new HashMap<Integer, Double>();
+		
 		
 	}
 	
@@ -178,13 +181,18 @@ public class Cell {
 		}		
 	}
 	
-	public double getReward() {
+	public double getReward(int action) {
 		// decay when new instance comes and add its reward
-		return this.reward;
+		if (this.reward.containsKey(action)) {
+			return this.reward.get(action);	
+		} else {
+			return 0;
+		}
+		
 	}
 
-	public void setReward(double reward) {
-		this.reward = this.decay*this.reward + reward;
+	public void setReward(int action, double reward) {
+		this.reward.put(action, this.decay * this.getReward(action) + reward);
 	}
 
 	public double getDecay() {
