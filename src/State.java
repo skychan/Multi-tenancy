@@ -13,15 +13,13 @@ public class State {
 	 * 6. reward vector
 	 */
 	
-//	private Vector<Integer> reward;
-	
 	private int gap;
 	private int num;
 	private double mean;
 	private double var;
 	private int p;
 	
-	private Vector<Integer> reward;
+	private int reward;
 	private boolean end = false;
 	
 	public State(int gap, int num, double mean, double var, int p) {
@@ -83,12 +81,12 @@ public class State {
 	}
 
 
-	public Vector<Integer> getReward() {
+	public int getReward() {
 		return reward;
 	}
 
 
-	public void setReward(Vector<Integer> reward) {
+	public void setReward(int reward) {
 		this.reward = reward;
 	}
 

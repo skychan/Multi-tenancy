@@ -31,19 +31,18 @@ public class GeneratorS extends Generator{
 		}
 		
 		List<State> instances = new ArrayList<State>();
-		Vector<Integer> reward = new Vector<>(2);
+		int reward = 0;
 		int nbResource = resources.getAmount();
 		int container;
 		int logistic = 0;
 		for (int i = 0; i< tenants.size() ; i++) {
 			container = this.nextInt(nbResource) + 1;
 			TenantS t = tenants.get(i);
-			logistic = this.processing(t, resources, logistic, container);
+			this.processing(t, resources, container);
 			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), resources.getAvailable(), t.getDistance());
 			State state = new State(s.getGap(), container, s.getMean(), s.getSTD(), t.getProcessing());
 			if (i == tenants.size() - 1) {
-				reward.add(logistic);
-				reward.add(t.getEndWhole());
+				reward = t.getEndWhole();
 				state.setEnd(true);
 				state.setReward(reward);
 				// add the state
@@ -68,7 +67,7 @@ public class GeneratorS extends Generator{
 		return state;
 	}
 	
-	public int processing(TenantS t, Service resources, int logistic, int container) {
+	public void processing(TenantS t, Service resources, int container) {
 //		TenantS t = tenants.get(i);
 		int r = t.getRelease();
 		int nbResource = resources.getAmount();
@@ -79,35 +78,22 @@ public class GeneratorS extends Generator{
 			t.setEnd(id, 0);
 		}
 		
-		Map<Integer, Integer> y = t.fill(resources.getAvailable(),container);
+		Map<Integer, Integer> available = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> y = t.fill(available,container);
+		
 		
 		// start to explore actions
+		Map<Integer, Integer> availabe_a = new HashMap();
 		for (int action = 1; action <= nbResource; action++) {
-			Map<Integer, Integer> ay = t.fill(resources.getAvailable(), action);
-			Map<Integer, Integer> end = new HashMap<Integer, Integer>();
-			Map<Integer, Integer> available = new HashMap<Integer, Integer>(resources.getAvailable());
-			for (Map.Entry<Integer, Integer> d: ay.entrySet()) {
-				int id = d.getKey();
-				if (d.getValue() >0) {				
-					available.put(id, t.getStart().get(id) + d.getValue());
-					end.put(id, t.getStart().get(id) + d.getValue());
-				}else {
-					end.put(id, 0);
-				}
-			}
+			Map<Integer, Integer> y_a = t.fill(resources.getAvailable(), action);
+			Map<Integer, Integer> end_a = t.update(y_a, availabe_a);
 		}
+		
+		// after the explore, update the available and end
+		Map<Integer, Integer> end = t.update(y, available);
+		resources.setAvailable(available);
 		
 		Statistics s = CalculateState(t.getRelease(), t.getProcessing(), resources.getAvailable(), t.getDistance());
 		State state = new State(s.getGap(), container, s.getMean(), s.getSTD(), t.getProcessing());
-		
-		for (Map.Entry<Integer, Integer> sol : y.entrySet()) {
-			if (sol.getValue() > 0) {
-				logistic += t.getDistance().get(sol.getKey());
-			}
-		}
-		
-		t.update(y, resources);
-		
-		return logistic;
 	}
 }

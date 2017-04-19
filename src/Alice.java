@@ -78,24 +78,23 @@ public class Alice {
 		 * Marker pass start
 		 * Use the first pass to set as a marker
 		 */
-		Vector<Integer> reward_bench = new Vector<>(2);
+		int reward_bench = 0;
 		
 //		for (int i = 0; i < 20; i++) {
 //			System.out.println(gen.onePass(tenants, resources));
 //		}
 
-		int logistic = 0;
+		// int logistic = 0;
 		int container;
 		for (int i = 0; i< tenants.size() ; i++) {
 			TenantS t = tenants.get(i);
 			container = gen.nextInt(nbResource) + 1;
-			logistic = gen.processing(t, resources, logistic, container);
+			gen.processing(t, resources, container);
 			if (i == tenants.size() - 1) {
-				reward_bench.add(logistic);
-				reward_bench.add(t.getEndWhole());
+				reward_bench += t.getEndWhole();
 			}	
 		}
-		logistic = 0;
+
 		System.out.println(reward_bench);
 		
 		// End of init pass

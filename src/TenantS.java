@@ -114,27 +114,29 @@ public class TenantS extends Tenant {
 		
 	}
 	
-	public void update(Map<Integer, Integer> allocation, Service resources){
+	public Map<Integer, Integer> update(Map<Integer, Integer> allocation, Map<Integer, Integer> available){
 		/**
 		* 1. resources' available
-		* 2. tenant's end and start
+		* 2. tenant's end
 		*/
 		Map<Integer, Integer> end = new HashMap<Integer, Integer>();
 		for (Map.Entry<Integer, Integer> d: allocation.entrySet()) {
 			int id = d.getKey();
 			if (d.getValue() >0) {				
 				// int old_a = resources.getAvailable().get(id);
-				resources.setAvailable(id, this.getStart().get(id) + d.getValue());
+				// resources.setAvailable(id, this.getStart().get(id) + d.getValue());
+				available.put(id, this.getStart().get(id) + d.getValue());
 				// service.get(id).setAvailable(old_a + d.getValue());
-//				end.put(id, this.getStart().get(id) + d.getValue() + this.getDistance().get(id));
-				this.setEnd(id,this.getStart().get(id) + d.getValue());
+				end.put(id, this.getStart().get(id) + d.getValue() + this.getDistance().get(id));
+				// this.setEnd(id, this.getStart().get(id) + d.getValue() + this.getDistance().get(id));
 			}else {
-				this.setEnd(id, 0);
+				// this.setEnd(id, 0);
+				end.put(id, 0);
 			}
 		}
 		
 		// this.setEnd(end);
-//		return end;
+		return end;
 	}
 	
 	public void explore(Map<Integer,Integer> available, int n_max) {

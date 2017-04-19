@@ -51,6 +51,13 @@ public class Service {
 		this.getResources().get(id).setAvailable(a);
 	}
 	
+	public void setAvailable(Map<Integer, Integer> available) {
+		for (Resource resource : resources) {
+			int id = resource.getId();
+			resource.setAvailable(available.get(id));
+		}
+	}
+	
 	public void reset() {
 		for (Resource resource : this.resources) {
 			resource.reset();

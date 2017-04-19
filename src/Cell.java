@@ -13,7 +13,7 @@ public class Cell {
 	 * 6. reward vector
 	 */
 	
-	private Vector<Integer> reward; // (d_makespan,d_logistic)
+	private int reward; // (d_makespan,d_logistic)
 	
 	private int gap_min, gap_max;
 	private int num_min, num_max;
@@ -175,12 +175,12 @@ public class Cell {
 		}		
 	}
 	
-	public Vector<Double> getReward() {
+	public int getReward() {
 		// decay when new instance comes and add its reward
 		return this.reward;
 	}
 
-	public void setReward(Vector<Double> reward) {
-		return this.reward = reward;
+	public void setReward(int reward) {
+		this.reward = reward;
 	}
 }
