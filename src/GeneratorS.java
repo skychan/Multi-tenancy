@@ -34,14 +34,25 @@ public class GeneratorS extends Generator{
 		int reward = 0;
 		int nbResource = resources.getAmount();
 		int container;
-		int logistic = 0;
+		boolean isNotFinal = true;
+		 // here we need to consider if in the final state or not
 		for (int i = 0; i< tenants.size() ; i++) {
 			container = this.nextInt(nbResource) + 1;
 			TenantS t = tenants.get(i);
+			if (i == tenants.size() - 1) {
+				isNotFinal = false;
+			}
+			
+			// explore first
+			
+			if (isNotFinal) {
+				this.explore();
+			}
+			
 			this.processing(t, resources, container);
 			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), resources.getAvailable(), t.getDistance());
 			State state = new State(s.getGap(), container, s.getMean(), s.getSTD(), t.getProcessing());
-			if (i == tenants.size() - 1) {
+			if (isNotFinal) {
 				reward = t.getEndWhole();
 				state.setEnd(true);
 				state.setReward(reward);
@@ -49,11 +60,8 @@ public class GeneratorS extends Generator{
 			}else {
 				// add the final-1 state's reward
 			}
-			
 			instances.add(state);
-			
 		}
-		
 		return instances;
 	}
 	
@@ -78,22 +86,28 @@ public class GeneratorS extends Generator{
 			t.setEnd(id, 0);
 		}
 		
-		Map<Integer, Integer> available = new HashMap<Integer, Integer>();
-		Map<Integer, Integer> y = t.fill(available,container);
+		Map<Integer, Integer> available = new HashMap<>(resources.getAvailable());
+		Map<Integer, Integer> y = t.fill(available,container);		
 		
-		
-		// start to explore actions
-		Map<Integer, Integer> availabe_a = new HashMap();
-		for (int action = 1; action <= nbResource; action++) {
-			Map<Integer, Integer> y_a = t.fill(resources.getAvailable(), action);
-			Map<Integer, Integer> end_a = t.update(y_a, availabe_a);
-		}
-		
-		// after the explore, update the available and end
 		Map<Integer, Integer> end = t.update(y, available);
 		resources.setAvailable(available);
-		
-		Statistics s = CalculateState(t.getRelease(), t.getProcessing(), resources.getAvailable(), t.getDistance());
-		State state = new State(s.getGap(), container, s.getMean(), s.getSTD(), t.getProcessing());
+		t.setEnd(end);
+	}
+	
+	public void explore(Service resources) {
+		// start to explore actions, and we only explore before the final state.
+		Map<Integer, Integer> availabe_a = new HashMap<>(resources.getAvailable());
+		if (isNotFinal) {  // if the next state is the final state, get the reward
+			for (int action = 1; action <= nbResource; action++) {
+				Map<Integer, Integer> y_a = t.fill(resources.getAvailable(), action);
+				Map<Integer, Integer> end_a = t.update(y_a, availabe_a);
+				
+				Statistics s = CalculateState(t.getRelease(), t.getProcessing(), resources.getAvailable(), t.getDistance());
+				State state = new State(s.getGap(), container, s.getMean(), s.getSTD(), t.getProcessing());
+				
+			}
+		} else { // normal state, not to get the reward 
+
+		}
 	}
 }

@@ -177,7 +177,6 @@ public class TenantS extends Tenant {
 		return Collections.min(start.values());
 	}
 	public int getEndWhole() {
-//		System.out.println(end);
 		return Collections.max(end.values());
 	}
 
@@ -204,6 +203,6 @@ public class TenantS extends Tenant {
 	
 	@Override
 	public String toString() {
-		return "Tenant " + superid + "-" + this.getId() + "[" + this.getX() + "," + this.getY() + "]";
+		return "Tenant " + superid + "-" + this.getId() + "[" + this.getX() + "," + this.getY() + "] "  + this.getProcessing();
 	}
 }

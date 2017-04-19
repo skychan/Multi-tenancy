@@ -44,27 +44,37 @@ public class Alice {
 		
 		String filename = files[gen.nextInt(files.length)].getName();
 		int[] processing = ReadData(fileprefix + filename);
-//		System.out.println(Arrays.toString(processing));
+		System.out.println(Arrays.toString(processing));
 		
 		List<TenantS> tenants = gen.generateTenants(processing);
-		int [] release = gen.generateReleaseTime(tenants.size());
-		
-		for (int i = 0; i < release.length; i++) {
-			tenants.get(i).setRelease(release[i]);
+		tenants.remove(tenants.size()-1);
+		int [] rel = gen.generateReleaseTime(tenants.size());
+		PriorityQueue<Integer> release = new PriorityQueue<>(new Comparator<Integer>() {
+			public int compare(Integer o1, Integer o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		for (int i = 0; i < rel.length; i++) {
+//			tenants.get(i).setRelease(release[i]);
+			release.add(rel[i]);
 		}
+//		System.out.println(Arrays.toString(rel));
+//		System.out.println(release);
 		/*
 		 * Set up time line, sorting it by release time
 		 */
-		Collections.sort(tenants, new Comparator<TenantS>(){
-			public int compare(TenantS o1, TenantS o2){
-				return o1.getRelease().compareTo(o2.getRelease());
-			}
-		});
+//		Collections.sort(tenants, new Comparator<TenantS>(){
+//			public int compare(TenantS o1, TenantS o2){
+//				return o1.getRelease().compareTo(o2.getRelease());
+//			}
+//		});
 		
 		
 
 		for (TenantS t : tenants) {
+			t.setRelease(release.poll());
 			t.setDistance(resources);
+			System.out.println(t);
 		}
 		
 		/**
@@ -92,7 +102,8 @@ public class Alice {
 			gen.processing(t, resources, container);
 			if (i == tenants.size() - 1) {
 				reward_bench += t.getEndWhole();
-			}	
+			}
+//			System.out.println(t.getEndWhole());
 		}
 
 		System.out.println(reward_bench);
@@ -135,7 +146,7 @@ public class Alice {
 		 *  The main pass of the presetted tenants
 		 */
 		
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < 20; i++) {
 			List<State> instances = gen.onePass(tenants, resources, stateCells);
 			System.out.println(instances.get(instances.size()-1));
 		}
