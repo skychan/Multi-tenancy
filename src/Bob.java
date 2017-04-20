@@ -23,7 +23,7 @@ public class Bob {
 		 * and cell capacity
 		 */
 		double decay = 0.8;
-		int cellCapacity = 10;
+		int cellCapacity = 50;
 		gen.setDecay(decay);
 		
 		/*
@@ -173,8 +173,8 @@ public class Bob {
 		stateCells.add(originCell);
 		
 		gen.setStateCells(stateCells);
-//		System.out.println(originCell);
-		for (int i = 0; i < 100; i++) {
+		System.out.println(originCell);
+		for (int i = 0; i < 1; i++) {
 			gen.onePass(tenants, services);
 		}
 //		System.out.println(stateCells);

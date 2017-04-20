@@ -84,84 +84,101 @@ public class GeneratorC extends Generator{
 			
 			// TODO merge the final and subfinal
 			
-			if (!active_pass.isEmpty() && tS.getProcessing() > 0) {
-				PriorityQueue<TenantS> active_explore = new PriorityQueue<>(active_pass);
-//				System.out.println(active_explore);
-				boolean isSubFinal = true;
-				while (!active_explore.isEmpty()) {
-					TenantS tx = active_explore.poll();
-					if (tx.getId() < tenants.get(tx.getSuperid()).getNbTnents()-1) {
-						isSubFinal = false;
-						active_explore.add(tx);
-						break;
-					}
+			
+			boolean isSubFinal = this.isFinal(active_pass, tS, tenants);
+//			System.out.println(tS);
+//			if (!active_pass.isEmpty() && tS.getProcessing() > 0) {
+//				PriorityQueue<TenantS> active_explore = new PriorityQueue<>(active_pass);
+////				System.out.println(active_explore);
+//				boolean isSubFinal = true;
+//				while (!active_explore.isEmpty()) {
+//					TenantS tx = active_explore.poll();
+//					if (tx.getId() < tenants.get(tx.getSuperid()).getNbTnents()-1) {
+//						isSubFinal = false;
+//						active_explore.add(tx);
+//						break;
+//					}
+//				}
+			if (isSubFinal) {
+				double Q = this.getBench() - tS.getEndWhole();
+				state.setReward(container, Q);
 				}
-				if (isSubFinal) {
-					double Q = this.getBench() - tS.getEndWhole();
-					state.setReward(container, Q);
-					}else {
-					for (Cell cell : this.getStateCells()) {
+			else if (tS.getProcessing() > 0 && !active_pass.isEmpty()){
+				for (Cell cell : this.getStateCells()) {
 //						System.out.println(state);
-						if (cell.checkState(state)) {
-							double R = cell.getReward(container);
-							
-							double Q_next = 0;
-							// TODO explore
-							/*
-							 * 1. next resource, next tenantS
-							 */
+					if (cell.checkState(state)) {
+						double R = cell.getReward(container);
+						double Q_next = 0;
+						// TODO explore
+						/*
+						 * 1. next resource, next tenantS
+						 */
+						PriorityQueue<TenantS> active_explore = new PriorityQueue<>(active_pass);
+//						System.out.println(active_pass);
+						while (!active_explore.isEmpty()) {
 							TenantS tS_next = active_explore.poll();
-//							System.out.println(tS_next);
+							
+							if (tS_next.getId() < tenants.get(tS_next.getSuperid()).getNbTnents()-1) {
+								active_explore.add(tS_next);
+								break;
+							}
+						}
+//						System.out.println(active_explore);
+						TenantS tS_next = active_explore.poll();
+						if (this.isFinal(active_explore, tS_next, tenants)) {
+							tS_next.setFinal(true);
+						}
+//						System.out.println(tS_next);
 //							System.out.println(tenants.get(tS_next.getSuperid()).getTenants());
-							if (tS_next.getProcessing() == 0) {
-								int[] succs = tenants.get(tS_next.getSuperid()).getSuccessors().get(tS_next.getId());
-								int next_id = this.generator.nextInt(succs.length);
+						if (tS_next.getProcessing() == 0) {
+							int[] succs = tenants.get(tS_next.getSuperid()).getSuccessors().get(tS_next.getId());
+							int next_id = this.generator.nextInt(succs.length);
 //								System.out.println(tenants.get(tS_next.getSuperid()).getSuccessors().get(0));
-								tS_next = tenants.get(tS_next.getSuperid()).get(succs[next_id]);
+							tS_next = tenants.get(tS_next.getSuperid()).get(succs[next_id]);
 							}		
 //							System.out.println(tS_next);
-							Service service_next = services.get(tS_next.getServicetype());
+						Service service_next = services.get(tS_next.getServicetype());
 //							System.out.println(tS_next.getServicetype());
 //							System.out.println(service_next.getResources());
 //							System.out.println(tenants.get(7).getX());
-							
-							Q_next = this.explore(service_next, tS_next);
-							
-							double Q = R + this.getDecay() * Q_next;
-							state.setReward(container, Q);
-							boolean isFull = cell.addSample(state);
-							cell.setReward(container, Q);
-							
-							if (isFull) {
-								int volumn = cell.getCapacity();
-								Map.Entry<String, List> rule = cell.getSplitRule();
-								String key = rule.getKey();
-								// then chose the biggest, sort the states
-								cell.sortByRule(key);
-								List<Double> list = rule.getValue();
-								Collections.sort(list);
-								double middle_bound = 0.5*(list.get(volumn/2) + list.get(volumn/2 - 1));
-								// create a new cell, copy all the old cell's information
-								Cell child = new Cell();
-								child.copy(cell);
-								// modify the bounds, 
-								cell.setPorperity(key, "max", middle_bound);
-								child.setPorperity(key, "min", middle_bound);
-								// migrate samples from old to new 
-								for (int j = 0; j < volumn/2; j++) {
-									child.addSample(cell.removeSample());
+					
+						Q_next = this.explore(service_next, tS_next);
+						
+						tS_next.setFinal(false);
+						
+						double Q = R + this.getDecay() * Q_next;
+						state.setReward(container, Q);
+						boolean isFull = cell.addSample(state);
+						cell.setReward(container, Q);
+					
+						if (isFull) {
+							int volumn = cell.getCapacity();
+							Map.Entry<String, List> rule = cell.getSplitRule();
+							String key = rule.getKey();
+						// then chose the biggest, sort the states
+							cell.sortByRule(key);
+							List<Double> list = rule.getValue();
+							Collections.sort(list);
+							double middle_bound = 0.5*(list.get(volumn/2) + list.get(volumn/2 - 1));
+						// create a new cell, copy all the old cell's information
+							Cell child = new Cell();
+							child.copy(cell);
+						// modify the bounds, 
+							cell.setPorperity(key, "max", middle_bound);
+							child.setPorperity(key, "min", middle_bound);
+						// migrate samples from old to new 
+							for (int j = 0; j < volumn/2; j++) {
+								child.addSample(cell.removeSample());
 								}
-								// add child to the stateCells
-								this.addStateCell(child);
+						// add child to the stateCells
+							this.addStateCell(child);
 							}
-							break;
+						break;
 						}
 					}
 				}
 			}
-			
 		}
-	}
 	
 /*	public void preprocessing() {
 		// TODO
@@ -216,6 +233,26 @@ public class GeneratorC extends Generator{
 				active.add(tC.get(sid));
 			}
 		}
+	}
+	
+	public boolean isFinal(PriorityQueue<TenantS> active, TenantS tS, List<TenantC> tenants) {
+		boolean isSubFinal = true;
+		if (!active.isEmpty() && tS.getProcessing() > 0) {
+			PriorityQueue<TenantS> active_explore = new PriorityQueue<>(active);
+//			System.out.println(active_explore);
+			
+			while (!active_explore.isEmpty()) {
+				TenantS tx = active_explore.poll();
+				if (tx.getId() < tenants.get(tx.getSuperid()).getNbTnents()-1) {
+					isSubFinal = false;
+					active_explore.add(tx);
+					break;
+					}
+				}
+			} else {
+				isSubFinal = false;
+			}
+		return isSubFinal;
 	}
 	
 }
