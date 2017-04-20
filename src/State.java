@@ -13,19 +13,19 @@ public class State {
 	 * 6. reward vector
 	 */
 	
-	private int gap;
-	private int num;
+	private double gap;
+	private double num;
 	private double mean;
 	private double var;
-	private int p;
+	private double p;
 	
-	private Map<String,Object> porperities;
+	private Map<String,Double> porperities;
 	
-	private Map<Integer, Double> reward;
+	private Map<Integer, Double> reward; // (action, reward)
 	private boolean end = false;
 	
 	public State(int gap, int num, double mean, double var, int p) {
-		this.porperities = new HashMap<String, Object>();
+		this.porperities = new HashMap<String, Double>();
 		this.setGap(gap);
 		this.setNum(num);
 		this.setMean(mean);
@@ -36,15 +36,11 @@ public class State {
 		
 	}
 
-	public <Any> Any getPorperity(String key) {
-		if (key == "mean" || key == "var") {
-			return (Any) ((Double)(double) this.porperities.get(key));
-		} else {
-			return (Any) ((Integer)(int) this.porperities.get(key));
-		}
+	public double getPorperity(String key) {
+		return this.porperities.get(key);
 	}
 	
-	public int getGap() {
+	public double getGap() {
 		return gap;
 	}
 
@@ -55,7 +51,7 @@ public class State {
 	}
 
 
-	public int getNum() {
+	public double getNum() {
 		return num;
 	}
 
@@ -88,12 +84,12 @@ public class State {
 	}
 
 
-	public int getP() {
+	public double getP() {
 		return p;
 	}
 
 
-	public void setP(int p) {
+	public void setP(double p) {
 		this.p = p;
 		this.porperities.put("p", this.p);
 	}

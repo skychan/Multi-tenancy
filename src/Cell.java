@@ -14,19 +14,19 @@ public class Cell {
 	 * 6. reward vector
 	 */
 	
-	private Map<Integer, Double> reward; // (d_makespan,d_logistic)
+	private Map<Integer, Double> reward; // (action, reward)
 	
-	private int gap_min, gap_max;
-	private int num_min, num_max;
+	private double gap_min, gap_max;
+	private double num_min, num_max;
 	private double mean_min, mean_max;
 	private double var_min, var_max;
-	private int p_min, p_max;
+	private double p_min, p_max;
 	
-	private List<Integer> gap;
-	private List<Integer> num;
+	private List<Double> gap;
+	private List<Double> num;
 	private List<Double> mean;
 	private List<Double> var;
-	private List<Integer> p;
+	private List<Double> p;
 	
 	private Map<String, List> porperities;
 		
@@ -62,11 +62,11 @@ public class Cell {
 		this.sampleStates = new LinkedList<State>();
 		
 		this.setNum_min(1);
-		this.setNum_max(Integer.MAX_VALUE);
-		this.setGap_min(Integer.MIN_VALUE);
-		this.setGap_max(Integer.MAX_VALUE);
+		this.setNum_max(Double.MAX_VALUE);
+		this.setGap_min(Double.MIN_VALUE);
+		this.setGap_max(Double.MAX_VALUE);
 		this.setP_min(1);
-		this.setP_max(Integer.MAX_VALUE);
+		this.setP_max(Double.MAX_VALUE);
 		this.setMean_min(0);
 		this.setMean_max(Double.MAX_VALUE);
 		this.setVar_min(0);
@@ -75,11 +75,11 @@ public class Cell {
 		this.reward = new HashMap<Integer, Double>();
 		
 		this.porperities = new HashMap<String,List>();
-		this.gap = new LinkedList<Integer>();
-		this.num = new LinkedList<Integer>();
+		this.gap = new LinkedList<Double>();
+		this.num = new LinkedList<Double>();
 		this.mean = new LinkedList<Double>();
 		this.var = new LinkedList<Double>();
-		this.p = new LinkedList<Integer>();
+		this.p = new LinkedList<Double>();
 		this.porperities.put("gap",this.gap);
 		this.porperities.put("num",this.num);
 		this.porperities.put("mean",this.mean);
@@ -91,35 +91,35 @@ public class Cell {
 //		this.set
 	}
 	
-	public int getGap_min() {
+	public double getGap_min() {
 		return gap_min;
 	}
 
-	public void setGap_min(int gap_min) {
+	public void setGap_min(double gap_min) {
 		this.gap_min = gap_min;
 	}
 
-	public int getGap_max() {
+	public double getGap_max() {
 		return gap_max;
 	}
 
-	public void setGap_max(int gap_max) {
+	public void setGap_max(double gap_max) {
 		this.gap_max = gap_max;
 	}
 
-	public int getNum_min() {
+	public double getNum_min() {
 		return num_min;
 	}
 
-	public void setNum_min(int num_min) {
+	public void setNum_min(double num_min) {
 		this.num_min = num_min;
 	}
 
-	public int getNum_max() {
+	public double getNum_max() {
 		return num_max;
 	}
 
-	public void setNum_max(int num_max) {
+	public void setNum_max(double num_max) {
 		this.num_max = num_max;
 	}
 
@@ -155,19 +155,19 @@ public class Cell {
 		this.var_max = var_max;
 	}
 
-	public int getP_min() {
+	public double getP_min() {
 		return p_min;
 	}
 
-	public void setP_min(int p_min) {
+	public void setP_min(double p_min) {
 		this.p_min = p_min;
 	}
 
-	public int getP_max() {
+	public double getP_max() {
 		return p_max;
 	}
 
-	public void setP_max(int p_max) {
+	public void setP_max(double p_max) {
 		this.p_max = p_max;
 	}
 
@@ -245,8 +245,8 @@ public class Cell {
 		this.capacity = capacity;
 	}
 	
-	public List getSplitRule() {
-//		Map<String, Double> std = new HashMap<String, Double>();
+	public Map.Entry<String, List> getSplitRule() {
+		
 		PriorityQueue<Map.Entry<String, Double>> std = new PriorityQueue<Map.Entry<String,Double>>(new Comparator<Map.Entry<String, Double> >() {
 
 			@Override
@@ -259,14 +259,26 @@ public class Cell {
 		});
 		for (Map.Entry<String, List> porperity : this.porperities.entrySet()) {
 			Statistics s = new Statistics(porperity.getValue(), 0);
-			Map.Entry<String, Double> item = new MyEntry(porperity.getKey(), porperity.getValue());
+			Map.Entry<String, Double> item = new MyEntry(porperity.getKey(), s.getSTD());
 			
-			std.add(item);			
+			std.add(item);
 		}
+		String key = std.peek().getKey();
+		Map.Entry<String, List> result = new MyEntry(key, this.porperities.get(key));
+		return result;
+	}
+	
+	public void sortByRule(String ruleName) {
 		
-		return this.porperities.get(std.peek().getKey());
-//		std.
-//		Collections.max(std.values());
+		Comparator<State> comparator = new Comparator<State>() {
+			
+			@Override
+			public int compare(State o1, State o2) {
+				return Double.compare(o1.getPorperity(ruleName), o2.getPorperity(ruleName));
+			}
+		};
+		
+		Collections.sort(this.sampleStates, comparator);
 	}
 	
 	public void copy(Cell oldCell) {
