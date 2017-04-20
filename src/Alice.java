@@ -106,34 +106,12 @@ public class Alice {
 
 		System.out.println(reward_bench);
 		
-		// End of init pass
-		
-		// initialize the original cell
-		
-		/*
-		 * Define the cell comparator to sort the list for later new cells
+		// End of init pass		
+		/* Initialize the original cell
+		 * 1. capacity
+		 * 2. decay
+		 * 3. cell space
 		 */
-//		Comparator<Cell> cellComparator = new Comparator<Cell>() {
-//			@Override
-//			public int compare(Cell o1, Cell o2) {
-//				int c;
-//				c = Integer.compare(o1.getNum_max(), o2.getNum_max());
-//				if (c == 0) {
-//					c = Integer.compare(o1.getGap_max(), o2.getGap_max());
-//					if (c == 0) {
-//						c = Integer.compare(o1.getP_max(), o2.getP_max());
-//						if (c == 0) {
-//							c = Double.compare(o1.getMean_max(), o2.getMean_max());
-//							if (c == 0) {
-//								c = Double.compare(o1.getVar_max(), o2.getVar_max());
-//							}
-//						}
-//					}
-//				}
-//				return c;
-//			}
-//		};
-		
 		List<Cell> stateCells = new LinkedList<>(); //cellComparator
 
 		Cell originCell = new Cell();
@@ -185,7 +163,7 @@ public class Alice {
 		}
 	}
 	
-	public static Statistics CalculateState(int r, int p, Map<Integer,Integer> a, Map<Integer,Integer> dist) {
+/*	public static Statistics CalculateState(int r, int p, Map<Integer,Integer> a, Map<Integer,Integer> dist) {
 		List<Integer> resut = new ArrayList<Integer>();
 		for (Map.Entry<Integer, Integer> av : a.entrySet()) {
 			resut.add(Math.max(av.getValue(), r) + dist.get(av.getKey()));
@@ -193,5 +171,5 @@ public class Alice {
 		
 		Statistics state = new Statistics(resut, p);
 		return state;
-	}
+	}*/
 }

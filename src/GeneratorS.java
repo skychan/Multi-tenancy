@@ -56,6 +56,7 @@ public class GeneratorS extends Generator{
 				state.setReward(container, Q);
 			} else {
 				for (Cell cell : this.getStateCells()) {
+//					System.out.println(state);
 					if (cell.checkState(state)) {
 						// TODO calculate R(s,a)
 						double R = cell.getReward(container);
@@ -102,17 +103,7 @@ public class GeneratorS extends Generator{
 		}
 	}
 	
-	public Statistics CalculateState(int r, int p, Map<Integer,Integer> a, Map<Integer,Integer> dist) {
-		List<Double> resut = new ArrayList<Double>();
-		for (Map.Entry<Integer, Integer> av : a.entrySet()) {
-			resut.add((double) (Math.max(av.getValue(), r) + dist.get(av.getKey())));
-		}
-		
-		Statistics state = new Statistics(resut, p);
-		return state;
-	}
-	
-	public void preprocessing(TenantS t, Service resources) {
+/*	public void preprocessing(TenantS t, Service resources) {
 		int r = t.getRelease();
 		for (Resource resource : resources.getResources()) {
 			int id = resource.getId();
@@ -120,9 +111,9 @@ public class GeneratorS extends Generator{
 			t.setStart(id, Math.max(a, r));
 			t.setEnd(id, 0);
 		}
-	}
+	}*/
 	
-	public void processing(TenantS t, Service resources, int container) {
+/*	public void processing(TenantS t, Service resources, int container) {
 		this.preprocessing(t, resources);
 		Map<Integer, Integer> available = new HashMap<>(resources.getAvailable());
 		Map<Integer, Integer> y = t.fill(available,container);		
@@ -132,9 +123,9 @@ public class GeneratorS extends Generator{
 		// update the resource available and tenant end
 		resources.setAvailable(available);
 		t.setEnd(end);
-	}
+	}*/
 	
-	public double explore(Service resources, TenantS t) {
+	/*public double explore(Service resources, TenantS t) {
 		Map<Integer, Double> Q = new HashMap<Integer, Double>();
 		int nbResource = resources.getAmount();
 		Map<Integer, Integer> availabe = new HashMap<>(resources.getAvailable());
@@ -163,5 +154,5 @@ public class GeneratorS extends Generator{
 			
 		}
 		return Collections.max(Q.values());
-	}
+	}*/
 }

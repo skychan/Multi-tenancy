@@ -45,9 +45,9 @@ public class Cell {
 		
 		this.bounds = new HashMap<String, Double>();
 
-		this.bounds.put("gapmin", Double.MIN_VALUE);
+		this.bounds.put("gapmin", -Double.MAX_VALUE);
 		this.bounds.put("gapmax", Double.MAX_VALUE);
-		this.bounds.put("nummin", 1.0);
+		this.bounds.put("nummin", 0.0);
 		this.bounds.put("nummax", Double.MAX_VALUE);
 		this.bounds.put("meanmin", 0.0);
 		this.bounds.put("meanmax", Double.MAX_VALUE);

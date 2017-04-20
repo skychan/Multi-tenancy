@@ -35,6 +35,10 @@ public class State {
 		
 		
 	}
+	
+	public State() {
+		
+	}
 
 	public double getPorperity(String key) {
 		return this.porperities.get(key);

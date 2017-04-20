@@ -71,13 +71,13 @@ public class Generator {
 		return this.generator.nextInt(num);
 	}
 	
-	public boolean dominance(Vector<Integer> v1, Vector<Integer> v2) {
+/*	public boolean dominance(Vector<Integer> v1, Vector<Integer> v2) {
 		if ((v1.get(0) >= v2.get(0) && v1.get(1) > v2.get(1)) || (v1.get(0) > v2.get(0) && v1.get(1) >= v2.get(1))) {
 			return true;
 		} else {
 			return false;
 		}
-	}
+	}*/
 
 	public int getBench() {
 		return bench;
@@ -105,6 +105,92 @@ public class Generator {
 
 	public void setStateCells(List<Cell> stateCells) {
 		this.stateCells = stateCells;
+	}
+	
+	public Statistics CalculateState(int r, int p, Map<Integer,Integer> a, Map<Integer,Integer> dist) {
+		List<Double> resut = new ArrayList<Double>();
+		for (Map.Entry<Integer, Integer> av : a.entrySet()) {
+			resut.add((double) (Math.max(av.getValue(), r) + dist.get(av.getKey())));
+		}
+		
+		Statistics state = new Statistics(resut, p);
+		return state;
+	}
+	
+	public void preprocessing(TenantS t, Service resources) {
+		int r = t.getRelease();
+		for (Resource resource : resources.getResources()) {
+			int id = resource.getId();
+			int a = resource.getAvailable();
+			t.setStart(id, Math.max(a, r));
+			t.setEnd(id, 0);
+		}
+	}
+	
+	public void processing(TenantS t, Service resources, int container) {
+		this.preprocessing(t, resources);
+		Map<Integer, Integer> available = new HashMap<>(resources.getAvailable());
+		Map<Integer, Integer> y = t.fill(available,container);		
+		
+		Map<Integer, Integer> end = t.update(y, available);
+		
+		// update the resource available and tenant end
+		resources.setAvailable(available);
+		t.setEnd(end);
+	}
+	
+	public double explore(Service resources, TenantS t) {
+		Map<Integer, Double> Q = new HashMap<Integer, Double>();
+		int nbResource = resources.getAmount();
+		Map<Integer, Integer> availabe = new HashMap<>(resources.getAvailable());
+		
+		this.preprocessing(t, resources);
+		for (int action = 1; action <= nbResource; action++) {
+			Map<Integer, Integer> y = t.fill(resources.getAvailable(), action);
+			Map<Integer, Integer> end = t.update(y, availabe);
+			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), availabe, t.getDistance());
+			State state = new State(s.getGap(), nbResource, s.getMean(), s.getSTD(), t.getProcessing());
+			
+//			if (t.getId() == 7 && t.getSuperid() == 7) {
+//				System.out.println(state);
+//			}
+			
+			if (t.isFinal()) {
+				double q = this.getBench() - Collections.max(end.values());
+				Q.put(action,q);
+			} else {
+//				if (t.getId() == 7 && t.getSuperid() == 7) {
+//					System.out.println(state.getGap());
+//					System.out.println(this.getStateCells().size());
+//					System.out.println(this.getStateCells().get(0).getPorperity("gap", "min"));
+//					System.out.println(this.getStateCells().get(0).getPorperity("gap", "max") >= state.getGap());
+//				}
+//				
+				for (Cell cell: this.getStateCells()) {
+//					if (t.getId() == 7 && t.getSuperid() == 7) {
+//						String key = "gap";
+//						System.out.println(state);
+//						if (state.getPorperity(key) >= cell.getPorperity(key, "min") && state.getNum() <= cell.getPorperity(key, "max")) {
+//						
+//						}else{
+//							System.out.println(key);
+//						}
+//					}
+					if (cell.checkState(state)) {
+
+						double q = cell.getReward(action);
+						Q.put(action, q);
+						break;
+					}
+				}
+			}
+		}
+		if (Q.isEmpty()) {
+			System.out.println(t);
+//			System.out.println();
+			
+		}
+		return Collections.max(Q.values());
 	}
 	
 }

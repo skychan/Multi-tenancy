@@ -17,6 +17,14 @@ public class Bob {
 		 * Generate Service
 		 */
 		List<Service> services = gen.generateServices(nbService);
+				
+		/*
+		 * for RL we need to set the decay for Bellman's EQ
+		 * and cell capacity
+		 */
+		double decay = 0.8;
+		int cellCapacity = 10;
+		gen.setDecay(decay);
 		
 		/*
 		 * Generate Complex Tenant
@@ -44,6 +52,8 @@ public class Bob {
 		
 		PriorityQueue<TenantS> active = new PriorityQueue<>(comparator);
 		
+		gen.setActive(active);
+		
 		// set release and put it into priority queue
 		for (TenantC tC : tenants) {
 			String filename = files[gen.nextInt(files.length)].getName();
@@ -52,6 +62,10 @@ public class Bob {
 			tS.setRelease(tC.getRelease());
 //			tS.setStart(-1,tC.getRelease());
 			active.add(tS);
+			
+			if (tC.getId() == 2) {
+				System.out.println(tC.getNbTnents());
+			}
 		}
 		// It's hard to set all the sub tenants' distances now, so set the distances in the marker pass.
 		// Start the marker pass
@@ -71,32 +85,34 @@ public class Bob {
 				// TODO set distances
 				tS.setDistance(services.get(tS.getServicetype()));
 				
-				container = gen.nextInt(services.get(tS.getServicetype()).size()) + 1;
+				container = gen.nextInt(services.get(tS.getServicetype()).getAmount()) + 1;
 				
 				// TODO set init start and end (pre-processing)
-				int r = tS.getRelease();
+				/*int r = tS.getRelease();
 				for (Resource resource : services.get(tS.getServicetype()).getResources()) {
 					int id = resource.getId();
 					int a = resource.getAvailable();
 					tS.setStart(id, Math.max(a, r));
 					tS.setEnd(id, 0);
-				}
+				}*/
+//				gen.preprocessing(tS, services.get(tS.getServicetype()));
 				
 				// TODO fill
-				Map<Integer, Integer> available = new HashMap<Integer, Integer>(services.get(tS.getServicetype()).getAvailable());
+				/*Map<Integer, Integer> available = new HashMap<Integer, Integer>(services.get(tS.getServicetype()).getAvailable());
 				Map<Integer, Integer> y = tS.fill(available, container);
 				
-				Map<Integer, Integer> end = tS.update(y, available);
+				Map<Integer, Integer> end = tS.update(y, available);*/
+				gen.processing(tS, services.get(tS.getServicetype()), container);
 				
 				// TODO update
-				services.get(tS.getServicetype()).setAvailable(available);
-				tS.setEnd(end);
+				/*services.get(tS.getServicetype()).setAvailable(available);
+				tS.setEnd(end);*/
 			} else {
 				tS.setEnd(-1, tS.getRelease());
 			}
 //			System.out.println(tS.getEndWhole());
 			// TODO mark the tS finish and activate
-			int end_whole = tS.getEndWhole();
+			/*int end_whole = tS.getEndWhole();
 			tC.finish(tS.getId());
 			for (int sid : tC.getSuccessors().get(tS.getId())) { // check successor's predecessors
 				boolean c = true;
@@ -119,12 +135,15 @@ public class Bob {
 					// add to active
 					marker_active.add(tC.get(sid));
 				}
-			}
+			}*/
+			gen.Finish(marker_active, tC, tS);
 			// TODO get marker value
 			if (marker_active.isEmpty()) {
 				reward_bench = tS.getEndWhole();
 			}
 		}
+		
+		gen.setBench(reward_bench);
 		
 		System.out.println(reward_bench);
 //		for (Service s : services) {
@@ -137,7 +156,29 @@ public class Bob {
 //		for (TenantC tC : tenants) {
 //			System.out.println(tC);
 //		}
-			
+		
+		// End of init pass
+		/*
+		 * Initialize the original cell
+		 * 1. capacity
+		 * 2. decay
+		 * 3. cell space
+		 */
+		List<Cell> stateCells = new LinkedList<>(); //cellComparator
+
+		Cell originCell = new Cell();
+		originCell.setCapacity(cellCapacity);
+		originCell.setDecay(decay);
+		
+		stateCells.add(originCell);
+		
+		gen.setStateCells(stateCells);
+//		System.out.println(originCell);
+		for (int i = 0; i < 100; i++) {
+			gen.onePass(tenants, services);
+		}
+//		System.out.println(stateCells);
+		
 		System.out.println("没毛病，law tear");
 		
 	}
