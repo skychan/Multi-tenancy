@@ -73,12 +73,26 @@ public class GeneratorS extends Generator{
 						if (isFull){
 							// TODO split the cellSpace
 							// first sort by the bound var, record the bound
-							
+							int volumn = cell.getCapacity();
+							Map.Entry<String, List> rule = cell.getSplitRule();
+							String key = rule.getKey();
 							// then chose the biggest, sort the states
-							// create a new cell, 
-							// copy all the old cell's information
+							cell.sortByRule(key);
+							List<Double> list = rule.getValue();
+							Collections.sort(list);
+							double middle_bound = 0.5*(list.get(volumn/2) + list.get(volumn/2 - 1));
+							// create a new cell, copy all the old cell's information
+							Cell child = new Cell();
+							child.copy(cell);
 							// modify the bounds, 
-							// remove old 
+							cell.setPorperity(key, "max", middle_bound);
+							child.setPorperity(key, "min", middle_bound);
+							// migrate samples from old to new 
+							for (int j = 0; j < volumn/2; j++) {
+								child.addSample(cell.removeSample());
+							}
+							// add child to the stateCells
+							this.addStateCell(child);
 						}
 						break;
 					}
@@ -89,9 +103,9 @@ public class GeneratorS extends Generator{
 	}
 	
 	public Statistics CalculateState(int r, int p, Map<Integer,Integer> a, Map<Integer,Integer> dist) {
-		List<Integer> resut = new ArrayList<Integer>();
+		List<Double> resut = new ArrayList<Double>();
 		for (Map.Entry<Integer, Integer> av : a.entrySet()) {
-			resut.add(Math.max(av.getValue(), r) + dist.get(av.getKey()));
+			resut.add((double) (Math.max(av.getValue(), r) + dist.get(av.getKey())));
 		}
 		
 		Statistics state = new Statistics(resut, p);
@@ -141,6 +155,10 @@ public class GeneratorS extends Generator{
 					}
 				}
 			}
+		}
+		if (Q.isEmpty()) {
+			System.out.println(t);
+			
 		}
 		return Collections.max(Q.values());
 	}

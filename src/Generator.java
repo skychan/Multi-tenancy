@@ -98,6 +98,10 @@ public class Generator {
 	public List<Cell> getStateCells() {
 		return stateCells;
 	}
+	
+	public void addStateCell(Cell cell) {
+		this.stateCells.add(cell);
+	}
 
 	public void setStateCells(List<Cell> stateCells) {
 		this.stateCells = stateCells;

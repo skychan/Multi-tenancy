@@ -41,7 +41,7 @@ public class Alice {
 		 * and cell capacity
 		 */
 		double decay = 0.8;
-		int cellCapacity = 50;
+		int cellCapacity = 5;
 		gen.setDecay(decay);
 		
 		String fileprefix = "test/";
@@ -162,10 +162,12 @@ public class Alice {
 		 *  The main pass of the presetted tenants
 		 */
 		
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 100; i++) {
 			gen.onePass(tenants, resources);
 //			System.out.println(instances.get(instances.size()-1));
+
 		}
+		System.out.println(stateCells);
 		
 	}
 	

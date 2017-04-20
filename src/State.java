@@ -24,7 +24,7 @@ public class State {
 	private Map<Integer, Double> reward; // (action, reward)
 	private boolean end = false;
 	
-	public State(int gap, int num, double mean, double var, int p) {
+	public State(double gap, int num, double mean, double var, int p) {
 		this.porperities = new HashMap<String, Double>();
 		this.setGap(gap);
 		this.setNum(num);
@@ -45,7 +45,7 @@ public class State {
 	}
 
 
-	public void setGap(int gap) {
+	public void setGap(double gap) {
 		this.gap = gap;
 		this.porperities.put("gap",this.gap);
 	}
@@ -116,6 +116,8 @@ public class State {
 
 	@Override
 	public String toString() {
-		return "Reward: " + this.reward;
+		return "State [porperities=" + porperities + "]";
 	}
+
+
 }

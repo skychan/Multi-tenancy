@@ -2,7 +2,7 @@ import java.util.*;
 
 
 public class Statistics {
-	private List<Integer> data;
+	private List<Double> data;
 	private int p;
 	
 	public Statistics(List data, int p) {
@@ -10,13 +10,15 @@ public class Statistics {
 		this.p = p;
 	}
 	
-	public int getMax() {
-		return Collections.max(this.data);
+	public double getMax() {
+//		System.out.println(Collections.max(this.data));
+
+		return Collections.max(this.data) + 0.0;
 	}
 	
 	public int getSum() {
 		int sum = 0;
-		for (Integer d : data) {
+		for (Double d : data) {
 			sum += d;
 		}
 		return sum;
@@ -34,7 +36,7 @@ public class Statistics {
 		} else {
 			int psum = 0;
 			double mean = this.getMean();
-			for (Integer d : data) {
+			for (Double d : data) {
 				psum += Math.pow(d - mean, 2);
 			}
 			std = Math.sqrt(psum/(n-1));
@@ -44,8 +46,8 @@ public class Statistics {
 		
 	}
 	
-	public int getGap() {
-		int gap = 0;
+	public double getGap() {
+		double gap = 0;
 		gap = this.getMax() * this.data.size() - this.getSum() - this.p;
 		return gap;
 	}

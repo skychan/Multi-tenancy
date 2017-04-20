@@ -16,11 +16,11 @@ public class Cell {
 	
 	private Map<Integer, Double> reward; // (action, reward)
 	
-	private double gap_min, gap_max;
-	private double num_min, num_max;
-	private double mean_min, mean_max;
-	private double var_min, var_max;
-	private double p_min, p_max;
+//	private double gap_min, gap_max;
+//	private double num_min, num_max;
+//	private double mean_min, mean_max;
+//	private double var_min, var_max;
+//	private double p_min, p_max;
 	
 	private List<Double> gap;
 	private List<Double> num;
@@ -29,6 +29,7 @@ public class Cell {
 	private List<Double> p;
 	
 	private Map<String, List> porperities;
+	private Map<String, Double> bounds;
 		
 	private List<State> sampleStates;
 	
@@ -39,38 +40,32 @@ public class Cell {
 	private int capacity;
 	
 	public Cell() {
-//		Comparator<State> comparator = new Comparator<State>(){
-//			public int compare(State o1, State o2){
-//				int c;
-//				c = Integer.compare(o1.getNum(), o2.getNum());
-//				if (c == 0) {
-//					c = Integer.compare(o1.getGap(), o2.getGap());
-//					if (c == 0) {
-//						c = Integer.compare(o1.getP(), o2.getP());
-//						if (c == 0) {
-//							c = Double.compare(o1.getMean(), o2.getMean());
-//							if (c == 0) {
-//								c = Double.compare(o1.getVar(), o2.getVar());
-//							}
-//						}
-//					}
-//				}
-//				return c;
-//			}
-//		};
 		
 		this.sampleStates = new LinkedList<State>();
 		
-		this.setNum_min(1);
-		this.setNum_max(Double.MAX_VALUE);
-		this.setGap_min(Double.MIN_VALUE);
-		this.setGap_max(Double.MAX_VALUE);
-		this.setP_min(1);
-		this.setP_max(Double.MAX_VALUE);
-		this.setMean_min(0);
-		this.setMean_max(Double.MAX_VALUE);
-		this.setVar_min(0);
-		this.setVar_max(Double.MAX_VALUE);
+		this.bounds = new HashMap<String, Double>();
+
+		this.bounds.put("gapmin", Double.MIN_VALUE);
+		this.bounds.put("gapmax", Double.MAX_VALUE);
+		this.bounds.put("nummin", 1.0);
+		this.bounds.put("nummax", Double.MAX_VALUE);
+		this.bounds.put("meanmin", 0.0);
+		this.bounds.put("meanmax", Double.MAX_VALUE);
+		this.bounds.put("varmin", 0.0);
+		this.bounds.put("varmax", Double.MAX_VALUE);
+		this.bounds.put("pmin", 0.0);
+		this.bounds.put("pmax", Double.MAX_VALUE);
+		
+//			this.setNum_min(1);
+//		this.setNum_max(Double.MAX_VALUE);
+//		this.setGap_min(Double.MIN_VALUE);
+//		this.setGap_max(Double.MAX_VALUE);
+//		this.setP_min(1);
+//		this.setP_max(Double.MAX_VALUE);
+//		this.setMean_min(0);
+//		this.setMean_max(Double.MAX_VALUE);
+//		this.setVar_min(0);
+//		this.setVar_max(Double.MAX_VALUE);
 		
 		this.reward = new HashMap<Integer, Double>();
 		
@@ -86,92 +81,7 @@ public class Cell {
 		this.porperities.put("var", this.var);
 		this.porperities.put("p", this.p);
 	}
-	
-	public Cell(int ni, int nx, int gi, int gx, int pi, int px, int mi, int mx, double vi, double vx) {
-//		this.set
-	}
-	
-	public double getGap_min() {
-		return gap_min;
-	}
 
-	public void setGap_min(double gap_min) {
-		this.gap_min = gap_min;
-	}
-
-	public double getGap_max() {
-		return gap_max;
-	}
-
-	public void setGap_max(double gap_max) {
-		this.gap_max = gap_max;
-	}
-
-	public double getNum_min() {
-		return num_min;
-	}
-
-	public void setNum_min(double num_min) {
-		this.num_min = num_min;
-	}
-
-	public double getNum_max() {
-		return num_max;
-	}
-
-	public void setNum_max(double num_max) {
-		this.num_max = num_max;
-	}
-
-	public double getMean_min() {
-		return mean_min;
-	}
-
-	public void setMean_min(int mean_min) {
-		this.mean_min = mean_min;
-	}
-
-	public double getMean_max() {
-		return mean_max;
-	}
-
-	public void setMean_max(double mean_max) {
-		this.mean_max = mean_max;
-	}
-
-	public double getVar_min() {
-		return var_min;
-	}
-
-	public void setVar_min(double var_min) {
-		this.var_min = var_min;
-	}
-
-	public double getVar_max() {
-		return var_max;
-	}
-
-	public void setVar_max(double var_max) {
-		this.var_max = var_max;
-	}
-
-	public double getP_min() {
-		return p_min;
-	}
-
-	public void setP_min(double p_min) {
-		this.p_min = p_min;
-	}
-
-	public double getP_max() {
-		return p_max;
-	}
-
-	public void setP_max(double p_max) {
-		this.p_max = p_max;
-	}
-
-	
 	public boolean addSample(State s) {
 		this.sampleStates.add(s);
 		this.counter++;
@@ -179,7 +89,7 @@ public class Cell {
 		for (Map.Entry<String, List> porperity : this.porperities.entrySet()) {
 			String key = porperity.getKey();
 			porperity.getValue().add(s.getPorperity(key));
-			System.out.println(this.porperities);
+//			System.out.println(this.porperities);
 		}
 		
 		// if the amount is full of capacity, then split into two sub cells
@@ -190,29 +100,49 @@ public class Cell {
 		}
 	}
 	
-	public void removeSample(State s) {
+	public State removeSample() {
 		this.counter--;
+		State s = this.sampleStates.get(counter);
 		this.sampleStates.remove(s);
 		for (Map.Entry<String, List> porperity : this.porperities.entrySet()) {
 			String key = porperity.getKey();
 			porperity.getValue().remove(s.getPorperity(key));
 		}
+		return s;
 	}
 	
 	public int getAmount() {
 		return this.counter;
 	}
 	
+	public double getPorperity(String name, String extreme) {
+		return this.bounds.get(name+extreme);
+	}
+	
+	public void setPorperity(String name, String extreme, double value) {
+		this.bounds.put(name + extreme, value);
+	}
+	
 	public boolean checkState(State state) {
-		if (state.getNum() >= this.getNum_min() && state.getNum() <= this.getNum_max() &&
-			state.getGap() >= this.getGap_min() && state.getGap() <= this.getGap_max() &&
-			state.getP() >= this.getGap_min() && state.getP() <= this.getP_max() &&
-			state.getMean() >= this.getMean_min() && state.getMean() <= this.getMean_max() &&
-			state.getVar() >= this.getVar_min() && state.getVar() <= this.getVar_max() ) {
-			return true;
-		} else {
-			return false;
+//		state.getNum() >= this.getNum_min() && state.getNum() <= this.getNum_max() &&
+//				state.getGap() >= this.getGap_min() && state.getGap() <= this.getGap_max() &&
+//				state.getP() >= this.getGap_min() && state.getP() <= this.getP_max() &&
+//				state.getMean() >= this.getMean_min() && state.getMean() <= this.getMean_max() &&
+//				state.getVar() >= this.getVar_min() && state.getVar() <= this.getVar_max()
+		boolean bounded = true;
+		for (String porperityName : this.porperities.keySet()) {
+			boolean inInterval = state.getPorperity(porperityName) >= this.getPorperity(porperityName, "min") && state.getPorperity(porperityName) <= this.getPorperity(porperityName, "max");
+			bounded &= inInterval;
+			if (!bounded) {
+				break;
+			}
 		}		
+//		if ( bounded ) {
+//			return true;
+//		} else {
+//			return false;
+//		}
+		return bounded;
 	}
 	
 	public double getReward(int action) {
@@ -283,5 +213,45 @@ public class Cell {
 	
 	public void copy(Cell oldCell) {
 		// TODO copy all the old information here
+		/*
+		 * 1. Reward
+		 * 2. bounds (gap,num,mean,var,p)
+		 * 3. decay
+		 * 4. capacity
+		 */
+		this.reward = oldCell.getReward();
+		// bounds
+//		this.gap_min = oldCell.getGap_min();
+//		this.gap_max = oldCell.getGap_max();
+//		this.num_min = oldCell.getNum_min();
+//		this.num_max = oldCell.getNum_max();
+//		this.mean_min = oldCell.getMean_min();
+//		this.mean_max = oldCell.getMean_max();
+//		this.var_min = oldCell.getVar_min();
+//		this.var_max = oldCell.getVar_max();
+//		this.p_min = oldCell.getP_min();
+//		this.p_max = oldCell.getP_max();
+		for (String key : this.porperities.keySet()) {
+			this.setPorperity(key, "min", oldCell.getPorperity(key, "min"));
+			this.setPorperity(key, "max", oldCell.getPorperity(key, "max"));
+		}
+		
+		//decay
+		this.decay = oldCell.getDecay();
+		//capacity
+		this.capacity = oldCell.getCapacity();
+	}
+
+	public Map<Integer, Double> getReward() {
+		return reward;
+	}
+
+	public void setReward(Map<Integer, Double> reward) {
+		this.reward = reward;
+	}
+
+	@Override
+	public String toString() {
+		return "Cell [bounds=" + bounds + "]";
 	}
 }
