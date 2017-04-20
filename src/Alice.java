@@ -27,7 +27,6 @@ public class Alice {
 		int nbResource = 7;
 		Service resources =  new Service(0);
 		resources.setResources(gen.generateResources(nbResource,0));
-		Map<Integer,Integer> resourceAvailable = resources.getAvailable();
 		
 		/*
 		 * Tenant follows
@@ -44,11 +43,16 @@ public class Alice {
 		int cellCapacity = 5;
 		gen.setDecay(decay);
 		
+		/*
+		 * 1. Read file
+		 * 2. set processing
+		 * 3. set release
+		 * 4. set distances
+		 */
 		String fileprefix = "test/";
 			
 		File dir = new File(fileprefix);
 		File[] files = dir.listFiles();
-//		List<TenantC> tenants = new ArrayList<TenantC>();
 		
 		String filename = files[gen.nextInt(files.length)].getName();
 		int[] processing = ReadData(fileprefix + filename);
@@ -63,22 +67,9 @@ public class Alice {
 			}
 		});
 		for (int i = 0; i < rel.length; i++) {
-//			tenants.get(i).setRelease(release[i]);
 			release.add(rel[i]);
 		}
-//		System.out.println(Arrays.toString(rel));
-//		System.out.println(release);
-		/*
-		 * Set up time line, sorting it by release time
-		 */
-//		Collections.sort(tenants, new Comparator<TenantS>(){
-//			public int compare(TenantS o1, TenantS o2){
-//				return o1.getRelease().compareTo(o2.getRelease());
-//			}
-//		});
 		
-		
-
 		for (TenantS t : tenants) {
 			t.setRelease(release.poll());
 			t.setDistance(resources);
@@ -101,17 +92,11 @@ public class Alice {
 		 */
 		int reward_bench = 0;
 		
-//		for (int i = 0; i < 20; i++) {
-//			System.out.println(gen.onePass(tenants, resources));
-//		}
-
-		// int logistic = 0;
 		int container;
-		for (int i = 0; i< tenants.size() ; i++) {
-			TenantS t = tenants.get(i);
+		for (TenantS t : tenants) {
 			container = gen.nextInt(nbResource) + 1;
 			gen.processing(t, resources, container);
-			if (i == tenants.size() - 1) {
+			if (t.isFinal()) {
 				reward_bench = t.getEndWhole();
 			}
 //			System.out.println(t.getEndWhole());
@@ -165,8 +150,9 @@ public class Alice {
 		for (int i = 0; i < 100; i++) {
 			gen.onePass(tenants, resources);
 //			System.out.println(instances.get(instances.size()-1));
-
+//			System.out.print(".");
 		}
+//		Runtime.getRuntime().exec("cls");
 		System.out.println(stateCells);
 		
 	}

@@ -7,7 +7,7 @@ public class TenantS extends Tenant {
 	private int processing;
 	private Map<Integer, Integer> start, end;
 	private int superid, servicetype;
-	private Map<Integer, Integer> predends;
+//	private Map<Integer, Integer> predends;
 	private boolean isFinal = false;
 
 	// sorting the nearest location with constructor?
@@ -215,4 +215,5 @@ public class TenantS extends Tenant {
 	public void setFinal(boolean isFinal) {
 		this.isFinal = isFinal;
 	}
+
 }

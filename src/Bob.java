@@ -26,14 +26,9 @@ public class Bob {
 		
 		int[] release = gen.generateReleaseTime(nbTenant);
 		List<TenantC> tenants = gen.generateTenants(release);
-//		for (int i = 0; i < nbTenant; i++) {
-//			TenantC t = new TenantC(width, height, i);
-//			t.setRelease(release[i]);
-//			tenants.add(t);
-//		}
 		
 		/*
-		 * Use priority queue to store the simple tenants
+		 * Use priority queue to store the simple "active" tenants
 		 */
 		
 		Comparator<TenantS> comparator = new Comparator<TenantS>(){
@@ -49,100 +44,89 @@ public class Bob {
 		
 		PriorityQueue<TenantS> active = new PriorityQueue<>(comparator);
 		
-//		for (TenantC tC: tenants) {
-//			String filename;
-//			filename = files[rangen.nextInt(files.length)].getName();
-//			
-//			tC.ReadData(fileprefix + filename);
-//			tC.finish(0);
-//			int[] succid = tC.getSuccessors().get(0);
-//			int releaseTime = tC.getRelease();
-//			for (int j : succid) {
-//				TenantS tS = tC.getTenants().get(j);
-//				tS.setRelease(releaseTime);
-//				for (Resource resource : services.get(tS.getServicetype()).getResources()) {
-//					tS.setStart(resource.getId(), releaseTime);
-//				}
-//				
-//				active.add(tS);
-//			}			
-//		}
-		
-		
-		
+		// set release and put it into priority queue
 		for (TenantC tC : tenants) {
 			String filename = files[gen.nextInt(files.length)].getName();
 			tC.ReadData(fileprefix + filename);
 			TenantS tS = tC.get(0);
 			tS.setRelease(tC.getRelease());
-			tS.setStart(-1,tC.getRelease());
+//			tS.setStart(-1,tC.getRelease());
 			active.add(tS);
-//			System.out.println(filename);
-//			System.out.println(tS);
-//			System.out.println(tC.getSuccessors());
-//			System.out.println(tC.getPredecessors());
-//			for (TenantS tenantS2 : tC.getTenants()) {
-//				System.out.print(tenantS2.getServicetype() + ",");
-//			}
-//			System.out.println(" ");
-//			
 		}
+		// It's hard to set all the sub tenants' distances now, so set the distances in the marker pass.
+		// Start the marker pass
 		
-		
-		
-//		Collections.sort(active, comparator);
-		
-		int n_max = 3;
-		
-//		System.out.println(active);
-		while (!active.isEmpty()) {
-			TenantS tS = active.poll();
+		int reward_bench = 0;
+		int container;
+		PriorityQueue<TenantS> marker_active = new PriorityQueue<>(active);
+		while (!marker_active.isEmpty()) {
+			TenantS tS = marker_active.poll();
 			TenantC tC = tenants.get(tS.getSuperid());
-//			System.out.println(tS.getRelease() + ", " + tS.getSuperid());
-			// set distances
+//			// set final marker
+//			if (marker_active.isEmpty() && tC.getTenants().indexOf(tS) == tC.getNbTnents() - 1) {
+//				tS.setFinal(true);
+//			}
+			
 			if (tS.getProcessing() > 0) {
-				Map result = tS.setDistance(services.get(tS.getServicetype()));
-//				if (tS.getServicetype() == 3) {
-//					System.out.println(result);
-//				}
-				Map y = tS.fill(services.get(tS.getServicetype()).getAvailable(), services.get(tS.getServicetype()).size());
-//				if (tS.getServicetype() == 3) {
-//					System.out.println(y + "," + tS.getProcessing());
-//				}
+				// TODO set distances
+				tS.setDistance(services.get(tS.getServicetype()));
+				
+				container = gen.nextInt(services.get(tS.getServicetype()).size()) + 1;
+				
+				// TODO set init start and end (pre-processing)
+				int r = tS.getRelease();
+				for (Resource resource : services.get(tS.getServicetype()).getResources()) {
+					int id = resource.getId();
+					int a = resource.getAvailable();
+					tS.setStart(id, Math.max(a, r));
+					tS.setEnd(id, 0);
+				}
+				
+				// TODO fill
+				Map<Integer, Integer> available = new HashMap<Integer, Integer>(services.get(tS.getServicetype()).getAvailable());
+				Map<Integer, Integer> y = tS.fill(available, container);
+				
+				Map<Integer, Integer> end = tS.update(y, available);
+				
+				// TODO update
+				services.get(tS.getServicetype()).setAvailable(available);
+				tS.setEnd(end);
 			} else {
 				tS.setEnd(-1, tS.getRelease());
 			}
-			
-//			System.out.println(t.getDistance() + "," + t.getServicetype());
-			// process
-			// fill
-//			System.out.println(tS.getProcessing());
-//			Map<Integer, Integer> y = 
-//			System.out.println(y);
-			int end = tS.getEndWhole();
+//			System.out.println(tS.getEndWhole());
+			// TODO mark the tS finish and activate
+			int end_whole = tS.getEndWhole();
 			tC.finish(tS.getId());
-			// and to finish it
 			for (int sid : tC.getSuccessors().get(tS.getId())) { // check successor's predecessors
 				boolean c = true;
 				for (int pid : tC.getPredecessors().get(sid)) {
 					c &= tC.getFinish()[pid];
+					if (c == false) {
+						break;
+					}
 				}
-				if (c && sid < tC.getTenants().size() - 1) {
+				if (c && sid < tC.getNbTnents() - 1) {
 					TenantS t = tC.get(sid);
 					// set release
-					t.setRelease(end);
-					// set start 
-					for (Resource resource : services.get(t.getServicetype()).getResources()) {
-						int id = resource.getId();
-						int a = resource.getAvailable();
-						t.setStart(id, Math.max(a, end));
-					}
+					t.setRelease(end_whole);
+//					// set start 
+//					for (Resource resource : services.get(t.getServicetype()).getResources()) {
+//						int id = resource.getId();
+//						int a = resource.getAvailable();
+//						t.setStart(id, Math.max(a, end));
+//					}
 					// add to active
-					active.add(tC.get(sid));
+					marker_active.add(tC.get(sid));
 				}
-			} 
+			}
+			// TODO get marker value
+			if (marker_active.isEmpty()) {
+				reward_bench = tS.getEndWhole();
+			}
 		}
 		
+		System.out.println(reward_bench);
 //		for (Service s : services) {
 //			System.out.println(s.getAvailable());
 //		}

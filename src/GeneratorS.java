@@ -13,8 +13,8 @@ public class GeneratorS extends Generator{
 	public List<TenantS> generateTenants(int[] processing){
 		List<TenantS> tenants = new ArrayList<TenantS>();
 		for (int i = 0; i < processing.length; i++) {
-			int x = generator.nextInt(this.getWidth());
-			int y = generator.nextInt(this.getHeight());
+			double x = generator.nextDouble() * this.getWidth();
+			double y = generator.nextDouble() * this.getHeight();
 			TenantS tenant = new TenantS(x,y,i);
 			tenant.setProcessing(processing[i]);
 			tenants.add(tenant);
@@ -128,6 +128,8 @@ public class GeneratorS extends Generator{
 		Map<Integer, Integer> y = t.fill(available,container);		
 		
 		Map<Integer, Integer> end = t.update(y, available);
+		
+		// update the resource available and tenant end
 		resources.setAvailable(available);
 		t.setEnd(end);
 	}
