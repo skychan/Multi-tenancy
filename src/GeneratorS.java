@@ -48,7 +48,7 @@ public class GeneratorS extends Generator{
 			 */
 			
 			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), available, t.getDistance());
-			State state = new State(s.getGap(), container, s.getMean(), s.getSTD(), t.getProcessing());
+			State state = new State(s.getGap(), nbResource, s.getMean(), s.getSTD(), t.getProcessing());
 			
 			// TODO merge final and not final as follows
 			if (t.isFinal()) {
@@ -73,6 +73,7 @@ public class GeneratorS extends Generator{
 						if (isFull){
 							// TODO split the cellSpace
 							// first sort by the bound var, record the bound
+							
 							// then chose the biggest, sort the states
 							// create a new cell, 
 							// copy all the old cell's information
@@ -127,7 +128,7 @@ public class GeneratorS extends Generator{
 			Map<Integer, Integer> y = t.fill(resources.getAvailable(), action);
 			Map<Integer, Integer> end = t.update(y, availabe);
 			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), availabe, t.getDistance());
-			State state = new State(s.getGap(), action, s.getMean(), s.getSTD(), t.getProcessing());
+			State state = new State(s.getGap(), nbResource, s.getMean(), s.getSTD(), t.getProcessing());
 			if (t.isFinal()) {
 				double q = this.getBench() - Collections.max(end.values());
 				Q.put(action,q);

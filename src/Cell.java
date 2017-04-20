@@ -27,6 +27,8 @@ public class Cell {
 	private List<Double> var;
 	private List<Integer> p;
 	
+	private Map<String,Object> porperities;
+		
 	private List<State> sampleStates;
 	
 	private int counter = 0;
@@ -71,7 +73,17 @@ public class Cell {
 		
 		this.reward = new HashMap<Integer, Double>();
 		
-		
+		this.porperities = new HashMap<String, Object>();
+		this.gap = new LinkedList<Integer>();
+		this.num = new LinkedList<Integer>();
+		this.mean = new LinkedList<Double>();
+		this.var = new LinkedList<Double>();
+		this.p = new LinkedList<Integer>();
+		this.porperities.put("gap",this.gap);
+		this.porperities.put("num",this.num);
+		this.porperities.put("mean",this.mean);
+		this.porperities.put("var", this.var);
+		this.porperities.put("p", this.p);
 	}
 	
 	public Cell(int ni, int nx, int gi, int gx, int pi, int px, int mi, int mx, double vi, double vx) {
@@ -162,6 +174,12 @@ public class Cell {
 	public boolean addSample(State s) {
 		this.sampleStates.add(s);
 		this.counter++;
+		// add the properties to all lists
+		for (Map.Entry<String, Object> porperity : this.porperities.entrySet()) {
+			String key = porperity.getKey();
+			((LinkedList)porperity.getValue()).add(s.getPorperity(key));
+		}
+		
 		// if the amount is full of capacity, then split into two sub cells
 		if (this.counter >= this.capacity) {
 			return true;
@@ -173,6 +191,10 @@ public class Cell {
 	public void removeSample(State s) {
 		this.counter--;
 		this.sampleStates.remove(s);
+		for (Map.Entry<String, Object> porperity : this.porperities.entrySet()) {
+			String key = porperity.getKey();
+			((LinkedList)porperity.getValue()).remove(s.getPorperity(key));
+		}
 	}
 	
 	public int getAmount() {
