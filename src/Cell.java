@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.Map.Entry;
 
 
 public class Cell {
@@ -27,7 +28,7 @@ public class Cell {
 	private List<Double> var;
 	private List<Integer> p;
 	
-	private Map<String,Object> porperities;
+	private Map<String, List> porperities;
 		
 	private List<State> sampleStates;
 	
@@ -73,7 +74,7 @@ public class Cell {
 		
 		this.reward = new HashMap<Integer, Double>();
 		
-		this.porperities = new HashMap<String, Object>();
+		this.porperities = new HashMap<String,List>();
 		this.gap = new LinkedList<Integer>();
 		this.num = new LinkedList<Integer>();
 		this.mean = new LinkedList<Double>();
@@ -175,9 +176,10 @@ public class Cell {
 		this.sampleStates.add(s);
 		this.counter++;
 		// add the properties to all lists
-		for (Map.Entry<String, Object> porperity : this.porperities.entrySet()) {
+		for (Map.Entry<String, List> porperity : this.porperities.entrySet()) {
 			String key = porperity.getKey();
-			((LinkedList)porperity.getValue()).add(s.getPorperity(key));
+			porperity.getValue().add(s.getPorperity(key));
+			System.out.println(this.porperities);
 		}
 		
 		// if the amount is full of capacity, then split into two sub cells
@@ -191,9 +193,9 @@ public class Cell {
 	public void removeSample(State s) {
 		this.counter--;
 		this.sampleStates.remove(s);
-		for (Map.Entry<String, Object> porperity : this.porperities.entrySet()) {
+		for (Map.Entry<String, List> porperity : this.porperities.entrySet()) {
 			String key = porperity.getKey();
-			((LinkedList)porperity.getValue()).remove(s.getPorperity(key));
+			porperity.getValue().remove(s.getPorperity(key));
 		}
 	}
 	
@@ -241,6 +243,30 @@ public class Cell {
 
 	public void setCapacity(int capacity) {
 		this.capacity = capacity;
+	}
+	
+	public List getSplitRule() {
+//		Map<String, Double> std = new HashMap<String, Double>();
+		PriorityQueue<Map.Entry<String, Double>> std = new PriorityQueue<Map.Entry<String,Double>>(new Comparator<Map.Entry<String, Double> >() {
+
+			@Override
+			public int compare(Entry<String, Double> o1,
+					Entry<String, Double> o2) {
+				// TODO Auto-generated method stub
+				o2.getValue().compareTo(o1.getValue());
+				return 0;
+			}
+		});
+		for (Map.Entry<String, List> porperity : this.porperities.entrySet()) {
+			Statistics s = new Statistics(porperity.getValue(), 0);
+			Map.Entry<String, Double> item = new MyEntry(porperity.getKey(), porperity.getValue());
+			
+			std.add(item);			
+		}
+		
+		return this.porperities.get(std.peek().getKey());
+//		std.
+//		Collections.max(std.values());
 	}
 	
 	public void copy(Cell oldCell) {
