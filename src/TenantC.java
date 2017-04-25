@@ -11,6 +11,7 @@ public class TenantC extends Tenant {
 	private int start, end;
 	private boolean[] finish;
 	private int finish_counter = 0;
+	private int MPM_time = 0;
 	
 	public TenantC(double x, double y, int id) {
 		super(x, y, id);
@@ -70,6 +71,7 @@ public class TenantC extends Tenant {
 				this.addTenant(subt);
 				
 			}
+		this.getPredecessors().put(0, new ArrayList<Integer>());
 		} catch (IOException e) {
 			System.err.println("Error: " + e);
 		}
@@ -180,6 +182,34 @@ public class TenantC extends Tenant {
 			t.reset();
 		}
 	}
+	
+	public void generateMPM() {
+		int[] end = new int[this.getNbTnents()];
+		int[] start = new int[this.getNbTnents()];
+		Set<Integer> active = new HashSet<Integer>();
+//		start[0] = 0;
+//		end[0] = 0;
+		active.add(0);
+		while (!active.isEmpty()) {
+			for (Integer id : active) {
+				start[id] = 0;
+//				System.out.println(Arrays.toString(this.getSuccessors().get(this.getNbTnents()-1)));
+				for (Integer pid : this.getPredecessors().get(id)) {
+					start[id] = Integer.max(start[id], end[pid]);
+				}
+				end[id] = start[id] + this.getProcessings()[id];
+			}
+			Set<Integer> active_copy = new HashSet<Integer>(active);
+			for (Integer id : active_copy) {
+				for (int sid : this.getSuccessors().get(id)) {
+					active.add(sid);
+				}
+				active.remove(id);
+			}
+		}
+		
+		this.setMPM_time(end[this.getNbTnents()-1]);
+	}
 
 //	@Override
 //	public String toString() {
@@ -188,6 +218,14 @@ public class TenantC extends Tenant {
 	@Override
 	public String toString() {
 		return Arrays.toString(this.getProcessings());
+	}
+
+	public int getMPM_time() {
+		return MPM_time;
+	}
+
+	public void setMPM_time(int mPM_time) {
+		MPM_time = mPM_time;
 	}
 
 

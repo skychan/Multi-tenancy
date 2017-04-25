@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.IntStream;
 import java.io.*;
 public class Bob {
 
@@ -58,6 +59,8 @@ public class Bob {
 		for (TenantC tC : tenants) {
 			String filename = files[gen.nextInt(files.length)].getName();
 			tC.ReadData(fileprefix + filename);
+			tC.generateMPM();
+//			System.out.println(tC.getMPM_time()+ "," + IntStream.of(tC.getProcessings()).sum());
 			TenantS tS = tC.get(0);
 			tS.setRelease(tC.getRelease());
 //			tS.setStart(-1,tC.getRelease());
