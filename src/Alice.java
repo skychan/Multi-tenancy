@@ -56,7 +56,7 @@ public class Alice {
 		
 		String filename = files[gen.nextInt(files.length)].getName();
 		int[] processing = ReadData(fileprefix + filename);
-		System.out.println(Arrays.toString(processing));
+//		System.out.println(Arrays.toString(processing));
 		
 		List<TenantS> tenants = gen.generateTenants(processing);
 		tenants.remove(tenants.size()-1);
@@ -73,7 +73,7 @@ public class Alice {
 		for (TenantS t : tenants) {
 			t.setRelease(release.poll());
 			t.setDistance(resources);
-			System.out.println(t);
+//			System.out.println(t);
 			if (tenants.indexOf(t) == tenants.size() -1 ) {
 				t.setFinal(true);
 			}
@@ -91,16 +91,21 @@ public class Alice {
 		 * Use the first pass to set as a marker
 		 */
 		int reward_bench = 0;
-		
+		Object obj = new Object(1);
 		int container;
 		for (TenantS t : tenants) {
 			container = gen.nextInt(nbResource) + 1;
 			gen.processing(t, resources, container);
+			double d = t.getEndWhole() - t.getRelease()/container;
+			System.out.println(d);
+			obj.addDelay(d - t.getProcessing());
 			if (t.isFinal()) {
 				reward_bench = t.getEndWhole();
 			}
+			
 //			System.out.println(t.getEndWhole());
 		}
+		System.out.println(obj.getValue());
 		
 		gen.setBench(reward_bench);
 
@@ -131,7 +136,7 @@ public class Alice {
 //			System.out.print(".");
 		}
 //		Runtime.getRuntime().exec("cls");
-		System.out.println(stateCells);
+//		System.out.println(stateCells);
 		
 	}
 	
