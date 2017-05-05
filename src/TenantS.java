@@ -108,7 +108,7 @@ public class TenantS extends Tenant {
 		for (int i = 0; i < y.length; i++) {
 			int resId = sortedResource.get(i);
 			result.put(resId, y[i]);
-			this.logistic += this.getDistance().get(resId);
+
 		}
 //		System.out.println(Arrays.toString(y));
 		// this.update(result, service);
@@ -165,6 +165,11 @@ public class TenantS extends Tenant {
 
 	public void setEnd(Map<Integer, Integer> end) {
 		this.end = end;
+		for (Map.Entry<Integer, Integer> e : this.end.entrySet()) {
+			if (e.getValue() > 0) {
+				this.logistic += this.getDistance().get(e.getKey());
+			}
+		}
 	}
 	
 	public void setEnd(int id, int end) {

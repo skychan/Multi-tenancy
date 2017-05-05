@@ -24,9 +24,9 @@ public class Alice {
 		int maxTime = 100;
 		double gamma = 0.8;
 		double decay = 0.8;
-		int cellCapacity = 5;
+		int cellCapacity = 6;
 		double alpha = 0.5; // logistic duration weight
-		int pass = 100;
+		int pass = 10;
 			
 		/**
 		 * 
@@ -110,7 +110,7 @@ public class Alice {
 		 * Marker pass start
 		 * Use the first pass to set as a marker
 		 */
-		int reward_bench = 0;
+//		int reward_bench = 0;
 		Object obj = new Object(alpha);
 		int container;
 		for (TenantS t : tenants) {
@@ -118,20 +118,27 @@ public class Alice {
 			gen.processing(t, resources, container);
 			double d = t.getEndWhole() - t.getRelease();
 //			System.out.println(d);
-			obj.addDelay((d - t.getProcessing())/container );
+			obj.addDelay(d - (t.getProcessing()+0.0)/container );
 			obj.addLogistic(t.getLogistic());
-			if (t.isFinal()) {
-				reward_bench = t.getEndWhole();
-			}
+//			if (t.isFinal()) {
+//				reward_bench = t.getEndWhole();
+//			}
 			
 //			System.out.println(t.getEndWhole());
 		}
-		System.out.println(obj.getValue());
+//		System.out.println(obj.getValue());
 //		obj.clear();
 //		System.out.println(obj.getValue());
-		gen.setBench(reward_bench);
+		gen.setBench(obj.getValue());
 
-		System.out.println(reward_bench);
+		System.out.println(obj.getValue());
+		
+//		System.out.println(obj.getDelay());
+//		System.out.println(obj.getLogistic());
+		
+		obj.clear();
+//		System.out.println(obj.getDelay());
+//		System.out.println(obj.getLogistic());
 		
 		// End of init pass		
 		/* Initialize the original cell
@@ -148,18 +155,27 @@ public class Alice {
 		stateCells.add(originCell);
 		
 		gen.setStateCells(stateCells);
+		
 		/**
 		 *  The main pass of the presetted tenants
 		 */
-		
+		double minvalue = 80.2;
 		for (int i = 0; i < pass; i++) {
-			gen.onePass(tenants, resources);
+			obj.clear();
+			gen.onePass(tenants, resources,obj);
 //			System.out.println(instances.get(instances.size()-1));
+			if (obj.getValue() < minvalue) {
+				System.out.println(obj.getValue());
+				minvalue = obj.getValue();
+			}
+//			System.out.println(obj.getDelay());
+//			System.out.println(obj.getLogistic());
 //			System.out.print(".");
 		}
+		System.out.println(obj.getValue());
 //		Runtime.getRuntime().exec("cls");
 //		System.out.println(stateCells);
-		
+		System.out.println(stateCells.size());
 		
 		/***
 		 * The testing process:

@@ -23,7 +23,7 @@ public class GeneratorS extends Generator{
 		return tenants;
 	}
 	
-	public void onePass(List<TenantS> tenants, Service resources) {
+	public void onePass(List<TenantS> tenants, Service resources, Object passObj) {
 		// reset first
 		resources.reset();
 		for (TenantS t : tenants) {
@@ -41,6 +41,10 @@ public class GeneratorS extends Generator{
 			Map<Integer, Integer> available = new HashMap<Integer, Integer>(resources.getAvailable());
 			this.processing(t, resources, container);
 			
+			double d = t.getEndWhole() - t.getRelease();
+			passObj.addDelay(d - t.getProcessing()/container );
+			passObj.addLogistic(t.getLogistic());
+			
 			/*
 			 * Bellman Equation:
 			 * Q(s,a) = R(s,a) + \gamma max_{a'\in s'} {Q(s',a')}
@@ -53,7 +57,7 @@ public class GeneratorS extends Generator{
 			// TODO merge final and not final as follows
 			if (t.isFinal()) {
 				// Terminal state's Q-value = Reward, because no further states !!
-				double R = this.getBench() - t.getEndWhole();
+				double R = this.getBench() - passObj.getValue();
 				state.setQvalue(container, R);
 			} else {
 				for (Cell cell : this.getStateCells()) {

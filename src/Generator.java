@@ -4,7 +4,7 @@ import java.util.*;
 public class Generator {
 
 	private int width, height;
-	private int bench;
+	private double bench;
 	private double gamma; // the attenuation coefficient
 	private List<Cell> stateCells;
 //	private Random generator = new Random(8);
@@ -79,11 +79,11 @@ public class Generator {
 		}
 	}*/
 
-	public int getBench() {
+	public double getBench() {
 		return bench;
 	}
 
-	public void setBench(int bench) {
+	public void setBench(double bench) {
 		this.bench = bench;
 	}
 
@@ -108,12 +108,16 @@ public class Generator {
 	}
 	
 	public Statistics CalculateState(int r, int p, Map<Integer,Integer> a, Map<Integer,Integer> dist) {
-		List<Double> resut = new ArrayList<Double>();
+		List<Double> result = new ArrayList<Double>();
 		for (Map.Entry<Integer, Integer> av : a.entrySet()) {
-			resut.add((double) (Math.max(av.getValue(), r) + dist.get(av.getKey())));
+			int relative_available = 0; 
+			if (av.getValue() > r) {
+				relative_available = av.getValue() - r;
+			}
+			result.add((double) (relative_available + dist.get(av.getKey())));
 		}
 		
-		Statistics state = new Statistics(resut, p);
+		Statistics state = new Statistics(result, p);
 		return state;
 	}
 	
