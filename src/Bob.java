@@ -23,9 +23,10 @@ public class Bob {
 		 * for RL we need to set the decay for Bellman's EQ
 		 * and cell capacity
 		 */
-		double decay = 0.8;
+		double gamma = 0.8;
+		double decay = 0.5;
 		int cellCapacity = 50;
-		gen.setDecay(decay);
+		gen.setGamma(gamma);
 		
 		/*
 		 * Generate Complex Tenant

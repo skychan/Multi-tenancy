@@ -101,14 +101,15 @@ public class GeneratorC extends Generator{
 //				}
 			if (isSubFinal) {
 				double Q = this.getBench() - tS.getEndWhole();
-				state.setReward(container, Q);
+				state.setQvalue(container, Q);
 				}
 			else if (tS.getProcessing() > 0 && !active_pass.isEmpty()){
 				for (Cell cell : this.getStateCells()) {
 //						System.out.println(state);
 					if (cell.checkState(state)) {
-						double R = cell.getReward(container);
-						double Q_next = 0;
+//						double R = cell.getReward(container);
+						double R = 0;
+//						double Q_next = 0;
 						// TODO explore
 						/*
 						 * 1. next resource, next tenantS
@@ -142,14 +143,14 @@ public class GeneratorC extends Generator{
 //							System.out.println(service_next.getResources());
 //							System.out.println(tenants.get(7).getX());
 					
-						Q_next = this.explore(service_next, tS_next);
+						double Q_next = this.explore(service_next, tS_next);
 						
 						tS_next.setFinal(false);
 						
-						double Q = R + this.getDecay() * Q_next;
-						state.setReward(container, Q);
+						double Q = R + this.getGamma() * Q_next;
+						state.setQvalue(container, Q);
 						boolean isFull = cell.addSample(state);
-						cell.setReward(container, Q);
+						cell.setQvalue(container, Q);
 					
 						if (isFull) {
 							int volumn = cell.getCapacity();

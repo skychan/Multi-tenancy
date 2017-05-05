@@ -5,7 +5,7 @@ public class Generator {
 
 	private int width, height;
 	private int bench;
-	private double decay;
+	private double gamma; // the attenuation coefficient
 	private List<Cell> stateCells;
 //	private Random generator = new Random(8);
 	private int maxTime;
@@ -87,12 +87,12 @@ public class Generator {
 		this.bench = bench;
 	}
 
-	public double getDecay() {
-		return decay;
+	public double getGamma() {
+		return gamma;
 	}
 
-	public void setDecay(double decay) {
-		this.decay = decay;
+	public void setGamma(double gamma) {
+		this.gamma = gamma;
 	}
 
 	public List<Cell> getStateCells() {
@@ -150,35 +150,14 @@ public class Generator {
 			Map<Integer, Integer> end = t.update(y, availabe);
 			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), availabe, t.getDistance());
 			State state = new State(s.getGap(), nbResource, s.getMean(), s.getSTD(), t.getProcessing());
-			
-//			if (t.getId() == 7 && t.getSuperid() == 7) {
-//				System.out.println(state);
-//			}
-			
 			if (t.isFinal()) {
 				double q = this.getBench() - Collections.max(end.values());
 				Q.put(action,q);
 			} else {
-//				if (t.getId() == 7 && t.getSuperid() == 7) {
-//					System.out.println(state.getGap());
-//					System.out.println(this.getStateCells().size());
-//					System.out.println(this.getStateCells().get(0).getPorperity("gap", "min"));
-//					System.out.println(this.getStateCells().get(0).getPorperity("gap", "max") >= state.getGap());
-//				}
-//				
 				for (Cell cell: this.getStateCells()) {
-//					if (t.getId() == 7 && t.getSuperid() == 7) {
-//						String key = "gap";
-//						System.out.println(state);
-//						if (state.getPorperity(key) >= cell.getPorperity(key, "min") && state.getNum() <= cell.getPorperity(key, "max")) {
-//						
-//						}else{
-//							System.out.println(key);
-//						}
-//					}
 					if (cell.checkState(state)) {
 
-						double q = cell.getReward(action);
+						double q = cell.getQvalue(action);
 						Q.put(action, q);
 						break;
 					}

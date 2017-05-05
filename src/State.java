@@ -21,7 +21,7 @@ public class State {
 	
 	private Map<String,Double> porperities;
 	
-	private Map<Integer, Double> reward; // (action, reward)
+	private Map<Integer, Double> Qvalue; // (action, Q-value)
 	private boolean end = false;
 	
 	public State(double gap, int num, double mean, double var, int p) {
@@ -31,7 +31,7 @@ public class State {
 		this.setMean(mean);
 		this.setVar(var);
 		this.setP(p);
-		this.reward = new HashMap<Integer, Double>();
+		this.Qvalue = new HashMap<Integer, Double>();
 		
 		
 	}
@@ -99,13 +99,13 @@ public class State {
 	}
 
 
-	public double getReward(int action) {
-		return reward.get(action);
+	public double getQvalue(int action) {
+		return Qvalue.get(action);
 	}
 
 
-	public void setReward(int action, double reward) {
-		this.reward.put(action, reward);
+	public void setQvalue(int action, double Qvalue) {
+		this.Qvalue.put(action, Qvalue);
 	}
 
 

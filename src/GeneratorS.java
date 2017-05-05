@@ -52,30 +52,32 @@ public class GeneratorS extends Generator{
 			
 			// TODO merge final and not final as follows
 			if (t.isFinal()) {
-				double Q = this.getBench() - t.getEndWhole();
-				state.setReward(container, Q);
+				// Terminal state's Q-value = Reward, because no further states !!
+				double R = this.getBench() - t.getEndWhole();
+				state.setQvalue(container, R);
 			} else {
 				for (Cell cell : this.getStateCells()) {
 //					System.out.println(state);
 					if (cell.checkState(state)) {
-						// TODO calculate R(s,a)
-						double R = cell.getReward(container);
+						// TODO calculate R(s,a), since non-terminal state's reward is 0, so no need to calculate it 
+//						double R = cell.getReward(container);
+						double R = 0;
 						
 						// TODO calculate max(next), define the explore func.
-						double Q_next = 0;
-						Q_next = this.explore(resources, tenants.get(i+1));
+//						double Q_next = 0;
+						double Q_next = this.explore(resources, tenants.get(i+1));
 						
 						// TODO add the new Q to state
-						double Q = R + this.getDecay() * Q_next;
-						state.setReward(container, Q);
+						double Q = R + this.getGamma() * Q_next;
+						state.setQvalue(container, Q);
 						boolean isFull = cell.addSample(state);
-						cell.setReward(container, Q);
+						cell.setQvalue(container, Q);
 						
 						if (isFull){
 							// TODO split the cellSpace
 							// first sort by the bound var, record the bound
 							int volumn = cell.getCapacity();
-							Map.Entry<String, List> rule = cell.getSplitRule();
+							Map.Entry<String, List> rule = cell.getSplitRule();  // get the split feature
 							String key = rule.getKey();
 							// then chose the biggest, sort the states
 							cell.sortByRule(key);
@@ -103,56 +105,4 @@ public class GeneratorS extends Generator{
 		}
 	}
 	
-/*	public void preprocessing(TenantS t, Service resources) {
-		int r = t.getRelease();
-		for (Resource resource : resources.getResources()) {
-			int id = resource.getId();
-			int a = resource.getAvailable();
-			t.setStart(id, Math.max(a, r));
-			t.setEnd(id, 0);
-		}
-	}*/
-	
-/*	public void processing(TenantS t, Service resources, int container) {
-		this.preprocessing(t, resources);
-		Map<Integer, Integer> available = new HashMap<>(resources.getAvailable());
-		Map<Integer, Integer> y = t.fill(available,container);		
-		
-		Map<Integer, Integer> end = t.update(y, available);
-		
-		// update the resource available and tenant end
-		resources.setAvailable(available);
-		t.setEnd(end);
-	}*/
-	
-	/*public double explore(Service resources, TenantS t) {
-		Map<Integer, Double> Q = new HashMap<Integer, Double>();
-		int nbResource = resources.getAmount();
-		Map<Integer, Integer> availabe = new HashMap<>(resources.getAvailable());
-		
-		this.preprocessing(t, resources);
-		for (int action = 1; action <= nbResource; action++) {
-			Map<Integer, Integer> y = t.fill(resources.getAvailable(), action);
-			Map<Integer, Integer> end = t.update(y, availabe);
-			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), availabe, t.getDistance());
-			State state = new State(s.getGap(), nbResource, s.getMean(), s.getSTD(), t.getProcessing());
-			if (t.isFinal()) {
-				double q = this.getBench() - Collections.max(end.values());
-				Q.put(action,q);
-			} else {
-				for (Cell cell: this.getStateCells()) {
-					if (cell.checkState(state)) {
-						double q = cell.getReward(action);
-						Q.put(action, q);
-						break;
-					}
-				}
-			}
-		}
-		if (Q.isEmpty()) {
-			System.out.println(t);
-			
-		}
-		return Collections.max(Q.values());
-	}*/
 }

@@ -14,7 +14,7 @@ public class Cell {
 	 * 6. reward vector
 	 */
 	
-	private Map<Integer, Double> reward; // (action, reward)
+	private Map<Integer, Double> Qvalue; // (action, Q-value)
 	
 //	private double gap_min, gap_max;
 //	private double num_min, num_max;
@@ -67,7 +67,7 @@ public class Cell {
 //		this.setVar_min(0);
 //		this.setVar_max(Double.MAX_VALUE);
 		
-		this.reward = new HashMap<Integer, Double>();
+		this.Qvalue = new HashMap<Integer, Double>();
 		
 		this.porperities = new HashMap<String,List>();
 		this.gap = new LinkedList<Double>();
@@ -145,18 +145,18 @@ public class Cell {
 		return bounded;
 	}
 	
-	public double getReward(int action) {
+	public double getQvalue(int action) {
 		// decay when new instance comes and add its reward
-		if (this.reward.containsKey(action)) {
-			return this.reward.get(action);	
+		if (this.Qvalue.containsKey(action)) {
+			return this.Qvalue.get(action);	
 		} else {
 			return 0;
 		}
 		
 	}
-
-	public void setReward(int action, double reward) {
-		this.reward.put(action, this.decay * this.getReward(action) + reward);
+	// TODO:need to change the set Value
+	public void setQvalue(int action, double Qvalue) {
+		this.Qvalue.put(action, this.decay * this.getQvalue(action) + Qvalue);
 	}
 
 	public double getDecay() {
@@ -219,7 +219,7 @@ public class Cell {
 		 * 3. decay
 		 * 4. capacity
 		 */
-		this.reward = oldCell.getReward();
+		this.Qvalue = oldCell.getQvalue();
 		// bounds
 //		this.gap_min = oldCell.getGap_min();
 //		this.gap_max = oldCell.getGap_max();
@@ -236,18 +236,18 @@ public class Cell {
 			this.setPorperity(key, "max", oldCell.getPorperity(key, "max"));
 		}
 		
-		//decay
+		// decay measures the the resistance of previous Q-value
 		this.decay = oldCell.getDecay();
 		//capacity
 		this.capacity = oldCell.getCapacity();
 	}
 
-	public Map<Integer, Double> getReward() {
-		return reward;
+	public Map<Integer, Double> getQvalue() {
+		return Qvalue;
 	}
 
-	public void setReward(Map<Integer, Double> reward) {
-		this.reward = reward;
+	public void setQvalue(Map<Integer, Double> Qvalue) {
+		this.Qvalue = Qvalue;
 	}
 
 	@Override

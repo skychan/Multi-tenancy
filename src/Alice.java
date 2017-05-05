@@ -6,6 +6,28 @@ import java.util.*;
 public class Alice {
 
 	public static void main(String[] args) throws IOException {
+		/***
+		 * The training process for simple tenant goes like:
+		 * 1. Use different group of data sets
+		 * 2. Random pick one file as the training input
+		 * 3. Set parameters (v, \gamma, \alpha, p) (width,height,seed), decay
+		 */
+		
+		/*
+		 * Here goes the main parameters
+		 */
+		
+		int width = 5;
+		int height = 5;
+		int seed = 8;
+		int nbResource = 7;
+		int maxTime = 100;
+		double gamma = 0.8;
+		double decay = 0.8;
+		int cellCapacity = 5;
+		double alpha = 1; // logistic duration weight
+		int pass = 100;
+			
 		/**
 		 * 
 		 * I. Initialization 
@@ -14,9 +36,7 @@ public class Alice {
 		 * 2. Sort all the resource within tenants by distance
 		 * 3. Set up the time line according to the arrival sequence of tenants.
 		 */
-		int width = 5;
-		int height = 5;
-		int seed = 8;
+		
 		
 		GeneratorS gen = new GeneratorS(width,height,seed);
 		
@@ -24,14 +44,14 @@ public class Alice {
 		/*
 		 * Resource first
 		 */
-		int nbResource = 7;
+		
 		Service resources =  new Service(0);
 		resources.setResources(gen.generateResources(nbResource,0));
 		
 		/*
 		 * Tenant follows
 		 */
-		int maxTime = 100;
+		
 		gen.setMaxTime(maxTime);
 		
 		
@@ -39,9 +59,9 @@ public class Alice {
 		 * for RL we need to set the decay for Bellman's EQ
 		 * and cell capacity
 		 */
-		double decay = 0.8;
-		int cellCapacity = 5;
-		gen.setDecay(decay);
+		
+		
+		gen.setGamma(gamma);
 		
 		/*
 		 * 1. Read file
@@ -91,7 +111,7 @@ public class Alice {
 		 * Use the first pass to set as a marker
 		 */
 		int reward_bench = 0;
-		Object obj = new Object(1);
+		Object obj = new Object(alpha);
 		int container;
 		for (TenantS t : tenants) {
 			container = gen.nextInt(nbResource) + 1;
@@ -130,13 +150,23 @@ public class Alice {
 		 *  The main pass of the presetted tenants
 		 */
 		
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < pass; i++) {
 			gen.onePass(tenants, resources);
 //			System.out.println(instances.get(instances.size()-1));
 //			System.out.print(".");
 		}
 //		Runtime.getRuntime().exec("cls");
 //		System.out.println(stateCells);
+		
+		
+		/***
+		 * The testing process:
+		 * 1. from start tenant, check the Q-value, chose the biggest one to guide the schedule.
+		 * 2. get the object value for each instances
+		 */
+		
+		
+		
 		
 	}
 	
