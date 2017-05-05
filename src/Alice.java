@@ -25,7 +25,7 @@ public class Alice {
 		double gamma = 0.8;
 		double decay = 0.8;
 		int cellCapacity = 5;
-		double alpha = 1; // logistic duration weight
+		double alpha = 0.5; // logistic duration weight
 		int pass = 100;
 			
 		/**
@@ -116,9 +116,10 @@ public class Alice {
 		for (TenantS t : tenants) {
 			container = gen.nextInt(nbResource) + 1;
 			gen.processing(t, resources, container);
-			double d = t.getEndWhole() - t.getRelease()/container;
-			System.out.println(d);
-			obj.addDelay(d - t.getProcessing());
+			double d = t.getEndWhole() - t.getRelease();
+//			System.out.println(d);
+			obj.addDelay((d - t.getProcessing())/container );
+			obj.addLogistic(t.getLogistic());
 			if (t.isFinal()) {
 				reward_bench = t.getEndWhole();
 			}
@@ -126,7 +127,8 @@ public class Alice {
 //			System.out.println(t.getEndWhole());
 		}
 		System.out.println(obj.getValue());
-		
+//		obj.clear();
+//		System.out.println(obj.getValue());
 		gen.setBench(reward_bench);
 
 		System.out.println(reward_bench);

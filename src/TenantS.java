@@ -9,19 +9,19 @@ public class TenantS extends Tenant {
 	private int superid, servicetype;
 //	private Map<Integer, Integer> predends;
 	private boolean isFinal = false;
+	private int logistic;
 
 	// sorting the nearest location with constructor?
 	public TenantS(double x, double y, int id) {
 		super(x,y,id);
 		this.setStart(new HashMap<Integer, Integer>());
 		this.setEnd(new HashMap<Integer, Integer>());
+		this.setLogistic(0);
 	}
 	
 	public TenantS(double x, double y, int id, int superid) {
-		super(x,y,id);
+		this(x,y,id);
 		this.setSuperid(superid);
-		this.setStart(new HashMap<Integer, Integer>());
-		this.setEnd(new HashMap<Integer, Integer>());
 	}
 	
 	public List<Integer> getNearest(Set<Integer> resource_id){
@@ -106,7 +106,9 @@ public class TenantS extends Tenant {
 		}
 		Map<Integer, Integer> result = new HashMap<Integer, Integer>();
 		for (int i = 0; i < y.length; i++) {
-			result.put(sortedResource.get(i), y[i]);
+			int resId = sortedResource.get(i);
+			result.put(resId, y[i]);
+			this.logistic += this.getDistance().get(resId);
 		}
 //		System.out.println(Arrays.toString(y));
 		// this.update(result, service);
@@ -201,6 +203,7 @@ public class TenantS extends Tenant {
 	public void reset() {
 		this.start.clear();
 		this.end.clear();
+		this.setLogistic(0);
 	}
 	
 	@Override
@@ -214,6 +217,14 @@ public class TenantS extends Tenant {
 
 	public void setFinal(boolean isFinal) {
 		this.isFinal = isFinal;
+	}
+
+	public int getLogistic() {
+		return logistic;
+	}
+
+	public void setLogistic(int logistic) {
+		this.logistic = logistic;
 	}
 
 }
