@@ -131,7 +131,10 @@ public class Generator {
 		}
 	}
 	
-	public void processing(TenantS t, Service resources, int container) {
+	public void processing(TenantS t, Service resources, Integer container) throws IllegalArgumentException {
+		if (container == null) {
+			throw new IllegalArgumentException("No Container!!");
+			}
 		this.preprocessing(t, resources);
 		Map<Integer, Integer> available = new HashMap<>(resources.getAvailable());
 		Map<Integer, Integer> y = t.fill(available,container);		

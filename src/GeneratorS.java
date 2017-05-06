@@ -29,6 +29,7 @@ public class GeneratorS extends Generator{
 		for (TenantS t : tenants) {
 			t.reset();
 		}
+		passObj.clear();
 		
 //		int reward = 0;
 		int nbResource = resources.getAmount();
@@ -107,6 +108,45 @@ public class GeneratorS extends Generator{
 			}
 	
 		}
+	}
+	
+	
+	
+	public double Solve(List<TenantS> tenants, Service resources, Object obj) {
+		resources.reset();
+		for (TenantS t : tenants) {
+			t.reset();
+		}
+		obj.clear();
+		
+		Integer container = null;
+		
+		for (int i = 0; i< tenants.size() ; i++) {
+//			container = this.nextInt(nbResource) + 1; // is the current action
+			TenantS t = tenants.get(i);
+//			Map<Integer, Integer> available = new HashMap<Integer, Integer>(resources.getAvailable());
+			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), resources.getAvailable(), t.getDistance());
+			State state = new State(s.getGap(), resources.getAmount(), s.getMean(), s.getSTD(), t.getProcessing());
+			
+			for (Cell cell : this.getStateCells()) {
+				if (cell.checkState(state)) {
+					container = cell.getAction();
+					break;
+				}
+			}
+			
+			
+			
+			this.processing(t, resources, container);
+				
+			double d = t.getEndWhole() - t.getRelease();
+			obj.addDelay(d - t.getProcessing()/container );
+			obj.addLogistic(t.getLogistic());
+								
+			
+		}
+		
+		return obj.getValue();
 	}
 	
 }

@@ -28,7 +28,7 @@ public class Alice {
 		double decay = 0.8;
 		int cellCapacity = 6;
 		double alpha = 0.5; // logistic duration weight
-		int pass = 10;
+		int pass = 10000;
 			
 		/**
 		 * 
@@ -146,7 +146,6 @@ public class Alice {
 		 */
 		double minvalue = obj.getValue();
 		for (int i = 0; i < pass; i++) {
-			obj.clear();
 			gen.onePass(tenants, resources,obj);
 //			System.out.println(instances.get(instances.size()-1));
 //			if (obj.getValue() < minvalue) {
@@ -156,6 +155,9 @@ public class Alice {
 		}
 		System.out.println(obj.getValue());
 		System.out.println(stateCells.size());
+		
+		double re = gen.Solve(tenants, resources, obj);
+		System.out.println(re);
 		
 		/***
 		 * The testing process:
@@ -205,4 +207,6 @@ public class Alice {
 		Statistics state = new Statistics(resut, p);
 		return state;
 	}*/
+	
+	
 }

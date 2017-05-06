@@ -249,6 +249,11 @@ public class Cell {
 	public void setQvalue(Map<Integer, Double> Qvalue) {
 		this.Qvalue = Qvalue;
 	}
+	
+	public int getAction() {
+		int action = Collections.max(this.getQvalue().entrySet(), Map.Entry.comparingByValue()).getKey();
+		return action;
+	}
 
 	@Override
 	public String toString() {
