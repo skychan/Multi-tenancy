@@ -16,7 +16,7 @@ public class GeneratorS extends Generator{
 			double x = generator.nextDouble() * this.getWidth();
 			double y = generator.nextDouble() * this.getHeight();
 			TenantS tenant = new TenantS(x,y,i);
-			tenant.setProcessing(processing[i]);
+			tenant.setProcessing(processing[i]*10);
 			tenants.add(tenant);
 		}
 		

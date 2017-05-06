@@ -1,6 +1,5 @@
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream.GetField;
+import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 
 public class Alice {
@@ -18,18 +17,27 @@ public class Alice {
 		 * Here goes the main parameters
 		 */
 		
-		int width = 5;
-		int height = 5;
-		int seed = 8;
-		int nbResource = 7;
+		int width = 200;
+		int height = 200;
+		int seed = 2;
+		int nbResource = 10;
 //		int nbTenant = 0;
 		int maxTime = 100;
-		double gamma = 0.8;
-		double decay = 0.8;
-		int cellCapacity = 6;
+		double gamma = 0.9;
+		double decay = 0.9;
+		int cellCapacity = 50;
 		double alpha = 0.5; // logistic duration weight
-		int pass = 10000;
-			
+		int pass = 1500;
+		
+		
+		
+		/**
+		 * Prepare the output file
+		 */
+		String outputfile = "Output/1.csv";
+		Path outputPath = Paths.get(outputfile);
+		List<String> outputData = new ArrayList<String>();
+		outputData.add("pass,obj,delay,logistic");	
 		/**
 		 * 
 		 * I. Initialization 
@@ -78,10 +86,15 @@ public class Alice {
 		
 		String filename = files[gen.nextInt(files.length)].getName();
 		int[] processing = ReadData(fileprefix + filename);
-//		System.out.println(Arrays.toString(processing));
+
 		
 		List<TenantS> tenants = gen.generateTenants(processing);
+//		for (TenantS tst : tenants) {
+//			System.out.print(tst.getProcessing() + ", ");
+//		}
 		tenants.remove(tenants.size()-1);
+		
+		
 		int [] rel = gen.generateReleaseTime(tenants.size());
 		PriorityQueue<Integer> release = new PriorityQueue<>(new Comparator<Integer>() {
 			public int compare(Integer o1, Integer o2) {
@@ -100,6 +113,8 @@ public class Alice {
 				t.setFinal(true);
 			}
 		}
+		
+		System.out.println(resources.getAvailable());
 		
 		/**
 		 * II. Filling each resource repeatedly according to tenant time line sequence.
@@ -152,12 +167,13 @@ public class Alice {
 //				System.out.println(obj.getValue());
 //				minvalue = obj.getValue();
 //			}
+			double re = gen.Solve(tenants, resources, obj);
+			outputData.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay() + "," + obj.getObjLogistic());
 		}
-		System.out.println(obj.getValue());
+		System.out.println(gen.Solve(tenants, resources, obj) );
 		System.out.println(stateCells.size());
 		
-		double re = gen.Solve(tenants, resources, obj);
-		System.out.println(re);
+		
 		
 		/***
 		 * The testing process:
@@ -165,8 +181,9 @@ public class Alice {
 		 * 2. get the object value for each instances
 		 */
 		
-		
-		
+//		double re = gen.Solve(tenants, resources, obj);
+//		System.out.println(re);
+		Files.write(outputPath, outputData);
 		
 	}
 	
