@@ -11,6 +11,7 @@ public class Alice {
 		 * 1. Use different group of data sets
 		 * 2. Random pick one file as the training input
 		 * 3. Set parameters (v, \gamma, \alpha, p) (width,height,seed), decay
+		 * 4. If not read the processing data from the file, we also need to consider the number of the tenants nbTenant
 		 */
 		
 		/*
@@ -21,6 +22,7 @@ public class Alice {
 		int height = 5;
 		int seed = 8;
 		int nbResource = 7;
+//		int nbTenant = 0;
 		int maxTime = 100;
 		double gamma = 0.8;
 		double decay = 0.8;
@@ -69,7 +71,7 @@ public class Alice {
 		 * 3. set release
 		 * 4. set distances
 		 */
-		String fileprefix = "test/";
+		String fileprefix = "test/"; // group number 组别
 			
 		File dir = new File(fileprefix);
 		File[] files = dir.listFiles();
@@ -110,35 +112,18 @@ public class Alice {
 		 * Marker pass start
 		 * Use the first pass to set as a marker
 		 */
-//		int reward_bench = 0;
 		Object obj = new Object(alpha);
 		int container;
 		for (TenantS t : tenants) {
 			container = gen.nextInt(nbResource) + 1;
 			gen.processing(t, resources, container);
 			double d = t.getEndWhole() - t.getRelease();
-//			System.out.println(d);
 			obj.addDelay(d - (t.getProcessing()+0.0)/container );
 			obj.addLogistic(t.getLogistic());
-//			if (t.isFinal()) {
-//				reward_bench = t.getEndWhole();
-//			}
-			
-//			System.out.println(t.getEndWhole());
 		}
-//		System.out.println(obj.getValue());
-//		obj.clear();
-//		System.out.println(obj.getValue());
 		gen.setBench(obj.getValue());
 
 		System.out.println(obj.getValue());
-		
-//		System.out.println(obj.getDelay());
-//		System.out.println(obj.getLogistic());
-		
-		obj.clear();
-//		System.out.println(obj.getDelay());
-//		System.out.println(obj.getLogistic());
 		
 		// End of init pass		
 		/* Initialize the original cell
@@ -159,22 +144,17 @@ public class Alice {
 		/**
 		 *  The main pass of the presetted tenants
 		 */
-		double minvalue = 80.2;
+		double minvalue = obj.getValue();
 		for (int i = 0; i < pass; i++) {
 			obj.clear();
 			gen.onePass(tenants, resources,obj);
 //			System.out.println(instances.get(instances.size()-1));
-			if (obj.getValue() < minvalue) {
-				System.out.println(obj.getValue());
-				minvalue = obj.getValue();
-			}
-//			System.out.println(obj.getDelay());
-//			System.out.println(obj.getLogistic());
-//			System.out.print(".");
+//			if (obj.getValue() < minvalue) {
+//				System.out.println(obj.getValue());
+//				minvalue = obj.getValue();
+//			}
 		}
 		System.out.println(obj.getValue());
-//		Runtime.getRuntime().exec("cls");
-//		System.out.println(stateCells);
 		System.out.println(stateCells.size());
 		
 		/***

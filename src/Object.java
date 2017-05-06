@@ -47,10 +47,18 @@ public class Object {
 		this.logistic.clear();
 	}
 	
+	public double getObjDelay() {
+		return this.delay.stream().mapToDouble(Double::doubleValue).sum();
+	}
+	
+	public int getObjLogistic() {
+		return this.logistic.stream().mapToInt(Integer::intValue).sum();
+	}
+	
 	public double getValue() {
 		// TODO: sum up all the logistic and delay with weight
-		double delay_t = this.delay.stream().mapToDouble(Double::doubleValue).sum();
-		int logistic_t = this.logistic.stream().mapToInt(Integer::intValue).sum();
+		double delay_t = this.getObjDelay();
+		int logistic_t = this.getObjLogistic();
 		int n = this.delay.size();
 		return ((1 - this.alpha) * delay_t + this.alpha * logistic_t)/n;
 	}
