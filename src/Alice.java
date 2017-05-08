@@ -3,6 +3,8 @@ import java.nio.file.*;
 import java.util.*;
 
 public class Alice {
+	
+	public static GeneratorS gen;
 
 	public static void main(String[] args) throws IOException {
 		/***
@@ -20,26 +22,31 @@ public class Alice {
 		int width = 10;
 		int height = 10;
 		int seed = 2;
-		int nbResource = 10;
+		int nbResource;
 //		int nbTenant = 0;
 		int maxTime = 150;
 		double gamma = 0.9;
 		double decay = 0.1;
 		int cellCapacity = 80;
-		double alpha = 0.5; // logistic duration weight
+		double alpha; // logistic duration weight
 		int pass = 1500;
 		
-		double eps = 3;
+		double eps = 5;
 		
 		
 		
 		/**
 		 * Prepare the output file
 		 */
-		String outputfile = "Output/1.csv";
-		Path outputPath = Paths.get(outputfile);
-		List<String> outputData = new ArrayList<String>();
-		outputData.add("pass,obj,delay,logistic");	
+		
+		
+		List<String> outputData_raw = new ArrayList<String>();
+		List<String> outputData_filter = new ArrayList<String>();
+
+		String headString = "pass,obj,delay,logistic"; 
+		outputData_raw.add(headString);	
+		outputData_filter.add(headString);
+
 		/**
 		 * 
 		 * I. Initialization 
@@ -50,7 +57,7 @@ public class Alice {
 		 */
 		
 		
-		GeneratorS gen = new GeneratorS(width,height,seed);
+		gen = new GeneratorS(width,height,seed);
 		
 		
 		/*
@@ -58,7 +65,7 @@ public class Alice {
 		 */
 		
 		Service resources =  new Service(0);
-		resources.setResources(gen.generateResources(nbResource,0));
+//		resources.setResources(gen.generateResources(nbResource,0));
 		
 		/*
 		 * Tenant follows
@@ -110,14 +117,13 @@ public class Alice {
 		
 		for (TenantS t : tenants) {
 			t.setRelease(release.poll());
-			t.setDistance(resources);
+
 //			System.out.println(t);
 			if (tenants.indexOf(t) == tenants.size() -1 ) {
 				t.setFinal(true);
 			}
 		}
 		
-		System.out.println(resources.getAvailable());
 		
 		/**
 		 * II. Filling each resource repeatedly according to tenant time line sequence.
@@ -132,9 +138,114 @@ public class Alice {
 		 */
 		
 		// TODO:benchmark
-		Object obj = new Object(alpha);
+//		Object obj = new Object(alpha);
+//		int container;
+//		for (TenantS t : tenants) {
+//			container = gen.nextInt(nbResource) + 1;
+//			gen.processing(t, resources, container);
+//			double d = t.getEndWhole() - t.getRelease();
+//			obj.addDelay(d - (t.getProcessing()+0.0) );
+//			obj.addLogistic(t.getLogistic());
+//		}
+//		gen.setBench(obj.getValue());
+//
+////		System.out.println(obj.getValue());
+//		
+//		// End of init pass		
+//		/* Initialize the original cell
+//		 * 1. capacity
+//		 * 2. decay
+//		 * 3. cell space
+//		 */
+//		List<Cell> stateCells = new LinkedList<>(); //cellComparator
+//
+//		Cell originCell = new Cell(eps);
+//		originCell.setCapacity(cellCapacity);
+//		originCell.setDecay(decay);
+//		
+//		stateCells.add(originCell);
+//		
+//		
+//		gen.setStateCells(stateCells);
+//		
+//		/**
+//		 *  The main pass of the presetted tenants
+//		 */
+//		int nbTenant = tenants.size();
+//		double minvalue = obj.getValue();
+//		for (int i = 0; i < pass; i++) {
+//			gen.onePass(tenants, resources,obj);
+//			outputData_raw.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
+//			gen.Solve(tenants, resources, obj);
+////			outputData_filter.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
+//		}
+////		System.out.println(gen.Masturbation(tenants, resources, obj, null));
+//		double re = gen.Solve(tenants, resources, obj);
+//		System.out.println("obj of learner " + re);
+//		System.out.println(obj.getObjDelay()/nbTenant);
+//		System.out.println(obj.getObjLogistic()/nbTenant);
+//		System.out.println("obj of nearest " + gen.Masturbation(tenants, resources, obj, 1));
+//		System.out.println(obj.getObjDelay()/nbTenant);
+//		System.out.println(obj.getObjLogistic()/nbTenant);
+//		System.out.println("obj of fair " + gen.Masturbation(tenants, resources, obj, resources.getAmount()));
+////		System.out.println(gen.Solve(tenants, resources, obj) );
+//		System.out.println(obj.getObjDelay()/nbTenant);
+//		System.out.println(obj.getObjLogistic()/nbTenant);
+//		System.out.println(tenants.size());
+//		
+//		System.out.println(stateCells.size());
+		
+//		Files.write(Paths.get("Output/raw.csv"), outputData_raw);
+//		Files.write(Paths.get("Output/filter.csv"), outputData_filter);
+		
+		
+		
+		/**
+		 * Experiment on alpha
+		 */
+//		resources.setResources(gen.generateResources(nbResource,0));
+		int denominator = 10;
+		int sdenominator = 20;
+		
+		
+		for (int s = 2; s <= sdenominator; s+=2) {
+			List<String> outputData_alpha = new ArrayList<String>();
+			outputData_alpha.add("alpha,near,fair,elastic");
+			nbResource = s;
+			resources.setResources(gen.generateResources(nbResource,0));
+			
+			for (TenantS t : tenants) {
+				t.setDistance(resources);
+			}
+			
+			
+			for (int a = 0; a <= denominator; a++) {
+				alpha = (a+0.0)/denominator;
+				Object obj = new Object(alpha);
+				
+				double obj_near = gen.Masturbation(tenants, resources, obj, 1);
+				double obj_fair = gen.Masturbation(tenants, resources, obj, nbResource);
+				System.out.println("Start of nbRes=" +s + " alpha=" + alpha);
+				double obj_elastic = solve(tenants, resources, cellCapacity, decay, pass, obj);
+				outputData_alpha.add(alpha + "," + obj_near + "," + obj_fair + "," + obj_elastic);
+				System.out.println("End of nbRes=" +s + "  alpha=" + alpha);
+			}
+			Files.write(Paths.get("Output/alpha_nbRes_"+ s + ".csv"), outputData_alpha);
+			
+		}
+//		System.out.println(outputData_alpha);
+		
+		
+	}
+	
+	public static double solve(List<TenantS> tenants, Service resources, int cellCapacity, double decay, int pass, Object obj) {
+		int nbResource = resources.getAmount();
+//		Object obj = new Object(alpha);
+		obj.clear();
+		resources.reset();
 		int container;
 		for (TenantS t : tenants) {
+			t.reset();
 			container = gen.nextInt(nbResource) + 1;
 			gen.processing(t, resources, container);
 			double d = t.getEndWhole() - t.getRelease();
@@ -143,7 +254,7 @@ public class Alice {
 		}
 		gen.setBench(obj.getValue());
 
-		System.out.println(obj.getValue());
+//		System.out.println(obj.getValue());
 		
 		// End of init pass		
 		/* Initialize the original cell
@@ -153,7 +264,7 @@ public class Alice {
 		 */
 		List<Cell> stateCells = new LinkedList<>(); //cellComparator
 
-		Cell originCell = new Cell(eps);
+		Cell originCell = new Cell();
 		originCell.setCapacity(cellCapacity);
 		originCell.setDecay(decay);
 		
@@ -165,42 +276,17 @@ public class Alice {
 		/**
 		 *  The main pass of the presetted tenants
 		 */
-//		List<Double> delay = new ArrayList<Double>();
+
+		int nbTenant = tenants.size();
 		double minvalue = obj.getValue();
 		for (int i = 0; i < pass; i++) {
 			gen.onePass(tenants, resources,obj);
-//			System.out.println(instances.get(instances.size()-1));
-//			if (obj.getValue() < minvalue) {
-//				System.out.println(obj.getValue());
-//				minvalue = obj.getValue();
-//			}
-//			double re = gen.Solve(tenants, resources, obj);
-//			double re = gen.Masturbation(tenants, resources, obj,null);
-			outputData.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay() + "," + obj.getObjLogistic());
+//			outputData_raw.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
+//			gen.Solve(tenants, resources, obj);
+//			outputData_filter.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
 		}
-//		System.out.println(gen.Masturbation(tenants, resources, obj, null));
-		double re = gen.Solve(tenants, resources, obj);
-		System.out.println(re);
-		System.out.println(obj.getDelay());
-		System.out.println(gen.Masturbation(tenants, resources, obj, 1));
-		System.out.println(obj.getDelay());
-		System.out.println(gen.Masturbation(tenants, resources, obj, resources.getAmount()));
-//		System.out.println(gen.Solve(tenants, resources, obj) );
-		System.out.println(obj.getDelay());
 		
-		
-		System.out.println(stateCells.size());
-		
-			
-		/***
-		 * The testing process:
-		 * 1. from start tenant, check the Q-value, chose the biggest one to guide the schedule.
-		 * 2. get the object value for each instances
-		 */
-		
-//		double re = gen.Solve(tenants, resources, obj);
-//		System.out.println(re);
-		Files.write(outputPath, outputData);
+		return gen.Solve(tenants, resources, obj);
 		
 	}
 	
@@ -215,7 +301,6 @@ public class Alice {
 			}
 			for (int i = 0; i < nbTenant; i++) {
 				processing[i] = data.next();
-//				this.getProcessing().add(data.next());
 				for (int j = 0; j < nbService; j++) {
 					data.next();
 				}
@@ -231,16 +316,13 @@ public class Alice {
 			return null;
 		}
 	}
-	
-/*	public static Statistics CalculateState(int r, int p, Map<Integer,Integer> a, Map<Integer,Integer> dist) {
-		List<Integer> resut = new ArrayList<Integer>();
-		for (Map.Entry<Integer, Integer> av : a.entrySet()) {
-			resut.add(Math.max(av.getValue(), r) + dist.get(av.getKey()));
-		}
-		
-		Statistics state = new Statistics(resut, p);
-		return state;
-	}*/
-	
+
+	public GeneratorS getGen() {
+		return gen;
+	}
+
+	public void setGen(GeneratorS gen) {
+		this.gen = gen;
+	}
 	
 }

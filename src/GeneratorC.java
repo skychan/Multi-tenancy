@@ -154,11 +154,11 @@ public class GeneratorC extends Generator{
 					
 						if (isFull) {
 							int volumn = cell.getCapacity();
-							Map.Entry<String, List> rule = cell.getSplitRule();
+							Map.Entry<String, Double> rule = cell.getSplitRule();
 							String key = rule.getKey();
 						// then chose the biggest, sort the states
 							cell.sortByRule(key);
-							List<Double> list = rule.getValue();
+							List<Double> list = cell.getPorperity(key);
 							Collections.sort(list);
 							double middle_bound = 0.5*(list.get(volumn/2) + list.get(volumn/2 - 1));
 						// create a new cell, copy all the old cell's information
