@@ -15,6 +15,7 @@ public class Cell {
 	 */
 	
 	private Map<Integer, Double> Qvalue; // (action, Q-value)
+	private Map<Integer, Integer> actionCount;
 	
 //	private double gap_min, gap_max;
 //	private double num_min, num_max;
@@ -80,8 +81,16 @@ public class Cell {
 		this.porperities.put("mean",this.mean);
 		this.porperities.put("var", this.var);
 		this.porperities.put("p", this.p);
+		
+		this.actionCount = new HashMap<Integer, Integer>();
 	}
-
+	
+	private double eps = 0;
+	public Cell(double eps) {
+		this();
+		this.eps = eps;
+	}
+	
 	public boolean addSample(State s) {
 		this.sampleStates.add(s);
 		this.counter++;
@@ -113,6 +122,10 @@ public class Cell {
 	
 	public int getAmount() {
 		return this.counter;
+	}
+	
+	public List<Double> getPorperity(String key) {
+		return this.porperities.get(key);
 	}
 	
 	public double getPorperity(String name, String extreme) {
@@ -148,7 +161,7 @@ public class Cell {
 	public double getQvalue(int action) {
 		// decay when new instance comes and add its reward
 		if (this.Qvalue.containsKey(action)) {
-			return this.Qvalue.get(action);	
+			return this.Qvalue.get(action);//this.actionCount.get(action);	
 		} else {
 			return 0;
 		}
@@ -157,6 +170,11 @@ public class Cell {
 	// TODO:need to change the set Value
 	public void setQvalue(int action, double Qvalue) {
 		this.Qvalue.put(action, this.decay * this.getQvalue(action) + Qvalue);
+		if (this.getActionCount().containsKey(action)) {
+			this.getActionCount().put(action, this.getActionCount().get(action) + 1);
+		} else {
+			this.getActionCount().put(action, 1);
+		}
 	}
 
 	public double getDecay() {
@@ -175,7 +193,7 @@ public class Cell {
 		this.capacity = capacity;
 	}
 	
-	public Map.Entry<String, List> getSplitRule() {
+	public Map.Entry<String, Double> getSplitRule() {
 		
 		PriorityQueue<Map.Entry<String, Double>> std = new PriorityQueue<Map.Entry<String,Double>>(new Comparator<Map.Entry<String, Double> >() {
 
@@ -183,8 +201,8 @@ public class Cell {
 			public int compare(Entry<String, Double> o1,
 					Entry<String, Double> o2) {
 				// TODO Auto-generated method stub
-				o2.getValue().compareTo(o1.getValue());
-				return 0;
+				return o2.getValue().compareTo(o1.getValue());
+//				return 0;
 			}
 		});
 		for (Map.Entry<String, List> porperity : this.porperities.entrySet()) {
@@ -193,9 +211,10 @@ public class Cell {
 			
 			std.add(item);
 		}
-		String key = std.peek().getKey();
-		Map.Entry<String, List> result = new MyEntry(key, this.porperities.get(key));
-		return result;
+//		System.out.println(std);
+//		String key = std.peek().getKey();
+//		Map.Entry<String, List> result = new MyEntry(key, this.porperities.get(key));
+		return std.peek();
 	}
 	
 	public void sortByRule(String ruleName) {
@@ -219,7 +238,9 @@ public class Cell {
 		 * 3. decay
 		 * 4. capacity
 		 */
-		this.Qvalue = oldCell.getQvalue();
+		this.Qvalue =  new HashMap<Integer, Double>(oldCell.getQvalue());
+		this.actionCount = new HashMap<Integer, Integer>(oldCell.getActionCount());
+//		this.actionCount = old
 		// bounds
 //		this.gap_min = oldCell.getGap_min();
 //		this.gap_max = oldCell.getGap_max();
@@ -258,5 +279,21 @@ public class Cell {
 	@Override
 	public String toString() {
 		return "Cell [bounds=" + bounds + "]";
+	}
+
+	public double getEps() {
+		return eps;
+	}
+
+	public void setEps(double eps) {
+		this.eps = eps;
+	}
+
+	public Map<Integer, Integer> getActionCount() {
+		return actionCount;
+	}
+
+	public void setActionCount(Map<Integer, Integer> actionCount) {
+		this.actionCount = actionCount;
 	}
 }

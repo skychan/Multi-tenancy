@@ -17,17 +17,19 @@ public class Alice {
 		 * Here goes the main parameters
 		 */
 		
-		int width = 200;
-		int height = 200;
+		int width = 10;
+		int height = 10;
 		int seed = 2;
 		int nbResource = 10;
 //		int nbTenant = 0;
-		int maxTime = 100;
+		int maxTime = 150;
 		double gamma = 0.9;
-		double decay = 0.9;
-		int cellCapacity = 50;
+		double decay = 0.1;
+		int cellCapacity = 80;
 		double alpha = 0.5; // logistic duration weight
 		int pass = 1500;
+		
+		double eps = 3;
 		
 		
 		
@@ -86,12 +88,13 @@ public class Alice {
 		
 		String filename = files[gen.nextInt(files.length)].getName();
 		int[] processing = ReadData(fileprefix + filename);
-
+		
 		
 		List<TenantS> tenants = gen.generateTenants(processing);
-//		for (TenantS tst : tenants) {
-//			System.out.print(tst.getProcessing() + ", ");
-//		}
+		for (TenantS tst : tenants) {
+			System.out.print(tst.getProcessing() + ", ");
+		}
+		System.out.println();
 		tenants.remove(tenants.size()-1);
 		
 		
@@ -127,13 +130,15 @@ public class Alice {
 		 * Marker pass start
 		 * Use the first pass to set as a marker
 		 */
+		
+		// TODO:benchmark
 		Object obj = new Object(alpha);
 		int container;
 		for (TenantS t : tenants) {
 			container = gen.nextInt(nbResource) + 1;
 			gen.processing(t, resources, container);
 			double d = t.getEndWhole() - t.getRelease();
-			obj.addDelay(d - (t.getProcessing()+0.0)/container );
+			obj.addDelay(d - (t.getProcessing()+0.0) );
 			obj.addLogistic(t.getLogistic());
 		}
 		gen.setBench(obj.getValue());
@@ -148,17 +153,19 @@ public class Alice {
 		 */
 		List<Cell> stateCells = new LinkedList<>(); //cellComparator
 
-		Cell originCell = new Cell();
+		Cell originCell = new Cell(eps);
 		originCell.setCapacity(cellCapacity);
 		originCell.setDecay(decay);
 		
 		stateCells.add(originCell);
+		
 		
 		gen.setStateCells(stateCells);
 		
 		/**
 		 *  The main pass of the presetted tenants
 		 */
+//		List<Double> delay = new ArrayList<Double>();
 		double minvalue = obj.getValue();
 		for (int i = 0; i < pass; i++) {
 			gen.onePass(tenants, resources,obj);
@@ -167,14 +174,24 @@ public class Alice {
 //				System.out.println(obj.getValue());
 //				minvalue = obj.getValue();
 //			}
-			double re = gen.Solve(tenants, resources, obj);
+//			double re = gen.Solve(tenants, resources, obj);
+//			double re = gen.Masturbation(tenants, resources, obj,null);
 			outputData.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay() + "," + obj.getObjLogistic());
 		}
-		System.out.println(gen.Solve(tenants, resources, obj) );
+//		System.out.println(gen.Masturbation(tenants, resources, obj, null));
+		double re = gen.Solve(tenants, resources, obj);
+		System.out.println(re);
+		System.out.println(obj.getDelay());
+		System.out.println(gen.Masturbation(tenants, resources, obj, 1));
+		System.out.println(obj.getDelay());
+		System.out.println(gen.Masturbation(tenants, resources, obj, resources.getAmount()));
+//		System.out.println(gen.Solve(tenants, resources, obj) );
+		System.out.println(obj.getDelay());
+		
+		
 		System.out.println(stateCells.size());
 		
-		
-		
+			
 		/***
 		 * The testing process:
 		 * 1. from start tenant, check the Q-value, chose the biggest one to guide the schedule.

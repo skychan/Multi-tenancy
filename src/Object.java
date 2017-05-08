@@ -60,6 +60,6 @@ public class Object {
 		double delay_t = this.getObjDelay();
 		int logistic_t = this.getObjLogistic();
 		int n = this.delay.size();
-		return ((1 - this.alpha) * delay_t + this.alpha * logistic_t)/n;
+		return ((1 - this.alpha) * delay_t + this.alpha * logistic_t);
 	}
 }

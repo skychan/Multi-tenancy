@@ -43,7 +43,7 @@ public class GeneratorS extends Generator{
 			this.processing(t, resources, container);
 			
 			double d = t.getEndWhole() - t.getRelease();
-			passObj.addDelay(d - t.getProcessing()/container );
+			passObj.addDelay(d - (t.getProcessing() + 0.0) );
 			passObj.addLogistic(t.getLogistic());
 			
 			/*
@@ -82,11 +82,36 @@ public class GeneratorS extends Generator{
 							// TODO split the cellSpace
 							// first sort by the bound var, record the bound
 							int volumn = cell.getCapacity();
-							Map.Entry<String, List> rule = cell.getSplitRule();  // get the split feature
+							Map.Entry<String, Double> rule = cell.getSplitRule();  // get the split feature
 							String key = rule.getKey();
+
+//							if (rule.getValue() > cell.getEps()) {
+//								// then chose the biggest, sort the states
+//								cell.sortByRule(key);
+////								List<Double> list = rule.getValue();
+//								List<Double> list = cell.getPorperity(key);
+//								Collections.sort(list);
+//								double middle_bound = 0.5*(list.get(volumn/2) + list.get(volumn/2 - 1));
+//								// create a new cell, copy all the old cell's information
+//								Cell child = new Cell();
+//								child.copy(cell);
+//								// modify the bounds, 
+//								cell.setPorperity(key, "max", middle_bound);
+//								child.setPorperity(key, "min", middle_bound);
+//								// migrate samples from old to new 
+//								for (int j = 0; j < volumn/2; j++) {
+//									child.addSample(cell.removeSample());
+//								}
+//								// add child to the stateCells
+//								this.addStateCell(child);
+//							} else {
+//								cell.setCapacity(cell.getCapacity()*2);
+//							}							
+							
 							// then chose the biggest, sort the states
 							cell.sortByRule(key);
-							List<Double> list = rule.getValue();
+//							List<Double> list = rule.getValue();
+							List<Double> list = cell.getPorperity(key);
 							Collections.sort(list);
 							double middle_bound = 0.5*(list.get(volumn/2) + list.get(volumn/2 - 1));
 							// create a new cell, copy all the old cell's information
@@ -101,6 +126,8 @@ public class GeneratorS extends Generator{
 							}
 							// add child to the stateCells
 							this.addStateCell(child);
+							
+							
 						}
 						break;
 					}
@@ -134,19 +161,41 @@ public class GeneratorS extends Generator{
 					break;
 				}
 			}
-			
-			
-			
+						
 			this.processing(t, resources, container);
 				
 			double d = t.getEndWhole() - t.getRelease();
-			obj.addDelay(d - t.getProcessing()/container );
+			obj.addDelay(d - (t.getProcessing() + 0.0) );
 			obj.addLogistic(t.getLogistic());
-								
-			
+						
 		}
 		
 		return obj.getValue();
 	}
+	
+	
+	public double Masturbation(List<TenantS> tenants, Service resources, Object obj, Integer container) {
+		resources.reset();
+		for (TenantS t : tenants) {
+			t.reset();
+		}
+		obj.clear();
+		
+		for (int i = 0; i < tenants.size(); i++) {
+			TenantS t = tenants.get(i);
+			this.processing(t, resources, container);
+			
+			double d = t.getEndWhole() - t.getRelease();
+			
+			obj.addDelay(d - (t.getProcessing() + 0.0));
+			obj.addLogistic(t.getLogistic());
+			
+		}
+		
+		return obj.getValue();
+		
+	}
+	
+//	public double 
 	
 }
