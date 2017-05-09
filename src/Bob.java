@@ -47,7 +47,7 @@ public class Bob {
 				int c;
 				c = o1.getRelease().compareTo(o2.getRelease());
 				if (c == 0) {
-					c = tenants.get(o1.getSuperid()).getRelease().compareTo(tenants.get(o2.getSuperid()).getRelease());
+					c = o1.getSuperRelease().compareTo(o2.getSuperRelease());
 				}
 				return c;
 			}

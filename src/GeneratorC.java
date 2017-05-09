@@ -197,7 +197,7 @@ public class GeneratorC extends Generator{
 		return active;
 	}
 	public void setActive(PriorityQueue<TenantS> active) {
-		this.active = active;
+		this.active = new PriorityQueue<TenantS>(active);
 	}
 	
 	public void Finish(PriorityQueue<TenantS> active, TenantC tC, TenantS tS) {

@@ -10,6 +10,8 @@ public class TenantS extends Tenant {
 //	private Map<Integer, Integer> predends;
 	private boolean isFinal = false;
 	private int logistic;
+	
+	private Integer superRelease;
 
 	// sorting the nearest location with constructor?
 	public TenantS(double x, double y, int id) {
@@ -230,6 +232,14 @@ public class TenantS extends Tenant {
 
 	public void setLogistic(int logistic) {
 		this.logistic = logistic;
+	}
+
+	public Integer getSuperRelease() {
+		return superRelease;
+	}
+
+	public void setSuperRelease(Integer superRelease) {
+		this.superRelease = superRelease;
 	}
 
 }

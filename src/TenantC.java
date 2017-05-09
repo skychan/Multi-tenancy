@@ -35,6 +35,7 @@ public class TenantC extends Tenant {
 				this.getProcessings()[i] = processing;
 				TenantS subt = new TenantS(this.getX(), this.getY(), i, this.getId());
 				subt.setRelease(this.getRelease());
+				subt.setSuperRelease(this.getRelease());
 				subt.setProcessing(processing);
 				if (processing > 0) {
 //					List<Integer> amount = new ArrayList<Integer>();
