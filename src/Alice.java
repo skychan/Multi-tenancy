@@ -278,7 +278,6 @@ public class Alice {
 		 */
 
 		int nbTenant = tenants.size();
-		double minvalue = obj.getValue();
 		for (int i = 0; i < pass; i++) {
 			gen.onePass(tenants, resources,obj);
 //			outputData_raw.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
