@@ -138,7 +138,7 @@ public class Alice {
 		 */
 		
 		// TODO:benchmark
-//		Object obj = new Object(alpha);
+//		Object obj = new Object(0.5);
 //		int container;
 //		for (TenantS t : tenants) {
 //			container = gen.nextInt(nbResource) + 1;
@@ -148,31 +148,31 @@ public class Alice {
 //			obj.addLogistic(t.getLogistic());
 //		}
 //		gen.setBench(obj.getValue());
-//
-////		System.out.println(obj.getValue());
-//		
-//		// End of init pass		
-//		/* Initialize the original cell
-//		 * 1. capacity
-//		 * 2. decay
-//		 * 3. cell space
-//		 */
-//		List<Cell> stateCells = new LinkedList<>(); //cellComparator
-//
-//		Cell originCell = new Cell(eps);
-//		originCell.setCapacity(cellCapacity);
-//		originCell.setDecay(decay);
-//		
-//		stateCells.add(originCell);
-//		
-//		
-//		gen.setStateCells(stateCells);
-//		
-//		/**
-//		 *  The main pass of the presetted tenants
-//		 */
+
+//		System.out.println(obj.getValue());
+		
+		// End of init pass		
+		/* Initialize the original cell
+		 * 1. capacity
+		 * 2. decay
+		 * 3. cell space
+		 */
+		List<Cell> stateCells = new LinkedList<>(); //cellComparator
+
+		Cell originCell = new Cell(eps);
+		originCell.setCapacity(cellCapacity);
+		originCell.setDecay(decay);
+		
+		stateCells.add(originCell);
+		
+		
+		gen.setStateCells(stateCells);
+		
+		/**
+		 *  The main pass of the presetted tenants
+		 */
 //		int nbTenant = tenants.size();
-//		double minvalue = obj.getValue();
+////		double minvalue = obj.getValue();
 //		for (int i = 0; i < pass; i++) {
 //			gen.onePass(tenants, resources,obj);
 //			outputData_raw.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
@@ -194,7 +194,7 @@ public class Alice {
 //		System.out.println(tenants.size());
 //		
 //		System.out.println(stateCells.size());
-		
+//		
 //		Files.write(Paths.get("Output/raw.csv"), outputData_raw);
 //		Files.write(Paths.get("Output/filter.csv"), outputData_filter);
 		
@@ -233,14 +233,11 @@ public class Alice {
 			Files.write(Paths.get("Output/alpha_nbRes_"+ s + ".csv"), outputData_alpha);
 			
 		}
-//		System.out.println(outputData_alpha);
-		
 		
 	}
 	
 	public static double solve(List<TenantS> tenants, Service resources, int cellCapacity, double decay, int pass, Object obj) {
 		int nbResource = resources.getAmount();
-//		Object obj = new Object(alpha);
 		obj.clear();
 		resources.reset();
 		int container;
@@ -254,14 +251,6 @@ public class Alice {
 		}
 		gen.setBench(obj.getValue());
 
-//		System.out.println(obj.getValue());
-		
-		// End of init pass		
-		/* Initialize the original cell
-		 * 1. capacity
-		 * 2. decay
-		 * 3. cell space
-		 */
 		List<Cell> stateCells = new LinkedList<>(); //cellComparator
 
 		Cell originCell = new Cell();
@@ -270,23 +259,14 @@ public class Alice {
 		
 		stateCells.add(originCell);
 		
-		
 		gen.setStateCells(stateCells);
-		
-		/**
-		 *  The main pass of the presetted tenants
-		 */
 
 		int nbTenant = tenants.size();
 		for (int i = 0; i < pass; i++) {
 			gen.onePass(tenants, resources,obj);
-//			outputData_raw.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
-//			gen.Solve(tenants, resources, obj);
-//			outputData_filter.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
 		}
 		
 		return gen.Solve(tenants, resources, obj);
-		
 	}
 	
 	public static int[] ReadData(String filename) throws IOException {

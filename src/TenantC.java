@@ -13,11 +13,14 @@ public class TenantC extends Tenant {
 	private int finish_counter = 0;
 	private int MPM_time = 0;
 	
+	private int logistic;
+	
 	public TenantC(double x, double y, int id) {
 		super(x, y, id);
 		this.setSuccessors(new ArrayList<int[]>());
 		this.setTenants(new ArrayList<TenantS>());
 		this.setPredecessors(new HashMap<Integer,List<Integer>>());
+		this.logistic = 0;
 	}
 	
 	public void ReadData(String filename) throws IOException {
@@ -229,5 +232,16 @@ public class TenantC extends Tenant {
 		MPM_time = mPM_time;
 	}
 
+	public int getLogistic() {
+		return logistic;
+	}
+
+	public void setLogistic(int logistic) {
+		this.logistic = logistic;
+	}
+	
+	public void addLogistic(int logistic) {
+		this.logistic += logistic;
+	}
 
 }
