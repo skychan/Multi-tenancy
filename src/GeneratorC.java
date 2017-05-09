@@ -37,7 +37,7 @@ public class GeneratorC extends Generator{
 		return tenants;
 	}
 	
-	public void onePass(List<TenantC> tenants, List<Service> services) {
+	public void onePass(List<TenantC> tenants, List<Service> services, Object passObj) {
 		// TODO
 		// reset first
 		for (Service service : services) {
@@ -49,29 +49,22 @@ public class GeneratorC extends Generator{
 			}
 		}
 		
+		passObj.clear();
+		
 		int container = 0;
 		PriorityQueue<TenantS> active_pass = new PriorityQueue<TenantS>(this.getActive());
 		while (!active_pass.isEmpty()) {
 			TenantS tS = active_pass.poll();
 			TenantC tC = tenants.get(tS.getSuperid());
-			
-			
 			State state;
-			
 			if (tS.getProcessing() > 0) {
 				Service service = services.get(tS.getServicetype());
 				int nbResource = service.getAmount();
-				tS.setDistance(services.get(tS.getServicetype()));
+				tS.setDistance(service);
 				container = this.nextInt(nbResource) + 1;
 				
 				Map<Integer, Integer> available = new HashMap<Integer, Integer>(service.getAvailable());
 				this.processing(tS, service, container);
-				
-				
-				/*
-				 * Bellman Equation
-				 * 
-				 */
 				
 				Statistics s = CalculateState(tS.getRelease(), tS.getProcessing(), available, tS.getDistance());
 				state = new State(s.getGap(), nbResource, s.getMean(), s.getSTD(), tS.getProcessing());
@@ -79,13 +72,25 @@ public class GeneratorC extends Generator{
 			} else {
 				tS.setEnd(-1, tS.getRelease());
 				state = new State();
+				if(tS.getRelease() > tC.getRelease()) {
+					double d = tS.getRelease() - tC.getRelease();
+					passObj.addDelay(d - tC.getMPM_time() +0.0);
+					passObj.addLogistic(tC.getLogistic());
+				}
+				
 			}
 			this.Finish(active_pass, tC, tS); // after finish, the active list updated
 			
 			// TODO merge the final and subfinal
+			if (active_pass.isEmpty()) {
+				Double
+			} else {
+
+			}
 			
 			
-			boolean isSubFinal = this.isFinal(active_pass, tS, tenants);
+//			boolean isSubFinal = this.isFinal(active_pass, tS, tenants);
+			
 //			System.out.println(tS);
 //			if (!active_pass.isEmpty() && tS.getProcessing() > 0) {
 //				PriorityQueue<TenantS> active_explore = new PriorityQueue<>(active_pass);
@@ -99,9 +104,10 @@ public class GeneratorC extends Generator{
 //						break;
 //					}
 //				}
-			if (isSubFinal) {
-				double Q = this.getBench() - tS.getEndWhole();
-				state.setQvalue(container, Q);
+			if (this.isFinal(tS)) {
+				
+//				double R = this.getBench() - passObj.getValue();
+//				state.setQvalue(container, R);
 				}
 			else if (tS.getProcessing() > 0 && !active_pass.isEmpty()){
 				for (Cell cell : this.getStateCells()) {
@@ -131,8 +137,14 @@ public class GeneratorC extends Generator{
 						}
 //						System.out.println(tS_next);
 //							System.out.println(tenants.get(tS_next.getSuperid()).getTenants());
-						if (tS_next.getProcessing() == 0) {
+						while (tS_next.getProcessing() == 0) {
 							int[] succs = tenants.get(tS_next.getSuperid()).getSuccessors().get(tS_next.getId());
+//							System.out.println(tS_next. + ',' +  succs.length);
+							if (succs.length == 0) {
+								tS_next = active_explore.poll();
+							} else {
+
+							}
 							int next_id = this.generator.nextInt(succs.length);
 //								System.out.println(tenants.get(tS_next.getSuperid()).getSuccessors().get(0));
 							tS_next = tenants.get(tS_next.getSuperid()).get(succs[next_id]);
@@ -153,6 +165,7 @@ public class GeneratorC extends Generator{
 						cell.setQvalue(container, Q);
 					
 						if (isFull) {
+//							System.out.println("Split");
 							int volumn = cell.getCapacity();
 							Map.Entry<String, Double> rule = cell.getSplitRule();
 							String key = rule.getKey();
@@ -181,18 +194,60 @@ public class GeneratorC extends Generator{
 			}
 		}
 	
-/*	public void preprocessing() {
-		// TODO
+	
+	public double Masterbation(List<TenantC> tenants, List<Service> services, Object obj){
+		for (Service service : services) {
+			service.reset();
+		}
+		for (TenantC tenant : tenants) {
+			for (TenantS t : tenant.getTenants()) {
+				t.reset();
+			}
+		}
+		
+		obj.clear();
+		
+		Integer container = null;
+		
+		while (!this.getActive().isEmpty()) {
+			TenantS tS = this.getActive().poll();
+			TenantC tC = tenants.get(tS.getSuperid());
+			State state;
+			
+			if (tS.getProcessing() > 0) {
+				Service service = services.get(tS.getServicetype());
+				int nbResource = service.getAmount();
+				tS.setDistance(service);
+				Statistics s = CalculateState(tS.getRelease(), tS.getProcessing(), service.getAvailable(), tS.getDistance());
+				state = new State(s.getGap(), nbResource, s.getMean(), s.getSTD(), tS.getProcessing());
+				
+				for (Cell cell : this.getStateCells()) {
+					if (cell.checkState(state)) {
+						container = cell.getAction();
+						break;
+					}
+				}
+				
+				this.processing(tS, service, container);
+				
+			} else {
+				tS.setEnd(-1, tS.getRelease());
+				state = new State();
+				if(tS.getRelease() > tC.getRelease()) {
+					System.out.println("World");
+					double d = tS.getRelease() - tC.getRelease();
+					obj.addDelay(d - tC.getMPM_time() +0.0);
+					obj.addLogistic(tC.getLogistic());
+				}
+			}
+			
+			this.Finish(this.getActive(), tC, tS);
+			
+		}
+		
+		return obj.getValue();
 	}
-	
-	public void processing() {
-		// TODO
-	}*/
-	
-	/*public double explore(Service service, TenantS t) {
-		// TODO
-		return 0;
-	}*/
+
 	public PriorityQueue<TenantS> getActive() {
 		return active;
 	}
@@ -220,7 +275,8 @@ public class GeneratorC extends Generator{
 					break;
 				}
 			}
-			if (c && sid < tC.getNbTnents() - 1) {
+//			if (c && sid < tC.getNbTnents() - 1) {
+			if (c) {
 				TenantS t = tC.get(sid);
 				// set release
 				t.setRelease(end_whole);
@@ -256,4 +312,30 @@ public class GeneratorC extends Generator{
 		return isSubFinal;
 	}
 	
+	public boolean isSubFinal(TenantS tS, TenantC tC) {
+		int[] succ = tC.getSuccessors().get(tS.getId());
+		if (succ.length > 1) {
+			return false;
+		} else {
+			
+		}
+		
+		boolean isSubFinal = true;
+		if (!active.isEmpty() && tS.getProcessing() > 0) {
+			PriorityQueue<TenantS> active_explore = new PriorityQueue<>(active);
+//			System.out.println(active_explore);
+			
+			while (!active_explore.isEmpty()) {
+				TenantS tx = active_explore.poll();
+				if (tx.getId() < tenants.get(tx.getSuperid()).getNbTnents()-1) {
+					isSubFinal = false;
+					active_explore.add(tx);
+					break;
+					}
+				}
+			} else {
+				isSubFinal = false;
+			}
+		return isSubFinal;
+	}
 }
