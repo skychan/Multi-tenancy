@@ -9,6 +9,7 @@ public class Bob {
 		int nbService = 10;
 		int nbTenant = 10;
 		int maxTime = 10;
+		int avg_res = 20;
 		String fileprefix = "test/";
 		
 		GeneratorC gen = new GeneratorC(width, height, 8);
@@ -17,7 +18,7 @@ public class Bob {
 		/*
 		 * Generate Service
 		 */
-		List<Service> services = gen.generateServices(nbService);
+		List<Service> services = gen.generateServices(nbService,avg_res);
 				
 		/*
 		 * for RL we need to set the decay for Bellman's EQ

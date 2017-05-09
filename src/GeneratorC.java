@@ -13,11 +13,11 @@ public class GeneratorC extends Generator{
 		super(width, height, seed);
 	}
 	
-	public List<Service> generateServices(int num) {
+	public List<Service> generateServices(int num, int avg_res) {
 		List<Service> services = new ArrayList<Service>();
 		
 		for (int i = 0; i < num; i++) {
-			int nbResource = generator.nextInt(20) + 1;
+			int nbResource = generator.nextInt(avg_res*2) + 1;
 			Service S = new Service(i);
 			S.setResources(this.generateResources(nbResource,i));
 			services.add(S);
