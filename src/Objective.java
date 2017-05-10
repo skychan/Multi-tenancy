@@ -1,16 +1,15 @@
 import java.util.*;
-import java.util.concurrent.Delayed;
 
-public class Object {
+public class Objective {
 	private double alpha; // weight of logistic
 	private List<Double> delay;
 	private List<Integer> logistic;
 	// int sum = list.stream().mapToInt(Integer::intValue).sum(); sum up
-	public Object() {
+	public Objective() {
 		this.delay = new ArrayList<Double>();
 		this.logistic = new ArrayList<Integer>();
 	}
-	public Object(double alpha) {
+	public Objective(double alpha) {
 		this();
 		this.setAlpha(alpha);
 	}
@@ -63,5 +62,10 @@ public class Object {
 		double logistic_t = this.getObjLogistic();
 		int n = this.delay.size();
 		return ((1 - this.alpha) * delay_t + this.alpha * logistic_t)/n;
+	}
+	@Override
+	public String toString() {
+		return "Object [getObjDelay()=" + getObjDelay() + ", getObjLogistic()="
+				+ getObjLogistic() + ", getValue()=" + getValue() + "]";
 	}
 }

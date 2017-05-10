@@ -3,9 +3,13 @@ import java.util.*;
 public class Service {
 	private int id;
 	private List<Resource> resources;
+	
+	private List<Cell> stateSpace;
+	
 	public Service(int id) {
 		this.setId(id);
 		this.setResources(new ArrayList<Resource>());
+		this.stateSpace = new ArrayList<Cell>();
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -66,5 +70,67 @@ public class Service {
 	
 	public int getAmount() {
 		return this.getResources().size();
+	}
+
+	public List<Cell> getStateSpace() {
+		return stateSpace;
+	}
+
+	public void setStateSpace(List<Cell> stateSpace) {
+		this.stateSpace = stateSpace;
+	}
+	
+	public double explore(State state) {
+		// Check the next state and get the best value of this state
+		double result = 0.0;
+		Cell cell = this.getCell(state);
+		if (cell != null) {
+//			System.out.println(cell.getActionCount());
+			result = cell.getActionValue();
+		}
+		else {
+			System.out.println("Shit!!");
+		}
+		return result;
+	}
+	
+	public Cell getCell(State state) {
+		// get the cell by the state
+		Cell result = null;
+		for (Cell cell : this.getStateSpace()) {
+			if (cell.checkState(state)) {
+				result = cell;
+				break;
+			}
+		}
+		return result;
+	}
+	
+	public void Split(Cell cell) {
+		// TODO split the cellSpace
+		// first sort by the bound var, record the bound
+		int volumn = cell.getCapacity();
+		MyEntry<String, Double> rule = cell.getSplitRule();  // get the split feature
+		String key = rule.getKey();
+		cell.sortByRule(key);
+		List<Double> list = cell.getPorperity(key);
+		Collections.sort(list);
+		double middle_bound = 0.5*(list.get(volumn/2) + list.get(volumn/2 - 1));
+		// create a new cell, copy all the old cell's information
+		Cell child = new Cell();
+		child.copy(cell);
+		// modify the bounds, 
+		cell.setPorperity(key, "max", middle_bound);
+		child.setPorperity(key, "min", middle_bound);
+		// migrate samples from old to new 
+		for (int j = 0; j < volumn/2; j++) {
+			child.addSample(cell.removeSample());
+		}
+		// add child to the stateCells
+		this.addStateCell(child);
+	}
+	
+	public void addStateCell(Cell cell) {
+		this.stateSpace.add(cell);
 	}
 }

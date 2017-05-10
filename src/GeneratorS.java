@@ -23,7 +23,7 @@ public class GeneratorS extends Generator{
 		return tenants;
 	}
 	
-	public void onePass(List<TenantS> tenants, Service resources, Object passObj) {
+	public void onePass(List<TenantS> tenants, Service resources, Objective passObj) {
 		// reset first
 		resources.reset();
 		for (TenantS t : tenants) {
@@ -60,77 +60,26 @@ public class GeneratorS extends Generator{
 				// Terminal state's Q-value = Reward, because no further states !!
 				double R = this.getBench() - passObj.getValue();
 				state.setQvalue(container, R);
+				// add to statespace
+				
 			} else {
-				for (Cell cell : this.getStateCells()) {
-//					System.out.println(state);
-					if (cell.checkState(state)) {
-						// TODO calculate R(s,a), since non-terminal state's reward is 0, so no need to calculate it 
-//						double R = cell.getReward(container);
-						double R = 0;
-						
-						// TODO calculate max(next), define the explore func.
-//						double Q_next = 0;
-						double Q_next = this.explore(resources, tenants.get(i+1));
-						
-						// TODO add the new Q to state
-						double Q = R + this.getGamma() * Q_next;
-						state.setQvalue(container, Q);
-						boolean isFull = cell.addSample(state);
-						cell.setQvalue(container, Q);
-						
-						if (isFull){
-							// TODO split the cellSpace
-							// first sort by the bound var, record the bound
-							int volumn = cell.getCapacity();
-							Map.Entry<String, Double> rule = cell.getSplitRule();  // get the split feature
-							String key = rule.getKey();
-
-//							if (rule.getValue() > cell.getEps()) {
-//								// then chose the biggest, sort the states
-//								cell.sortByRule(key);
-////								List<Double> list = rule.getValue();
-//								List<Double> list = cell.getPorperity(key);
-//								Collections.sort(list);
-//								double middle_bound = 0.5*(list.get(volumn/2) + list.get(volumn/2 - 1));
-//								// create a new cell, copy all the old cell's information
-//								Cell child = new Cell();
-//								child.copy(cell);
-//								// modify the bounds, 
-//								cell.setPorperity(key, "max", middle_bound);
-//								child.setPorperity(key, "min", middle_bound);
-//								// migrate samples from old to new 
-//								for (int j = 0; j < volumn/2; j++) {
-//									child.addSample(cell.removeSample());
-//								}
-//								// add child to the stateCells
-//								this.addStateCell(child);
-//							} else {
-//								cell.setCapacity(cell.getCapacity()*2);
-//							}							
-							
-							// then chose the biggest, sort the states
-							cell.sortByRule(key);
-//							List<Double> list = rule.getValue();
-							List<Double> list = cell.getPorperity(key);
-							Collections.sort(list);
-							double middle_bound = 0.5*(list.get(volumn/2) + list.get(volumn/2 - 1));
-							// create a new cell, copy all the old cell's information
-							Cell child = new Cell();
-							child.copy(cell);
-							// modify the bounds, 
-							cell.setPorperity(key, "max", middle_bound);
-							child.setPorperity(key, "min", middle_bound);
-							// migrate samples from old to new 
-							for (int j = 0; j < volumn/2; j++) {
-								child.addSample(cell.removeSample());
-							}
-							// add child to the stateCells
-							this.addStateCell(child);
-							
-							
-						}
-						break;
+				// TODO calculate R(s,a), since non-terminal state's reward is 0, so no need to calculate it 
+				double R = 0;
+				// TODO calculate max(next), define the explore func.
+				double Q_next = this.explore(resources, tenants.get(i+1));
+				// TODO add the new Q to state
+				double Q = R + this.getGamma() * Q_next;
+				state.setQvalue(container, Q);
+			}
+			
+			for (Cell cell : this.getStateCells()) {
+				if (cell.checkState(state)) {
+					boolean isFull = cell.addSample(state);
+					cell.setQvalue(container, state.getQvalue(container));
+					if (isFull){
+						this.Split(cell);
 					}
+					break;
 				}
 			}
 	
@@ -139,7 +88,7 @@ public class GeneratorS extends Generator{
 	
 	
 	
-	public double Solve(List<TenantS> tenants, Service resources, Object obj) {
+	public double Solve(List<TenantS> tenants, Service resources, Objective obj) {
 		resources.reset();
 		for (TenantS t : tenants) {
 			t.reset();
@@ -174,7 +123,7 @@ public class GeneratorS extends Generator{
 	}
 	
 	
-	public double Masturbation(List<TenantS> tenants, Service resources, Object obj, Integer container) {
+	public double Masturbation(List<TenantS> tenants, Service resources, Objective obj, Integer container) {
 		resources.reset();
 		for (TenantS t : tenants) {
 			t.reset();

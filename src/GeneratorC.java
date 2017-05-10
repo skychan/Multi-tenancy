@@ -37,215 +37,142 @@ public class GeneratorC extends Generator{
 		return tenants;
 	}
 	
-	public void onePass(List<TenantC> tenants, List<Service> services, Object passObj) {
+	public void onePass(List<TenantC> tenants, List<Service> services, double alpha) {
 		// TODO
 		// reset first
 		for (Service service : services) {
 			service.reset();
 		}
 		for (TenantC tenant : tenants) {
-			for (TenantS t : tenant.getTenants()) {
-				t.reset();
-			}
+			tenant.reset();
 		}
 		
-		passObj.clear();
-		
+		Objective obj = new Objective(alpha);
+//		System.out.println(passObj.getValue());
 		int container = 0;
+		State state = new State();
 		PriorityQueue<TenantS> active_pass = new PriorityQueue<TenantS>(this.getActive());
+		Service service = new Service(-1);
 		while (!active_pass.isEmpty()) {
 			TenantS tS = active_pass.poll();
 			TenantC tC = tenants.get(tS.getSuperid());
-			State state;
-			if (tS.getProcessing() > 0) {
-				Service service = services.get(tS.getServicetype());
+			
+			if (tS.isFinal()) {
+				tS.setEnd(-1, tS.getRelease());
+				double d = tS.getRelease() - tC.getRelease();
+				obj.addDelay(d - tC.getMPM_time() +0.0);
+				obj.addLogistic(tC.getLogistic());
+//				service = null;
+			}
+			else{
+				service = services.get(tS.getServicetype());
 				int nbResource = service.getAmount();
-				tS.setDistance(service);
+//				tS.setDistance(service);
 				container = this.nextInt(nbResource) + 1;
 				
 				Map<Integer, Integer> available = new HashMap<Integer, Integer>(service.getAvailable());
 				this.processing(tS, service, container);
+				// TODO add processing need to add logistic
+				tC.addLogistic(tS.getLogistic());
 				
 				Statistics s = CalculateState(tS.getRelease(), tS.getProcessing(), available, tS.getDistance());
 				state = new State(s.getGap(), nbResource, s.getMean(), s.getSTD(), tS.getProcessing());
-				
-			} else {
-				tS.setEnd(-1, tS.getRelease());
-				state = new State();
-				if(tS.getRelease() > tC.getRelease()) {
-					double d = tS.getRelease() - tC.getRelease();
-					passObj.addDelay(d - tC.getMPM_time() +0.0);
-					passObj.addLogistic(tC.getLogistic());
-				}
-				
 			}
+			
 			this.Finish(active_pass, tC, tS); // after finish, the active list updated
 			
 			// TODO merge the final and subfinal
+			boolean leave = true;
+//			Service service_next;
 			if (active_pass.isEmpty()) {
-				Double
-			} else {
-
-			}
-			
-			
-//			boolean isSubFinal = this.isFinal(active_pass, tS, tenants);
-			
-//			System.out.println(tS);
-//			if (!active_pass.isEmpty() && tS.getProcessing() > 0) {
-//				PriorityQueue<TenantS> active_explore = new PriorityQueue<>(active_pass);
-////				System.out.println(active_explore);
-//				boolean isSubFinal = true;
-//				while (!active_explore.isEmpty()) {
-//					TenantS tx = active_explore.poll();
-//					if (tx.getId() < tenants.get(tx.getSuperid()).getNbTnents()-1) {
-//						isSubFinal = false;
-//						active_explore.add(tx);
-//						break;
-//					}
-//				}
-			if (this.isFinal(tS)) {
-				
-//				double R = this.getBench() - passObj.getValue();
-//				state.setQvalue(container, R);
+				double R = this.getBench() - obj.getValue();
+				state.setQvalue(container, R);
+				leave = false;
 				}
-			else if (tS.getProcessing() > 0 && !active_pass.isEmpty()){
-				for (Cell cell : this.getStateCells()) {
-//						System.out.println(state);
-					if (cell.checkState(state)) {
-//						double R = cell.getReward(container);
-						double R = 0;
-//						double Q_next = 0;
-						// TODO explore
-						/*
-						 * 1. next resource, next tenantS
-						 */
-						PriorityQueue<TenantS> active_explore = new PriorityQueue<>(active_pass);
-//						System.out.println(active_pass);
-						while (!active_explore.isEmpty()) {
-							TenantS tS_next = active_explore.poll();
-							
-							if (tS_next.getId() < tenants.get(tS_next.getSuperid()).getNbTnents()-1) {
-								active_explore.add(tS_next);
-								break;
-							}
-						}
-//						System.out.println(active_explore);
-						TenantS tS_next = active_explore.poll();
-						if (this.isFinal(active_explore, tS_next, tenants)) {
-							tS_next.setFinal(true);
-						}
-//						System.out.println(tS_next);
-//							System.out.println(tenants.get(tS_next.getSuperid()).getTenants());
-						while (tS_next.getProcessing() == 0) {
-							int[] succs = tenants.get(tS_next.getSuperid()).getSuccessors().get(tS_next.getId());
-//							System.out.println(tS_next. + ',' +  succs.length);
-							if (succs.length == 0) {
-								tS_next = active_explore.poll();
-							} else {
-
-							}
-							int next_id = this.generator.nextInt(succs.length);
-//								System.out.println(tenants.get(tS_next.getSuperid()).getSuccessors().get(0));
-							tS_next = tenants.get(tS_next.getSuperid()).get(succs[next_id]);
-							}		
-//							System.out.println(tS_next);
-						Service service_next = services.get(tS_next.getServicetype());
-//							System.out.println(tS_next.getServicetype());
-//							System.out.println(service_next.getResources());
-//							System.out.println(tenants.get(7).getX());
+			else {
+				TenantS tS_next = this.nextS(active_pass);
+				if (tS_next!=null) {
 					
-						double Q_next = this.explore(service_next, tS_next);
-						
-						tS_next.setFinal(false);
-						
-						double Q = R + this.getGamma() * Q_next;
-						state.setQvalue(container, Q);
-						boolean isFull = cell.addSample(state);
-						cell.setQvalue(container, Q);
-					
-						if (isFull) {
-//							System.out.println("Split");
-							int volumn = cell.getCapacity();
-							Map.Entry<String, Double> rule = cell.getSplitRule();
-							String key = rule.getKey();
-						// then chose the biggest, sort the states
-							cell.sortByRule(key);
-							List<Double> list = cell.getPorperity(key);
-							Collections.sort(list);
-							double middle_bound = 0.5*(list.get(volumn/2) + list.get(volumn/2 - 1));
-						// create a new cell, copy all the old cell's information
-							Cell child = new Cell();
-							child.copy(cell);
-						// modify the bounds, 
-							cell.setPorperity(key, "max", middle_bound);
-							child.setPorperity(key, "min", middle_bound);
-						// migrate samples from old to new 
-							for (int j = 0; j < volumn/2; j++) {
-								child.addSample(cell.removeSample());
-								}
-						// add child to the stateCells
-							this.addStateCell(child);
-							}
-						break;
+					Service service_next = services.get(tS_next.getServicetype());
+					Statistics s_next = CalculateState(tS_next.getRelease(), tS_next.getProcessing(), service_next.getAvailable(), tS_next.getDistance());
+					State state_next = new State(s_next.getGap(), service_next.getAmount(), s_next.getMean(), s_next.getSTD(), tS_next.getProcessing());
+					double R = 0;
+					double Q_next = service_next.explore(state_next);
+					double Q = R + this.getGamma() * Q_next;
+					state.setQvalue(container, Q);
+					leave = false;
+					}
+				}
+			if (leave == false) {
+//				System.out.println(service);
+				Cell cell = service.getCell(state);
+				if (cell != null) {
+					boolean isFull = cell.addSample(state);
+					cell.setQvalue(container, state.getQvalue(container));
+					if (isFull) {
+						service.Split(cell);
 						}
+					}
+				else {
+					System.out.println("Fuck!");
 					}
 				}
 			}
 		}
 	
 	
-	public double Masterbation(List<TenantC> tenants, List<Service> services, Object obj){
+	public Objective Masterbation(List<TenantC> tenants, List<Service> services, double alpha){
 		for (Service service : services) {
 			service.reset();
 		}
 		for (TenantC tenant : tenants) {
-			for (TenantS t : tenant.getTenants()) {
-				t.reset();
-			}
+			tenant.reset();
 		}
-		
-		obj.clear();
-		
+//		System.out.println(obj.getDelay());
+		Objective obj = new Objective(alpha);
+//		System.out.println(obj.getDelay());
 		Integer container = null;
-		
-		while (!this.getActive().isEmpty()) {
-			TenantS tS = this.getActive().poll();
+//		System.out.println(tenants.size());
+		while (!active.isEmpty()) {
+			TenantS tS = active.poll();
 			TenantC tC = tenants.get(tS.getSuperid());
 			State state;
 			
-			if (tS.getProcessing() > 0) {
+			if(tS.isFinal()){
+//				System.out.println(tS);
+				tS.setEnd(-1, tS.getRelease());
+				double d = tS.getRelease() - tC.getRelease();
+				obj.addDelay(d - tC.getMPM_time() +0.0);
+				obj.addLogistic(tC.getLogistic());
+
+			}
+			else {
 				Service service = services.get(tS.getServicetype());
 				int nbResource = service.getAmount();
+//				System.out.println(tS.getDistance());
 				tS.setDistance(service);
 				Statistics s = CalculateState(tS.getRelease(), tS.getProcessing(), service.getAvailable(), tS.getDistance());
 				state = new State(s.getGap(), nbResource, s.getMean(), s.getSTD(), tS.getProcessing());
 				
-				for (Cell cell : this.getStateCells()) {
-					if (cell.checkState(state)) {
-						container = cell.getAction();
-						break;
-					}
-				}
+				Cell cell = service.getCell(state);
+//				if (cell != null) {
+					container = cell.getAction();
+//				}
+//				else {
+//					System.out.println("Fuck 2");
+//				}
 				
+//				container = 1;
 				this.processing(tS, service, container);
-				
-			} else {
-				tS.setEnd(-1, tS.getRelease());
-				state = new State();
-				if(tS.getRelease() > tC.getRelease()) {
-					System.out.println("World");
-					double d = tS.getRelease() - tC.getRelease();
-					obj.addDelay(d - tC.getMPM_time() +0.0);
-					obj.addLogistic(tC.getLogistic());
-				}
+				// processing need to add logistic
+				tC.addLogistic(tS.getLogistic());
 			}
 			
-			this.Finish(this.getActive(), tC, tS);
+			this.Finish(active, tC, tS);
 			
 		}
-		
-		return obj.getValue();
+
+		return obj;
 	}
 
 	public PriorityQueue<TenantS> getActive() {
@@ -266,26 +193,11 @@ public class GeneratorC extends Generator{
 		}
 		
 		Collections.shuffle(sids, generator);
-		
 		for (int sid : sids) { // check successor's predecessors
-			boolean c = true;
-			for (int pid : tC.getPredecessors().get(sid)) {
-				c &= tC.getFinish()[pid];
-				if (c == false) {
-					break;
-				}
-			}
-//			if (c && sid < tC.getNbTnents() - 1) {
-			if (c) {
+			if (tC.donable(sid)) {
 				TenantS t = tC.get(sid);
 				// set release
 				t.setRelease(end_whole);
-//				// set start 
-//				for (Resource resource : services.get(t.getServicetype()).getResources()) {
-//					int id = resource.getId();
-//					int a = resource.getAvailable();
-//					t.setStart(id, Math.max(a, end));
-//				}
 				// add to active
 				active.add(tC.get(sid));
 			}
@@ -300,7 +212,7 @@ public class GeneratorC extends Generator{
 			
 			while (!active_explore.isEmpty()) {
 				TenantS tx = active_explore.poll();
-				if (tx.getId() < tenants.get(tx.getSuperid()).getNbTnents()-1) {
+				if (tx.getId() < tenants.get(tx.getSuperid()).getNbTenants()-1) {
 					isSubFinal = false;
 					active_explore.add(tx);
 					break;
@@ -311,31 +223,18 @@ public class GeneratorC extends Generator{
 			}
 		return isSubFinal;
 	}
-	
-	public boolean isSubFinal(TenantS tS, TenantC tC) {
-		int[] succ = tC.getSuccessors().get(tS.getId());
-		if (succ.length > 1) {
-			return false;
-		} else {
-			
+
+	public TenantS nextS(PriorityQueue<TenantS> active){
+		PriorityQueue<TenantS> nextActive = new PriorityQueue<>(active);
+		TenantS result = null;
+		while (!nextActive.isEmpty()) {
+			result = nextActive.poll();
+			if (result.isFinal()) {
+				result = null;
+			} else {
+				break;
+			}
 		}
-		
-		boolean isSubFinal = true;
-		if (!active.isEmpty() && tS.getProcessing() > 0) {
-			PriorityQueue<TenantS> active_explore = new PriorityQueue<>(active);
-//			System.out.println(active_explore);
-			
-			while (!active_explore.isEmpty()) {
-				TenantS tx = active_explore.poll();
-				if (tx.getId() < tenants.get(tx.getSuperid()).getNbTnents()-1) {
-					isSubFinal = false;
-					active_explore.add(tx);
-					break;
-					}
-				}
-			} else {
-				isSubFinal = false;
-			}
-		return isSubFinal;
-	}
+		return result;
+	} 
 }

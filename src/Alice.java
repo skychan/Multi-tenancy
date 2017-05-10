@@ -221,7 +221,7 @@ public class Alice {
 			
 			for (int a = 0; a <= denominator; a++) {
 				alpha = (a+0.0)/denominator;
-				Object obj = new Object(alpha);
+				Objective obj = new Objective(alpha);
 				
 				double obj_near = gen.Masturbation(tenants, resources, obj, 1);
 				double obj_fair = gen.Masturbation(tenants, resources, obj, nbResource);
@@ -236,7 +236,7 @@ public class Alice {
 		
 	}
 	
-	public static double solve(List<TenantS> tenants, Service resources, int cellCapacity, double decay, int pass, Object obj) {
+	public static double solve(List<TenantS> tenants, Service resources, int cellCapacity, double decay, int pass, Objective obj) {
 		int nbResource = resources.getAmount();
 		obj.clear();
 		resources.reset();

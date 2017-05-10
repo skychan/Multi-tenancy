@@ -193,13 +193,12 @@ public class Cell {
 		this.capacity = capacity;
 	}
 	
-	public Map.Entry<String, Double> getSplitRule() {
+	public MyEntry<String, Double> getSplitRule() {
 		
-		PriorityQueue<Map.Entry<String, Double>> std = new PriorityQueue<Map.Entry<String,Double>>(new Comparator<Map.Entry<String, Double> >() {
+		PriorityQueue<MyEntry<String, Double>> std = new PriorityQueue<MyEntry<String,Double>>(new Comparator<MyEntry<String, Double> >() {
 
-			@Override
-			public int compare(Entry<String, Double> o1,
-					Entry<String, Double> o2) {
+			public int compare(MyEntry<String, Double> o1,
+					MyEntry<String, Double> o2) {
 				// TODO Auto-generated method stub
 				return o2.getValue().compareTo(o1.getValue());
 //				return 0;
@@ -207,8 +206,7 @@ public class Cell {
 		});
 		for (Map.Entry<String, List> porperity : this.porperities.entrySet()) {
 			Statistics s = new Statistics(porperity.getValue(), 0);
-			Map.Entry<String, Double> item = new MyEntry(porperity.getKey(), s.getSTD());
-			
+			MyEntry<String, Double> item = new MyEntry(porperity.getKey(), s.getSTD());
 			std.add(item);
 		}
 //		System.out.println(std);
@@ -274,6 +272,16 @@ public class Cell {
 	public int getAction() {
 		int action = Collections.max(this.getQvalue().entrySet(), Map.Entry.comparingByValue()).getKey();
 		return action;
+	}
+	
+	public double getActionValue() {
+		double result = 0.0;
+		if (this.getQvalue().size() == 0) {
+			result = 0.0;
+		} else {
+			result = Collections.max(this.getQvalue().entrySet(), Map.Entry.comparingByValue()).getValue();
+		}
+		return result;
 	}
 
 	@Override

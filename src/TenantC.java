@@ -3,9 +3,9 @@ import java.util.*;
 
 public class TenantC extends Tenant {
 
-	private int nbTnents, nbServices;
+	private int nbTenants, nbServices;
 	private int[] processings;
-	private List<int[]> successors;
+	private List<List<Integer>> successors;
 	private List<TenantS> tenants;
 	private Map<Integer,List<Integer>> predecessors;
 	private int start, end;
@@ -17,7 +17,7 @@ public class TenantC extends Tenant {
 	
 	public TenantC(double x, double y, int id) {
 		super(x, y, id);
-		this.setSuccessors(new ArrayList<int[]>());
+		this.setSuccessors(new ArrayList<List<Integer>>());
 		this.setTenants(new ArrayList<TenantS>());
 		this.setPredecessors(new HashMap<Integer,List<Integer>>());
 		this.logistic = 0;
@@ -26,44 +26,42 @@ public class TenantC extends Tenant {
 	public void ReadData(String filename) throws IOException {
 		DataReader data = new DataReader(filename);
 		try {
-			this.setNbTnents(data.next());
+			this.setNbTenants(data.next());
 			this.setNbServices(data.next());
-			this.setProcessings(new int[this.getNbTnents()]);
-			this.setFinish(new boolean[this.getNbTnents()]);
+			this.setProcessings(new int[this.getNbTenants()]);
+			this.setFinish(new boolean[this.getNbTenants()]);
 			for (int i = 0; i < this.getNbServices(); i++) {
 				data.next();
 			}
-			for (int i = 0; i < this.getNbTnents(); i++) {
+			for (int i = 0; i < this.getNbTenants(); i++) {
 				int processing = data.next();
 				this.getProcessings()[i] = processing;
 				TenantS subt = new TenantS(this.getX(), this.getY(), i, this.getId());
-				subt.setRelease(this.getRelease());
 				subt.setSuperRelease(this.getRelease());
 				subt.setProcessing(processing);
-				if (processing > 0) {
-//					List<Integer> amount = new ArrayList<Integer>();
-					for (int j = 0; j < this.getNbServices(); j++) {
-						int amount = data.next();
-						if (amount > 0) {
-							subt.setServicetype(j);
+				
+				for (int j = 0; j < this.getNbServices(); j++) {
+					int amount = data.next();
+					if (amount > 0) {
+						subt.setServicetype(j);
 						}
 					}
-//					subt.setServicetype(amount.indexOf((Collections.max(amount))));
-				} else {
-					for (int j = 0; j < this.getNbServices(); j++) {
-						data.next();
-//						if (amount > 0) {
-//							subt.setServicetype(j);
-//						}
-					}
+				
+				if (i == 0) {
 					subt.setServicetype(-1);
-				}
+					subt.setRelease(this.getRelease());
+					}
+				else if (i == this.getNbTenants() - 1){
+					subt.setServicetype(-1);	
+					subt.setFinal(true);
+					}
 				
 				int nbSuccessors = data.next();
-				int[] successors = new int[nbSuccessors];
+//				int[] successors = new int[nbSuccessors];
+				List<Integer> successors = new ArrayList<Integer>();
 				for (int j = 0; j < nbSuccessors; j++) {
 					int succid = data.next() - 1;
-					successors[j] = succid;
+					successors.add(succid);
 					if (this.getPredecessors().containsKey(succid)) {
 						this.getPredecessors().get(succid).add(i);
 					}else {
@@ -81,14 +79,12 @@ public class TenantC extends Tenant {
 		}
 	}
 	
-	
-	
-	public int getNbTnents() {
-		return nbTnents;
+	public int getNbTenants() {
+		return nbTenants;
 	}
 
-	public void setNbTnents(int nbTnents) {
-		this.nbTnents = nbTnents;
+	public void setNbTenants(int nbTenants) {
+		this.nbTenants = nbTenants;
 	}
 
 	public int getNbServices() {
@@ -119,11 +115,11 @@ public class TenantC extends Tenant {
 		return this.getTenants().size();
 	}
 
-	public List<int[]> getSuccessors() {
+	public List<List<Integer>> getSuccessors() {
 		return successors;
 	}
 
-	public void setSuccessors(List<int[]> successors) {
+	public void setSuccessors(List<List<Integer>> successors) {
 		this.successors = successors;
 	}
 
@@ -153,15 +149,6 @@ public class TenantC extends Tenant {
 	
 	public void finish(int i) {
 		this.finish[i] = true;
-		if( this.finish_counter == 1 ) {
-//			System.out.println(i);
-			this.setStart(this.get(i).getStartWhole());
-		} // set start 
-		
-		if( this.finish_counter == this.finish.length - 2) {
-			this.setEnd(this.get(i).getEndWhole());
-		} // set end
-		
 		this.finish_counter ++ ;
 	}
 
@@ -185,19 +172,21 @@ public class TenantC extends Tenant {
 		for (TenantS t : this.tenants) {
 			t.reset();
 		}
+		for (int i = 0; i < finish.length; i++) {
+			this.finish[i] = false;
+		}
+		this.setEnd(Integer.MAX_VALUE);
+		this.setLogistic(0);
 	}
 	
 	public void generateMPM() {
-		int[] end = new int[this.getNbTnents()];
-		int[] start = new int[this.getNbTnents()];
+		int[] end = new int[this.getNbTenants()];
+		int[] start = new int[this.getNbTenants()];
 		Set<Integer> active = new HashSet<Integer>();
-//		start[0] = 0;
-//		end[0] = 0;
 		active.add(0);
 		while (!active.isEmpty()) {
 			for (Integer id : active) {
 				start[id] = 0;
-//				System.out.println(Arrays.toString(this.getSuccessors().get(this.getNbTnents()-1)));
 				for (Integer pid : this.getPredecessors().get(id)) {
 					start[id] = Integer.max(start[id], end[pid]);
 				}
@@ -212,13 +201,9 @@ public class TenantC extends Tenant {
 			}
 		}
 		
-		this.setMPM_time(end[this.getNbTnents()-1]);
+		this.setMPM_time(end[this.getNbTenants()-1]);
 	}
 
-//	@Override
-//	public String toString() {
-//		return "Tenant " + this.getId() + ", release=" + this.getRelease() +  ", start=" + start + ", end=" + end;
-//	}
 	@Override
 	public String toString() {
 		return Arrays.toString(this.getProcessings());
@@ -243,5 +228,39 @@ public class TenantC extends Tenant {
 	public void addLogistic(int logistic) {
 		this.logistic += logistic;
 	}
-
+	
+	public boolean isSubFinal() {
+		// TODO subfinal
+		return false;
+	}
+	
+	public boolean donable(int id) {
+		boolean result = true;
+		
+		for (int pid : this.getPredecessors().get(id)) {
+			result &= this.getFinish()[pid];
+			if (result == false) {
+				break;
+			}
+		}		
+		return result;
+	}
+	
+	public List<TenantS> getPredecessors(int id) {
+		List<Integer> ids = this.getPredecessors().get(id);
+		List<TenantS> result = new ArrayList<TenantS>();
+		for (Integer i : ids) {
+			result.add(this.get(i));
+		}
+		return result;
+	}
+	
+	public List<TenantS> getSuccessors(int id) {
+		List<TenantS> result = new ArrayList<TenantS>();
+		
+		for (int i : this.getSuccessors().get(id)) {
+			result.add(this.get(i));
+		}
+		return result;
+	}
 }

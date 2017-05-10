@@ -99,9 +99,7 @@ public class Generator {
 		return stateCells;
 	}
 	
-	public void addStateCell(Cell cell) {
-		this.stateCells.add(cell);
-	}
+
 
 	public void setStateCells(List<Cell> stateCells) {
 		this.stateCells = stateCells;
@@ -171,12 +169,9 @@ public class Generator {
 				}
 			}
 		}
-		if (Q.isEmpty()) {
-			System.out.println(t);
-//			System.out.println();
-			
-		}
+
 		return Collections.max(Q.values());
 	}
 	
+
 }

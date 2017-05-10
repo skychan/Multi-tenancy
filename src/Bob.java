@@ -7,10 +7,10 @@ public class Bob {
 		int width = 20;
 		int height = 20;
 		int nbService = 10;
-		int nbTenant = 10;
+		int nbTenant = 20;
 		int maxTime = 10;
 		int avg_res = 20;
-		double alpha = 0.5;
+		double alpha = 0.3;
 		String fileprefix = "test/";
 		
 		GeneratorC gen = new GeneratorC(width, height, 8);
@@ -26,7 +26,7 @@ public class Bob {
 		 * and cell capacity
 		 */
 		double gamma = 0.8;
-		double decay = 0.5;
+		double decay = 0.0;
 		int cellCapacity = 50;
 		gen.setGamma(gamma);
 		
@@ -63,53 +63,66 @@ public class Bob {
 			String filename = files[gen.nextInt(files.length)].getName();
 			tC.ReadData(fileprefix + filename);
 			tC.generateMPM();
-//			System.out.println(tC.getMPM_time()+ "," + IntStream.of(tC.getProcessings()).sum());
 			TenantS tS = tC.get(0);
 			tS.setRelease(tC.getRelease());
-//			tS.setStart(-1,tC.getRelease());
-			active.add(tS);
-//			System.out.println(tC.getRelease());
+			tC.finish(0);
+			tS.setEnd(-1,tS.getRelease());
+			List<Integer> sids = tC.getSuccessors().get(0);
+			Collections.shuffle(sids, gen.generator);
+			for (int sid : sids) {
+				TenantS t = tC.get(sid);
+				t.setRelease(tC.getRelease());
+				active.add(tC.get(sid));
+			}
+//			System.out.println(filename);
 		}
 		
 		gen.setActive(active);
+//		System.out.println(active);
 		// It's hard to set all the sub tenants' distances now, so set the distances in the marker pass.
 		// Start the marker pass
 		
 //		int reward_bench = 0;
 		
 		int container;
-		Object obj = new Object(alpha);
+		Objective obj = new Objective(alpha);
 		PriorityQueue<TenantS> marker_active = new PriorityQueue<>(active);
+//		System.out.println(marker_active.size());
 //		System.out.println(gen.getActive());
 //		System.out.println(active);
+//		System.out.println(marker_active);
 		while (!marker_active.isEmpty()) {
 			TenantS tS = marker_active.poll();
 			TenantC tC = tenants.get(tS.getSuperid());
 			
-			if (tS.getProcessing() > 0) {
+			if(tS.isFinal()){
+				tS.setEnd(-1,tS.getRelease());
+				double d = tS.getRelease() - tC.getRelease();
+				obj.addDelay(d - tC.getMPM_time() + 0.0);
+				obj.addLogistic(tC.getLogistic());
+			}			
+			else {
 				// TODO set distances
+//				System.out.println(tS);
 				tS.setDistance(services.get(tS.getServicetype()));
 				container = gen.nextInt(services.get(tS.getServicetype()).getAmount()) + 1;
-				
-	
 				gen.processing(tS, services.get(tS.getServicetype()), container);
 				tC.addLogistic(tS.getLogistic());
 
-			} else {
-				tS.setEnd(-1, tS.getRelease());
-				if (tS.getRelease() > tC.getRelease()) {
-					// Which means its the end tenantS
-					double d = tS.getRelease() - tC.getRelease();
-					obj.addDelay(d - tC.getMPM_time() + 0.0);
-					obj.addLogistic(tC.getLogistic());
-					
-				}
 			}
+			// set finish in gen.Finish()
 			gen.Finish(marker_active, tC, tS);
 		}
+	
 		
-		gen.setBench(obj.getValue());
-		System.out.println(obj.getValue());
+		gen.setBench(obj.getValue()*2);
+		System.out.println(obj);
+//		System.out.println(obj.getDelay());
+//		System.out.println(obj.getLogistic());
+		
+//		gen.Masterbation(tenants, services, obj.getAlpha());
+//		System.out.println(obj.getDelay());
+//		System.out.println(obj.getLogistic());
 		
 		// End of init pass
 		/*
@@ -118,22 +131,28 @@ public class Bob {
 		 * 2. decay
 		 * 3. cell space
 		 */
-		List<Cell> stateCells = new LinkedList<>(); //cellComparator
-
-		Cell originCell = new Cell();
-		originCell.setCapacity(cellCapacity);
-		originCell.setDecay(decay);
 		
-		stateCells.add(originCell);
-//		System.out.println(gen.getActive());
-		gen.setStateCells(stateCells);
-//		System.out.println(originCell);
-		for (int i = 0; i < 100; i++) {
-			gen.onePass(tenants, services, obj);
-//			System.out.println(obj);
+		for (Service service : services) {
+			Cell originCell = new Cell();
+			originCell.setCapacity(cellCapacity);
+			originCell.setDecay(decay);
+			List<Cell> stateCells = new ArrayList<Cell>();
+			stateCells.add(originCell);			
+			service.setStateSpace(stateCells);
 		}
-		System.out.println(gen.getStateCells().size());
-		System.out.println(gen.Masterbation(tenants, services, obj));
+		
+		for (int i = 0; i < 100; i++) {
+			gen.onePass(tenants, services, obj.getAlpha());
+//			System.out.println(obj.getValue());
+		}
+//		System.out.println(gen.getActive());
+//		System.out.println(obj.getValue());
+//		System.out.println(gen.getStateCells().size());
+		Objective obj_new = gen.Masterbation(tenants, services, obj.getAlpha()); 
+		System.out.println(obj_new);
+//		System.out.println(obj.getValue());
+//		System.out.println(obj.getDelay());
+//		System.out.println(obj.getLogistic());
 //		System.out.println("没毛病，law tear");
 		
 	}
