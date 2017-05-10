@@ -34,7 +34,7 @@ public class TenantC extends Tenant {
 				data.next();
 			}
 			for (int i = 0; i < this.getNbTenants(); i++) {
-				int processing = data.next();
+				int processing = data.next() * 10;
 				this.getProcessings()[i] = processing;
 				TenantS subt = new TenantS(this.getX(), this.getY(), i, this.getId());
 				subt.setSuperRelease(this.getRelease());

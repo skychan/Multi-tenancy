@@ -4,13 +4,13 @@ import java.io.*;
 public class Bob {
 
 	public static void main(String[] args) throws IOException {
-		int width = 20;
-		int height = 20;
+		int width = 10;
+		int height = 10;
 		int nbService = 10;
-		int nbTenant = 20;
-		int maxTime = 10;
-		int avg_res = 20;
-		double alpha = 0.3;
+		int nbTenant = 40;
+		int maxTime = 100;
+		int avg_res = 10;
+		double alpha = 0.5;
 		String fileprefix = "test/";
 		
 		GeneratorC gen = new GeneratorC(width, height, 8);
@@ -25,9 +25,9 @@ public class Bob {
 		 * for RL we need to set the decay for Bellman's EQ
 		 * and cell capacity
 		 */
-		double gamma = 0.8;
+		double gamma = 0.9;
 		double decay = 0.0;
-		int cellCapacity = 50;
+		int cellCapacity = 80;
 		gen.setGamma(gamma);
 		
 		/*
@@ -115,7 +115,7 @@ public class Bob {
 		}
 	
 		
-		gen.setBench(obj.getValue()*2);
+		gen.setBench(obj.getValue());
 		System.out.println(obj);
 //		System.out.println(obj.getDelay());
 //		System.out.println(obj.getLogistic());
@@ -140,6 +140,11 @@ public class Bob {
 			stateCells.add(originCell);			
 			service.setStateSpace(stateCells);
 		}
+		List<String> outputData = new ArrayList<String>();
+
+		String headString = "pass,obj,delay,logistic"; 
+	
+		outputData.add(headString);
 		
 		for (int i = 0; i < 100; i++) {
 			gen.onePass(tenants, services, obj.getAlpha());
@@ -150,10 +155,12 @@ public class Bob {
 //		System.out.println(gen.getStateCells().size());
 		Objective obj_new = gen.Masterbation(tenants, services, obj.getAlpha()); 
 		System.out.println(obj_new);
-//		System.out.println(obj.getValue());
-//		System.out.println(obj.getDelay());
-//		System.out.println(obj.getLogistic());
-//		System.out.println("没毛病，law tear");
+		
+		for (Service service : services) {
+			System.out.println(service.getStateSpace().size());
+		}
+		
+
 		
 	}
 

@@ -29,7 +29,7 @@ public class RLsolver {
 	
 	public void train(){
 		for (int p = 0; p < this.getPass(); p++) {
-			gen.onePass(tenants, services);
+//			gen.onePass(tenants, services);
 		}
 	}
 	

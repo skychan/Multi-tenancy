@@ -155,14 +155,9 @@ public class GeneratorC extends Generator{
 				state = new State(s.getGap(), nbResource, s.getMean(), s.getSTD(), tS.getProcessing());
 				
 				Cell cell = service.getCell(state);
-//				if (cell != null) {
-					container = cell.getAction();
-//				}
-//				else {
-//					System.out.println("Fuck 2");
-//				}
-				
-//				container = 1;
+//				container = cell.getAction();
+				container = 1;
+//				container = service.getAmount();
 				this.processing(tS, service, container);
 				// processing need to add logistic
 				tC.addLogistic(tS.getLogistic());
