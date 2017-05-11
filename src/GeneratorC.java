@@ -149,7 +149,6 @@ public class GeneratorC extends Generator{
 			else {
 				Service service = services.get(tS.getServicetype());
 				int nbResource = service.getAmount();
-//				System.out.println(tS.getDistance());
 				tS.setDistance(service);
 				Statistics s = CalculateState(tS.getRelease(), tS.getProcessing(), service.getAvailable(), tS.getDistance());
 				state = new State(s.getGap(), nbResource, s.getMean(), s.getSTD(), tS.getProcessing());

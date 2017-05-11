@@ -24,9 +24,10 @@ public class CPsolver {
 	private List<Service> services;
 	private double alpha;
 	private List<TenantC> tenants;
-	
 	private List<Double> Logistic;
 	private List<Double> Delay;
+	
+	private double objValue, objDelay, objLogistic;
 	
 	public CPsolver(double alpha) {
 		this.setAlpha(alpha);
@@ -42,10 +43,8 @@ public class CPsolver {
 		this.services = services;
 	}
 
-	public double solve(List<TenantC> tC) throws IloException {
+	public void solve(List<TenantC> tC) throws IloException {
 		IloCP cp = new IloCP();
-//	    List<IloIntExpr> ends = new ArrayList<IloIntExpr>();
-		
 		List<List<IntervalVarList>> resourceMember = new  ArrayList<List<IntervalVarList>>();
 		
 		for (Service service : services) {
@@ -55,7 +54,6 @@ public class CPsolver {
 				serviceMember.add(resource);
 			}
 			resourceMember.add(serviceMember);
-			
 		}
 		
 		List<List<IloIntExpr>> Tends = new ArrayList<List<IloIntExpr>>();
@@ -94,7 +92,6 @@ public class CPsolver {
 					for (TenantS succT : tenantC.getSuccessors(tS.getId())) {
 						if (succT.isFinal() == false) {
 							cp.add(cp.le(   cp.sum(  cp.endOf(masters.get(tS.getId()-1)), cp.sum(Logs.get(tS.getId()-1))  ) , cp.startOf(masters.get(succT.getId()-1))  ));
-//							cp.add(cp.endBeforeStart(masters.get(tS.getId()-1), masters.get(succT.getId()-1)));
 						}
 					}
 				}
@@ -107,7 +104,6 @@ public class CPsolver {
 				cp.add(cp.noOverlap(intervalVarList.toArray()));
 			}
 		}
-		
 		
 		List<IloIntExpr> delaies = new ArrayList<IloIntExpr>();
 		List<IloIntVar> dels = new ArrayList<IloIntVar>();
@@ -122,18 +118,11 @@ public class CPsolver {
 		List<IloNumVar> logs = new ArrayList<IloNumVar>();
 		List<IloNumExpr> Log = new ArrayList<IloNumExpr>();
 		
-//		Logistics.toArray();
 		for (List<IloNumExpr[]> lllog : Logistics) {
 			IloNumVar tmp = cp.numVar(0, Double.MAX_VALUE);
-//			IloNumExpr tmp2 = cp.numExpr();
 			IloNumExpr[] temp = cp.numExprArray(lllog.size());
 			for (int i = 0; i< lllog.size(); i++) {
-//				temp[i] = cp.numExpr();
 				temp[i] = cp.sum(lllog.get(i));
-//				cp.add(cp.eq(temp[i],cp.sum(lllog.get(i))));
-//				cp.add(cp.eq(temp, cp.max(llog)));
-				
-//				cp.add(cp.eq(obj_log, cp.sum(obj_log,temp)));
 			}
 			Log.add(cp.sum(temp));
 			cp.add(cp.eq(tmp,cp.sum(temp)));
@@ -149,52 +138,13 @@ public class CPsolver {
 		cp.add(obj);
 		cp.setParameter(IloCP.IntParam.FailLimit, 2000);
 		if (cp.solve()) {
-//			double temp = 0;
-//			for (List<IloNumExpr[]> lllog : Logistics) {
-////				IloNumExpr temp = cp.numExpr();
-//				temp = 0;
-//				List<Double> tmp = new ArrayList<Double>();
-//				for (IloNumExpr[] llog : lllog) {
-////					temp += cp.getValue(cp.max(llog));
-//					for (IloNumExpr iloNumExpr : llog) {
-//						tmp.add(cp.getValue(iloNumExpr));
-//					}
-//					temp += Collections.max(tmp);
-//					
-//				}
-//				this.Logistic.add(temp);
-//				
-//			}
 			for (TenantC  tenantC : tC) {
 				this.Delay.add(cp.getValue(dels.get(tenantC.getId())));
 				this.Logistic.add(cp.getValue(logs.get(tenantC.getId())));
 			}
-			
-			
-//			for (TenantC tcc : tC) {
-//				System.out.print(tcc.getRelease() + ",");
-//				System.out.println(cp.getValue(cp.endOf(Doctors.get(tcc.getId()).get(19))));
-//			}
-			
-//			for (int i = 1; i < tC.get(0).getNbTenants() - 1; i++) {
-//				System.out.print((i+1) + ": end is ");
-//				System.out.print(cp.getValue(cp.endOf(Doctors.get(0).get(i-1))));
-//				System.out.print(", success are ");
-//				for (TenantS succT : tC.get(0).getSuccessors(i)) {
-//					if (succT.isFinal() == false) {
-//						System.out.print((succT.getId() + 1) + ": ");
-//						System.out.print(cp.getValue(cp.startOf(Doctors.get(0).get(succT.getId()-1))));
-//						System.out.print(", ");
-//					}
-//					System.out.println(" .");
-//				}
-//			}
-//			System.out.println(tC.get(0).getRelease());
-//			System.out.println(cp.getValue(obj_delay));
-			
-			return cp.getObjValue();
-		} else {
-			return 0.0;
+			this.setObjValue(cp.getObjValue());
+			this.setObjDelay(cp.getValue(obj_delay));
+			this.setObjLogistic(cp.getValue(obj_log));
 		}
 	}
 	
@@ -222,6 +172,30 @@ public class CPsolver {
 
 	public List<Double> getDelay() {
 		return Delay;
+	}
+
+	public double getObjValue() {
+		return objValue;
+	}
+
+	public void setObjValue(double objValue) {
+		this.objValue = objValue;
+	}
+
+	public double getObjDelay() {
+		return objDelay;
+	}
+
+	public void setObjDelay(double objDelay) {
+		this.objDelay = objDelay;
+	}
+
+	public double getObjLogistic() {
+		return objLogistic;
+	}
+
+	public void setObjLogistic(double objLogistic) {
+		this.objLogistic = objLogistic;
 	}
 
 }

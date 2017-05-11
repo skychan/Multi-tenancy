@@ -6,35 +6,131 @@ public class RLsolver {
 	private GeneratorC gen;
 	private double decay, gamma;
 	private int pass, cellCapacity;
-	
+	private double alpha;
 	private List<Service> services;
+	private String fileprefix;
+	private PriorityQueue<TenantS> active;
+	private int nbTenant;
 	
-	private File[] files;
-	
-	List<Cell> stateCells;
-	
+	private double objValue, objDelay, objLogistic;
 	
 	public RLsolver() {
-		this.setStateCells(new LinkedList<Cell>());	
+		Comparator<TenantS> comparator = new Comparator<TenantS>(){
+			public int compare(TenantS o1, TenantS o2){
+				int c;
+				c = o1.getRelease().compareTo(o2.getRelease());
+				if (c == 0) {
+					c = o1.getSuperRelease().compareTo(o2.getSuperRelease());
+				}
+				return c;
+			}
+		};
+		
+		this.active = new PriorityQueue<>(comparator);
+	
+
 	}
 	
-	public void init() {
-		Cell originCell = new Cell();
-		originCell.setCapacity(this.getCellCapacity());
-		originCell.setDecay(this.getDecay());
-//		this.stateCells.clear();
-		stateCells.add(originCell);
-		gen.setStateCells(stateCells);
-	}
-	
-	public void train(){
-		for (int p = 0; p < this.getPass(); p++) {
-//			gen.onePass(tenants, services);
+	public void initService() {
+		// init for the service with state space
+		for (Service service : services) {
+			Cell originCell = new Cell();
+			originCell.setCapacity(this.getCellCapacity());
+			originCell.setDecay(this.getDecay());
+			List<Cell> stateCells = new ArrayList<Cell>();
+			stateCells.add(originCell);			
+			service.setStateSpace(stateCells);
 		}
 	}
 	
-	public void solve(List<TenantC> tenants){
+	public void train(int nbCases) throws IOException{
+		/** train with the number of cases,
+		* for each case,
+		* 0. Generate the tenant list (Done)
+		* 1. Init the active list, (Done)
+		* 2. Set the bench as the first pass (Done)
+		* 3. Go through the passes (Done)
+		*/
+		for (int i = 0; i < nbCases; i++) {
+			List<TenantC> tenants = this.genTenants();
+			this.initActiveList(tenants);
+			this.setBench(tenants);
+			
+			for (int j = 0; j < this.getPass(); j++) {
+				this.getGen().onePass(tenants, this.services, this.getAlpha());
+			}
+			
+		}
+	}
+	
+	public List<TenantC> genTenants() {
+		int[] release = this.getGen().generateReleaseTime(this.getNbTenant());
+		List<TenantC> tenants = this.getGen().generateTenants(release);
+		return tenants;
+	}
+	
+	public void initActiveList(List<TenantC> tenants) throws IOException {
+		this.active.clear();
 		
+		File dir = new File(this.getFileprefix());
+		File[] files = dir.listFiles();
+		for (TenantC tC : tenants) {
+			String filename = files[this.getGen().nextInt(files.length)].getName();
+			tC.ReadData(this.getFileprefix() + filename);
+			tC.generateMPM();
+			TenantS tS = tC.get(0);
+			tS.setRelease(tC.getRelease());
+			tC.finish(0);
+			tS.setEnd(-1,tS.getRelease());
+			List<Integer> sids = tC.getSuccessors().get(0);
+			Collections.shuffle(sids, this.getGen().generator);
+			for (int sid : sids) {
+				TenantS t = tC.get(sid);
+				t.setRelease(tC.getRelease());
+				this.active.add(tC.get(sid));
+			}
+		}
+		this.gen.setActive(active);
+	}
+	
+	public void setBench(List<TenantC> tenants) {
+		for (Service s : this.services) {
+			s.reset();
+		}
+		int container;
+		Objective obj = new Objective(this.getAlpha());
+		PriorityQueue<TenantS> marker_active = new PriorityQueue<>(this.active);
+		while (!marker_active.isEmpty()) {
+			TenantS tS = marker_active.poll();
+			TenantC tC = tenants.get(tS.getSuperid());
+			
+			if(tS.isFinal()){
+				tS.setEnd(-1,tS.getRelease());
+				double d = tS.getRelease() - tC.getRelease();
+				tC.setEnd(tS.getRelease());
+				obj.addDelay(d - tC.getMPM_time() + 0.0);
+				obj.addLogistic(tC.getLogistic());
+			}			
+			else {
+				// TODO set distances
+				tS.setDistance(this.getServices().get(tS.getServicetype()));
+				container = this.getGen().nextInt(this.getServices().get(tS.getServicetype()).getAmount()) + 1;
+				this.getGen().processing(tS, this.getServices().get(tS.getServicetype()), container);
+				tC.addLogistic(tS.getLogistic());
+			}
+			this.getGen().Finish(marker_active, tC, tS);
+		}
+		this.gen.setBench(obj.getValue());
+	}
+	
+	public void solve(List<TenantC> tenants, PriorityQueue<TenantS> active){
+		// Masturbation work
+		// init the list first
+		this.gen.setActive(active);
+		Objective obj = this.getGen().Masterbation(tenants, this.getServices(), this.getAlpha());
+		this.setObjValue(obj.getValue());
+		this.setObjDelay(obj.getObjDelay());
+		this.setObjLogistic(obj.getObjLogistic());
 	}
 
 	public GeneratorC getGen() {
@@ -85,19 +181,51 @@ public class RLsolver {
 		this.services = services;
 	}
 
-	public File[] getFiles() {
-		return files;
+	public double getAlpha() {
+		return alpha;
 	}
 
-	public void setFiles(File[] files) {
-		this.files = files;
+	public void setAlpha(double alpha) {
+		this.alpha = alpha;
 	}
 
-	public List<Cell> getStateCells() {
-		return stateCells;
+	public String getFileprefix() {
+		return fileprefix;
 	}
 
-	public void setStateCells(List<Cell> stateCells) {
-		this.stateCells = stateCells;
+	public void setFileprefix(String fileprefix) {
+		this.fileprefix = fileprefix;
+	}
+
+	public int getNbTenant() {
+		return nbTenant;
+	}
+
+	public void setNbTenant(int nbTenant) {
+		this.nbTenant = nbTenant;
+	}
+
+	public double getObjValue() {
+		return objValue;
+	}
+
+	public void setObjValue(double objValue) {
+		this.objValue = objValue;
+	}
+
+	public double getObjDelay() {
+		return objDelay;
+	}
+
+	public void setObjDelay(double objDelay) {
+		this.objDelay = objDelay;
+	}
+
+	public double getObjLogistic() {
+		return objLogistic;
+	}
+
+	public void setObjLogistic(double objLogistic) {
+		this.objLogistic = objLogistic;
 	}
 }

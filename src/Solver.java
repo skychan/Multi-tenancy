@@ -1,10 +1,12 @@
+import ilog.concert.IloException;
+
 import java.io.*;
 import java.util.*;
 
 
 public class Solver {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, IloException {
 		
 		// TODO Here for the preparation, data set, basic parameter...
 		int width = 20;
@@ -15,7 +17,7 @@ public class Solver {
 		int avg_res = 10;
 		int nbTenant = 20;
 		
-		double alpha; // logistic duration weight
+		double alpha = 0.5; // logistic duration weight
 		
 		/*
 		 * The parameters for the learner
@@ -24,16 +26,47 @@ public class Solver {
 		int pass = 1500;
 		int cellCapacity = 50;
 		double decay = 0.0;
+		int nbCases = 10;
 		
 		// The data group
 		String fileprefix = "test/";
-		File dir = new File(fileprefix);
-		File[] files = dir.listFiles();
+
 		
 		
 		
 		GeneratorC gen = new GeneratorC(width, height, seed);
+		gen.setMaxTime(maxTime);
 		gen.setGamma(gamma);
+		
+		
+		List<Service> services = gen.generateServices(nbService, avg_res);
+		
+		// TODO Here for the RL to initialize
+		RLsolver solver_RL = new RLsolver();
+
+		solver_RL.setGen(gen);
+		solver_RL.setCellCapacity(cellCapacity);
+		solver_RL.setDecay(decay);
+		solver_RL.setGamma(gamma);
+		solver_RL.setPass(pass);
+		solver_RL.setAlpha(alpha);
+		solver_RL.setNbTenant(nbTenant);
+		solver_RL.setFileprefix(fileprefix);
+		solver_RL.setServices(services);
+		solver_RL.initService();
+		
+		solver_RL.train(nbCases);
+		
+		// TODO Here for the CP to initialize
+		CPsolver solver_CP = new CPsolver(0.5);
+		
+		/*
+		 * Compare the two solvers prepare the same tenant list 
+		 */
+		File dir = new File(fileprefix);
+		File[] files = dir.listFiles();
+		int[] release = gen.generateReleaseTime(nbTenant);
+		List<TenantC> tenants = gen.generateTenants(release);
 		Comparator<TenantS> comparator = new Comparator<TenantS>(){
 			public int compare(TenantS o1, TenantS o2){
 				int c;
@@ -44,34 +77,7 @@ public class Solver {
 				return c;
 			}
 		};
-		
 		PriorityQueue<TenantS> active = new PriorityQueue<>(comparator);
-		
-		gen.setActive(active);
-		
-		List<Service> services = gen.generateServices(nbService, avg_res);
-		
-		// TODO Here for the RL to initialize
-		RLsolver solver_RL = new RLsolver();
-		solver_RL.setGen(gen);
-		solver_RL.setCellCapacity(cellCapacity);
-		solver_RL.setDecay(decay);
-		solver_RL.setGamma(gamma);
-		solver_RL.setPass(pass);
-		solver_RL.setFiles(files);
-		
-		
-		solver_RL.train();
-		
-		// TODO Here for the CP to initialize
-		CPsolver solver_CP = new CPsolver(0.5);
-		
-		// TODO loop competition
-		// now i am ready to write the one compete
-		int[] release = gen.generateReleaseTime(nbTenant);
-		List<TenantC> tenants = gen.generateTenants(release);
-		
-		// set release and put it into priority queue
 		for (TenantC tC : tenants) {
 			String filename = files[gen.nextInt(files.length)].getName();
 			tC.ReadData(fileprefix + filename);
@@ -89,10 +95,11 @@ public class Solver {
 			}
 		}
 		
-		solver_RL.solve(tenants);
-//		solver_CP.solve(tenants);
+		solver_RL.solve(tenants,active);
+		System.out.println(solver_RL.getObjValue());
 		
-		
+		solver_CP.solve(tenants);
+		System.out.println(solver_CP.getObjValue());
 	}
 
 }

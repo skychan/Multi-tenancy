@@ -176,8 +176,8 @@ public class Bob {
 		cpsolver.setServices(services);
 		cpsolver.setTenants(tenants);
 		try {
-			double cpresult = cpsolver.solve(tenants);
-			System.out.println(cpresult);
+			cpsolver.solve(tenants);
+			System.out.println(cpsolver.getObjValue());
 //			System.out.println(tenants.get(0).getMPM_time());
 			System.out.println(cpsolver.getDelay());
 			System.out.println(cpsolver.getLogistic());
