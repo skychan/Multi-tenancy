@@ -148,7 +148,7 @@ public class Bob {
 	
 		outputData.add(headString);
 		
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 10; i++) {
 			gen.onePass(tenants, services, obj.getAlpha());
 //			System.out.println(obj.getValue());
 		}
@@ -164,14 +164,15 @@ public class Bob {
 //		cpsolver.setTenants(tenants);
 		try {
 			double cpresult = cpsolver.solve(tenants);
+			System.out.println(cpresult);
 		} catch (IloException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		for (Service service : services) {
-			System.out.println(service.getStateSpace().size());
-		}
+//		for (Service service : services) {
+//			System.out.println(service.getStateSpace().size());
+//		}
 		
 
 		

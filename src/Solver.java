@@ -64,7 +64,7 @@ public class Solver {
 		solver_RL.train();
 		
 		// TODO Here for the CP to initialize
-		CPsolver solver_CP = new CPsolver();
+		CPsolver solver_CP = new CPsolver(0.5);
 		
 		// TODO loop competition
 		// now i am ready to write the one compete
@@ -82,7 +82,7 @@ public class Solver {
 		}
 		
 		solver_RL.solve(tenants);
-		solver_CP.solve(tenants);
+//		solver_CP.solve(tenants);
 		
 		
 	}

@@ -81,7 +81,7 @@ public class CPsolver {
 				if (tS.getProcessing() >0) {
 					for (TenantS succT : tenantC.getSuccessors(tS.getId())) {
 						if (succT.isFinal() == false) {
-							cp.add(cp.endBeforeStart(masters.get(tS.getId()), masters.get(succT.getId())));
+							cp.add(cp.endBeforeStart(masters.get(tS.getId()-1), masters.get(succT.getId()-1)));
 						}
 					}
 				}
