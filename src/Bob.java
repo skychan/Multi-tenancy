@@ -1,3 +1,5 @@
+import ilog.concert.IloException;
+
 import java.util.*;
 import java.util.stream.IntStream;
 import java.io.*;
@@ -155,6 +157,17 @@ public class Bob {
 //		System.out.println(gen.getStateCells().size());
 		Objective obj_new = gen.Masterbation(tenants, services, obj.getAlpha()); 
 		System.out.println(obj_new);
+		
+		CPsolver cpsolver = new CPsolver(alpha);
+		
+		cpsolver.setServices(services);
+//		cpsolver.setTenants(tenants);
+		try {
+			double cpresult = cpsolver.solve(tenants);
+		} catch (IloException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		for (Service service : services) {
 			System.out.println(service.getStateSpace().size());
