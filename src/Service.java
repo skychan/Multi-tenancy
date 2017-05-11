@@ -133,4 +133,12 @@ public class Service {
 	public void addStateCell(Cell cell) {
 		this.stateSpace.add(cell);
 	}
+
+	public void addUse(Map<Integer, Integer> y) {
+		// TODO Auto-generated method stub
+		for (Map.Entry<Integer, Integer> entry : y.entrySet()) {
+			this.get(entry.getKey()).addUse(entry.getValue());
+		}
+		
+	}
 }

@@ -66,21 +66,17 @@ public class GeneratorS extends Generator{
 				// TODO calculate R(s,a), since non-terminal state's reward is 0, so no need to calculate it 
 				double R = 0;
 				// TODO calculate max(next), define the explore func.
-				double Q_next = this.explore(resources, tenants.get(i+1));
+				double Q_next = resources.explore(state);
 				// TODO add the new Q to state
 				double Q = R + this.getGamma() * Q_next;
 				state.setQvalue(container, Q);
 			}
 			
-			for (Cell cell : this.getStateCells()) {
-				if (cell.checkState(state)) {
-					boolean isFull = cell.addSample(state);
-					cell.setQvalue(container, state.getQvalue(container));
-					if (isFull){
-						resources.Split(cell);
-					}
-					break;
-				}
+			Cell cell = resources.getCell(state);
+			boolean isFull = cell.addSample(state);
+			cell.setQvalue(container, state.getQvalue(container));
+			if (isFull) {
+				resources.Split(cell);
 			}
 	
 		}
@@ -104,12 +100,9 @@ public class GeneratorS extends Generator{
 			Statistics s = CalculateState(t.getRelease(), t.getProcessing(), resources.getAvailable(), t.getDistance());
 			State state = new State(s.getGap(), resources.getAmount(), s.getMean(), s.getSTD(), t.getProcessing());
 			
-			for (Cell cell : this.getStateCells()) {
-				if (cell.checkState(state)) {
-					container = cell.getAction();
-					break;
-				}
-			}
+			Cell cell = resources.getCell(state);
+			container = cell.getAction();
+
 						
 			this.processing(t, resources, container);
 				

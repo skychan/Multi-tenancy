@@ -171,11 +171,16 @@ public class TenantS extends Tenant {
 		
 		for (Map.Entry<Integer, Integer> e : this.end.entrySet()) {
 			if (e.getValue() > 0) {
-//				this.logistic += this.getDistance().get(e.getKey());
+				this.logistic += this.getDistance().get(e.getKey());
 				logistic.add(this.getDistance().get(e.getKey()));
 			}
 		}
-		this.setLogistic(Collections.max(logistic));
+//		int log = 0;
+//		if (logistic.isEmpty() == false) {
+//			log = Collections.max(logistic);
+//		}
+		
+//		this.setLogistic(log);
 	}
 	
 	public void setEnd(int id, int end) {

@@ -138,7 +138,7 @@ public class Generator {
 		Map<Integer, Integer> y = t.fill(available,container);		
 		
 		Map<Integer, Integer> end = t.update(y, available);
-		
+		resources.addUse(y);
 		// update the resource available and tenant end
 		resources.setAvailable(available);
 		t.setEnd(end);

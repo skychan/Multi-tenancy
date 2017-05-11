@@ -22,14 +22,14 @@ public class Alice {
 		int width = 10;
 		int height = 10;
 		int seed = 2;
-		int nbResource;
+		int nbResource=20;
 //		int nbTenant = 0;
-		int maxTime = 150;
+		int maxTime = 100;
 		double gamma = 0.9;
 		double decay = 0.1;
-		int cellCapacity = 80;
-		double alpha; // logistic duration weight
-		int pass = 1500;
+		int cellCapacity = 50;
+		double alpha=0.6; // logistic duration weight
+		int pass = 5000;
 		
 		double eps = 5;
 		
@@ -42,10 +42,15 @@ public class Alice {
 		
 		List<String> outputData_raw = new ArrayList<String>();
 		List<String> outputData_filter = new ArrayList<String>();
+		List<String> ServiceDraw = new ArrayList<String>();
 
 		String headString = "pass,obj,delay,logistic"; 
 		outputData_raw.add(headString);	
 		outputData_filter.add(headString);
+		
+		String headDraw = "x,y,rad";
+		
+		ServiceDraw.add(headDraw);
 
 		/**
 		 * 
@@ -65,7 +70,7 @@ public class Alice {
 		 */
 		
 		Service resources =  new Service(0);
-//		resources.setResources(gen.generateResources(nbResource,0));
+		resources.setResources(gen.generateResources(nbResource,0));
 		
 		/*
 		 * Tenant follows
@@ -114,10 +119,10 @@ public class Alice {
 		for (int i = 0; i < rel.length; i++) {
 			release.add(rel[i]);
 		}
-		
+
 		for (TenantS t : tenants) {
 			t.setRelease(release.poll());
-
+			t.setDistance(resources);
 //			System.out.println(t);
 			if (tenants.indexOf(t) == tenants.size() -1 ) {
 				t.setFinal(true);
@@ -138,16 +143,16 @@ public class Alice {
 		 */
 		
 		// TODO:benchmark
-//		Object obj = new Object(0.5);
-//		int container;
-//		for (TenantS t : tenants) {
-//			container = gen.nextInt(nbResource) + 1;
-//			gen.processing(t, resources, container);
-//			double d = t.getEndWhole() - t.getRelease();
-//			obj.addDelay(d - (t.getProcessing()+0.0) );
-//			obj.addLogistic(t.getLogistic());
-//		}
-//		gen.setBench(obj.getValue());
+		Objective obj = new Objective(alpha);
+		int container;
+		for (TenantS t : tenants) {
+			container = gen.nextInt(nbResource) + 1;
+			gen.processing(t, resources, container);
+			double d = t.getEndWhole() - t.getRelease();
+			obj.addDelay(d - (t.getProcessing()+0.0) );
+			obj.addLogistic(t.getLogistic());
+		}
+		gen.setBench(obj.getValue()*10);
 
 //		System.out.println(obj.getValue());
 		
@@ -157,83 +162,116 @@ public class Alice {
 		 * 2. decay
 		 * 3. cell space
 		 */
+		
+		
 		List<Cell> stateCells = new LinkedList<>(); //cellComparator
 
 		Cell originCell = new Cell(eps);
 		originCell.setCapacity(cellCapacity);
 		originCell.setDecay(decay);
-		
 		stateCells.add(originCell);
+		resources.setStateSpace(stateCells);
 		
-		
-		gen.setStateCells(stateCells);
 		
 		/**
 		 *  The main pass of the presetted tenants
 		 */
-//		int nbTenant = tenants.size();
-////		double minvalue = obj.getValue();
-//		for (int i = 0; i < pass; i++) {
-//			gen.onePass(tenants, resources,obj);
-//			outputData_raw.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
-//			gen.Solve(tenants, resources, obj);
-////			outputData_filter.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
+		int nbTenant = tenants.size();
+//		double minvalue = obj.getValue();
+		for (int i = 0; i < pass; i++) {
+			gen.onePass(tenants, resources,obj);
+			outputData_raw.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
+			gen.Solve(tenants, resources, obj);
+			outputData_filter.add((i+1) + "," + obj.getValue() + "," + obj.getObjDelay()/nbTenant + "," + obj.getObjLogistic()/nbTenant);
+		}
+//		System.out.println(gen.Masturbation(tenants, resources, obj, null));
+		double re = gen.Solve(tenants, resources, obj);
+		
+		
+		System.out.println("obj of learner " + re);
+		System.out.println(obj.getObjDelay()/nbTenant);
+		System.out.println(obj.getObjLogistic()/nbTenant);
+		
+		outputDraw(getEnd(tenants), resources, "Output/Service_Elastic.csv");
+			
+		
+		System.out.println("obj of nearest " + gen.Masturbation(tenants, resources, obj, 1));
+		System.out.println(obj.getObjDelay()/nbTenant);
+		System.out.println(obj.getObjLogistic()/nbTenant);
+		
+		outputDraw(getEnd(tenants), resources, "Output/Service_Nearest.csv");
+		
+		System.out.println("obj of fair " + gen.Masturbation(tenants, resources, obj, resources.getAmount()));
+//		System.out.println(gen.Solve(tenants, resources, obj) );
+		System.out.println(obj.getObjDelay()/nbTenant);
+		System.out.println(obj.getObjLogistic()/nbTenant);
+		System.out.println(tenants.size());
+		
+		outputDraw(getEnd(tenants), resources, "Output/Service_Fair.csv");
+		
+		System.out.println(stateCells.size());
+		
+		Files.write(Paths.get("Output/raw.csv"), outputData_raw);
+		Files.write(Paths.get("Output/filter.csv"), outputData_filter);
+		
+		
+		
+//		/**
+//		 * Experiment on alpha
+//		 */
+//		int denominator = 10;
+//		int sdenominator = 20;
+//		
+//		
+//		for (int s = 2; s <= sdenominator; s+=2) {
+//			List<String> outputData_alpha = new ArrayList<String>();
+//			outputData_alpha.add("alpha,near,fair,elastic");
+//			nbResource = s;
+//			resources.setResources(gen.generateResources(nbResource,0));
+//			
+//			for (TenantS t : tenants) {
+//				t.setDistance(resources);
+//			}
+//			
+//			
+//			for (int a = 0; a <= denominator; a++) {
+//				alpha = (a+0.0)/denominator;
+//				Objective obj = new Objective(alpha);
+//				
+//				double obj_near = gen.Masturbation(tenants, resources, obj, 1);
+//				double obj_fair = gen.Masturbation(tenants, resources, obj, nbResource);
+//				System.out.println("Start of nbRes=" +s + " alpha=" + alpha);
+//				double obj_elastic = solve(tenants, resources, cellCapacity, decay, pass, obj);
+//				outputData_alpha.add(alpha + "," + obj_near + "," + obj_fair + "," + obj_elastic);
+//				System.out.println("End of nbRes=" +s + "  alpha=" + alpha);
+//			}
+//			Files.write(Paths.get("Output/alpha_nbRes_"+ s + ".csv"), outputData_alpha);
+//			
 //		}
-////		System.out.println(gen.Masturbation(tenants, resources, obj, null));
-//		double re = gen.Solve(tenants, resources, obj);
-//		System.out.println("obj of learner " + re);
-//		System.out.println(obj.getObjDelay()/nbTenant);
-//		System.out.println(obj.getObjLogistic()/nbTenant);
-//		System.out.println("obj of nearest " + gen.Masturbation(tenants, resources, obj, 1));
-//		System.out.println(obj.getObjDelay()/nbTenant);
-//		System.out.println(obj.getObjLogistic()/nbTenant);
-//		System.out.println("obj of fair " + gen.Masturbation(tenants, resources, obj, resources.getAmount()));
-////		System.out.println(gen.Solve(tenants, resources, obj) );
-//		System.out.println(obj.getObjDelay()/nbTenant);
-//		System.out.println(obj.getObjLogistic()/nbTenant);
-//		System.out.println(tenants.size());
-//		
-//		System.out.println(stateCells.size());
-//		
-//		Files.write(Paths.get("Output/raw.csv"), outputData_raw);
-//		Files.write(Paths.get("Output/filter.csv"), outputData_filter);
 		
-		
-		
-		/**
-		 * Experiment on alpha
-		 */
-//		resources.setResources(gen.generateResources(nbResource,0));
-		int denominator = 10;
-		int sdenominator = 20;
-		
-		
-		for (int s = 2; s <= sdenominator; s+=2) {
-			List<String> outputData_alpha = new ArrayList<String>();
-			outputData_alpha.add("alpha,near,fair,elastic");
-			nbResource = s;
-			resources.setResources(gen.generateResources(nbResource,0));
-			
-			for (TenantS t : tenants) {
-				t.setDistance(resources);
-			}
-			
-			
-			for (int a = 0; a <= denominator; a++) {
-				alpha = (a+0.0)/denominator;
-				Objective obj = new Objective(alpha);
-				
-				double obj_near = gen.Masturbation(tenants, resources, obj, 1);
-				double obj_fair = gen.Masturbation(tenants, resources, obj, nbResource);
-				System.out.println("Start of nbRes=" +s + " alpha=" + alpha);
-				double obj_elastic = solve(tenants, resources, cellCapacity, decay, pass, obj);
-				outputData_alpha.add(alpha + "," + obj_near + "," + obj_fair + "," + obj_elastic);
-				System.out.println("End of nbRes=" +s + "  alpha=" + alpha);
-			}
-			Files.write(Paths.get("Output/alpha_nbRes_"+ s + ".csv"), outputData_alpha);
+	}
+	
+	public static void outputDraw(int end, Service resources, String outputName) throws IOException {
+		System.out.println(end);
+		List<String> output = new ArrayList<String>();
+		output.add("x,y,rad");
+		for (Resource resource : resources.getResources()) {
+			double x = resource.getX();
+			double y = resource.getY();
+			double rad = (resource.getTotalUse() + 0.0)/end;
+			output.add(x + "," + y + "," + rad);
 			
 		}
+		Files.write(Paths.get(outputName), output);
+	}
+	
+	public static int getEnd(List<TenantS> tenants) {
+		List<Integer> ends = new ArrayList<Integer>();
+		for (TenantS t : tenants) {
+			ends.add(t.getEndWhole());
+		}
 		
+		return Collections.max(ends);
 	}
 	
 	public static double solve(List<TenantS> tenants, Service resources, int cellCapacity, double decay, int pass, Objective obj) {

@@ -23,10 +23,10 @@ public class Solver {
 		 * The parameters for the learner
 		 */
 		double gamma = 0.9;
-		int pass = 1500;
+		int pass = 1000;
 		int cellCapacity = 50;
 		double decay = 0.0;
-		int nbCases = 10;
+		int nbCases = 1;
 		
 		// The data group
 		String fileprefix = "test/";
@@ -59,7 +59,7 @@ public class Solver {
 		
 		// TODO Here for the CP to initialize
 		CPsolver solver_CP = new CPsolver(0.5);
-		
+		solver_CP.setServices(services);
 		/*
 		 * Compare the two solvers prepare the same tenant list 
 		 */
