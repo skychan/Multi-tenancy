@@ -49,10 +49,10 @@ public class CPsolver {
 		}
 		
 		List<List<IloIntExpr>> Tends = new ArrayList<List<IloIntExpr>>();
-		List<List<List<IloNumExpr>>> Logistics = new ArrayList<List<List<IloNumExpr>>>();
+		List<List<IloNumExpr[]>> Logistics = new ArrayList<List<IloNumExpr[]>>();
 		for (TenantC tenantC : tC) {
 			List<IloIntExpr> ends = new ArrayList<IloIntExpr>();
-			List<List<IloNumExpr>> Logs = new ArrayList<List<IloNumExpr>>();
+			List<IloNumExpr[]> Logs = new ArrayList<IloNumExpr[]>();
 			List<IloIntervalVar> masters = new ArrayList<IloIntervalVar>();
 			for (TenantS tS : tenantC.getTenants()) {
 				if (tS.getProcessing() > 0) {
@@ -60,13 +60,13 @@ public class CPsolver {
 					Service s = services.get(tS.getServicetype());
 					tS.setDistance(s);
 					IntervalVarList members = new IntervalVarList();
-					List<IloNumExpr> log = new ArrayList<IloNumExpr>();
+					IloNumExpr[] log = new IloNumExpr[s.getAmount()];
 					for (int i = 0; i < s.getAmount(); i++) {
 						IloIntervalVar member = cp.intervalVar(tS.getProcessing());
 						member.setOptional();
 						members.add(member);
 						resourceMember.get(s.getId()).get(i).add(member);
-						log.add(cp.prod(cp.presenceOf(member), tS.getDistance().get(i)));
+						log[i] = (cp.prod(cp.presenceOf(member), tS.getDistance().get(i)));
 					}
 					Logs.add(log);
 					cp.add(cp.alternative(master, members.toArray()));
@@ -102,12 +102,12 @@ public class CPsolver {
 		
 		IloNumExpr obj_log = cp.numExpr();
 //		Logistics.toArray();
-		for (List<List<IloNumExpr>> lllog : Logistics) {
-			for (List<IloNumExpr> llog : lllog) {
-				for (IloNumExpr log : llog) {
-					cp.eq(obj_log, cp.sum(obj_log,log));
-				}
+		for (List<IloNumExpr[]> lllog : Logistics) {
+			IloNumExpr temp = cp.numExpr();
+			for (IloNumExpr[] llog : lllog) {
+				cp.eq(temp, cp.max(llog));
 			}
+			cp.eq(obj_log, cp.sum(obj_log,temp));
 		}
 		
 		IloNumExpr obj_delay = cp.sum(arrayFromList(delaies));
@@ -116,7 +116,7 @@ public class CPsolver {
 		
 		
 		cp.add(obj);
-		
+		cp.setParameter(IloCP.IntParam.FailLimit, 3000);
 		if (cp.solve()) {
 			return cp.getObjValue();
 		} else {
