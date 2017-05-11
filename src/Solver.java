@@ -10,20 +10,20 @@ public class Solver {
 		int width = 20;
 		int height = 20;
 		int seed = 8;
-		int maxTime = 10;
+		int maxTime = 100;
 		int nbService = 10;
-		int avg_res = 20;
-		int nbTenant =10;
+		int avg_res = 10;
+		int nbTenant = 20;
 		
 		double alpha; // logistic duration weight
 		
 		/*
 		 * The parameters for the learner
 		 */
-		double gamma = 0.8;
+		double gamma = 0.9;
 		int pass = 1500;
 		int cellCapacity = 50;
-		double decay = 0.1;
+		double decay = 0.0;
 		
 		// The data group
 		String fileprefix = "test/";
@@ -77,8 +77,16 @@ public class Solver {
 			tC.ReadData(fileprefix + filename);
 			tC.generateMPM();
 			TenantS tS = tC.get(0);
-			tS.setRelease(tC.getRelease());// use it or not is the same?
-			
+			tS.setRelease(tC.getRelease());
+			tC.finish(0);
+			tS.setEnd(-1,tS.getRelease());
+			List<Integer> sids = tC.getSuccessors().get(0);
+			Collections.shuffle(sids, gen.generator);
+			for (int sid : sids) {
+				TenantS t = tC.get(sid);
+				t.setRelease(tC.getRelease());
+				active.add(tC.get(sid));
+			}
 		}
 		
 		solver_RL.solve(tenants);

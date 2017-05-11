@@ -77,7 +77,7 @@ public class GeneratorS extends Generator{
 					boolean isFull = cell.addSample(state);
 					cell.setQvalue(container, state.getQvalue(container));
 					if (isFull){
-						this.Split(cell);
+						resources.Split(cell);
 					}
 					break;
 				}

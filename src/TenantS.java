@@ -17,7 +17,7 @@ public class TenantS extends Tenant {
 	public TenantS(double x, double y, int id) {
 		super(x,y,id);
 		this.setStart(new HashMap<Integer, Integer>());
-		this.setEnd(new HashMap<Integer, Integer>());
+		this.end = new HashMap<Integer, Integer>();
 		this.setLogistic(0);
 	}
 	
@@ -167,11 +167,15 @@ public class TenantS extends Tenant {
 
 	public void setEnd(Map<Integer, Integer> end) {
 		this.end = end;
+		List<Integer> logistic = new ArrayList<Integer>();
+		
 		for (Map.Entry<Integer, Integer> e : this.end.entrySet()) {
 			if (e.getValue() > 0) {
-				this.logistic += this.getDistance().get(e.getKey());
+//				this.logistic += this.getDistance().get(e.getKey());
+				logistic.add(this.getDistance().get(e.getKey()));
 			}
 		}
+		this.setLogistic(Collections.max(logistic));
 	}
 	
 	public void setEnd(int id, int end) {

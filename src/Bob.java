@@ -6,10 +6,10 @@ import java.io.*;
 public class Bob {
 
 	public static void main(String[] args) throws IOException {
-		int width = 10;
-		int height = 10;
+		int width = 20;
+		int height = 20;
 		int nbService = 10;
-		int nbTenant = 40;
+		int nbTenant = 20;
 		int maxTime = 100;
 		int avg_res = 10;
 		double alpha = 0.5;
@@ -29,7 +29,7 @@ public class Bob {
 		 */
 		double gamma = 0.9;
 		double decay = 0.0;
-		int cellCapacity = 80;
+		int cellCapacity = 40;
 		gen.setGamma(gamma);
 		
 		/*
@@ -39,6 +39,7 @@ public class Bob {
 		File[] files = dir.listFiles();
 		
 		int[] release = gen.generateReleaseTime(nbTenant);
+//		System.out.println(Arrays.toString(release));
 		List<TenantC> tenants = gen.generateTenants(release);
 		
 		/*
@@ -71,6 +72,7 @@ public class Bob {
 			tS.setEnd(-1,tS.getRelease());
 			List<Integer> sids = tC.getSuccessors().get(0);
 			Collections.shuffle(sids, gen.generator);
+//			System.out.println(filename);
 			for (int sid : sids) {
 				TenantS t = tC.get(sid);
 				t.setRelease(tC.getRelease());
@@ -86,6 +88,12 @@ public class Bob {
 		
 //		int reward_bench = 0;
 		
+		
+		/*
+		 * Preparation is done
+		 */
+		
+		
 		int container;
 		Objective obj = new Objective(alpha);
 		PriorityQueue<TenantS> marker_active = new PriorityQueue<>(active);
@@ -100,6 +108,7 @@ public class Bob {
 			if(tS.isFinal()){
 				tS.setEnd(-1,tS.getRelease());
 				double d = tS.getRelease() - tC.getRelease();
+				tC.setEnd(tS.getRelease());
 				obj.addDelay(d - tC.getMPM_time() + 0.0);
 				obj.addLogistic(tC.getLogistic());
 			}			
@@ -115,12 +124,15 @@ public class Bob {
 			// set finish in gen.Finish()
 			gen.Finish(marker_active, tC, tS);
 		}
-	
 		
+//		for (TenantC tC : tenants) {
+//			System.out.println(tC.getRelease()+ ", " +tC.getEnd() + ", " + tC.getMPM_time());
+//		}
+//		
 		gen.setBench(obj.getValue());
 		System.out.println(obj);
-//		System.out.println(obj.getDelay());
-//		System.out.println(obj.getLogistic());
+		System.out.println(obj.getDelay());
+		System.out.println(obj.getLogistic());
 		
 //		gen.Masterbation(tenants, services, obj.getAlpha());
 //		System.out.println(obj.getDelay());
@@ -148,7 +160,7 @@ public class Bob {
 	
 		outputData.add(headString);
 		
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 1000; i++) {
 			gen.onePass(tenants, services, obj.getAlpha());
 //			System.out.println(obj.getValue());
 		}
@@ -157,14 +169,18 @@ public class Bob {
 //		System.out.println(gen.getStateCells().size());
 		Objective obj_new = gen.Masterbation(tenants, services, obj.getAlpha()); 
 		System.out.println(obj_new);
-		
+		System.out.println(obj_new.getDelay());
+		System.out.println(obj_new.getLogistic());
 		CPsolver cpsolver = new CPsolver(alpha);
 		
 		cpsolver.setServices(services);
-//		cpsolver.setTenants(tenants);
+		cpsolver.setTenants(tenants);
 		try {
 			double cpresult = cpsolver.solve(tenants);
 			System.out.println(cpresult);
+//			System.out.println(tenants.get(0).getMPM_time());
+			System.out.println(cpsolver.getDelay());
+			System.out.println(cpsolver.getLogistic());
 		} catch (IloException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
