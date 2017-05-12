@@ -1,7 +1,10 @@
 import ilog.concert.IloException;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+
 
 
 public class Solver {
@@ -12,10 +15,13 @@ public class Solver {
 		int width = 20;
 		int height = 20;
 		int seed = 8;
-		int maxTime = 100;
+		
 		int nbService = 10;
 		int avg_res = 10;
 		int nbTenant = 20;
+		int maxTime = nbTenant*5;
+		
+		
 		
 		double alpha = 0.5; // logistic duration weight
 		
@@ -26,7 +32,8 @@ public class Solver {
 		int pass = 1000;
 		int cellCapacity = 50;
 		double decay = 0.0;
-		int nbCases = 1;
+		int nbCases;
+		int nbTrainTenant;
 		
 		// The data group
 		String fileprefix = "test/";
@@ -50,12 +57,19 @@ public class Solver {
 		solver_RL.setGamma(gamma);
 		solver_RL.setPass(pass);
 		solver_RL.setAlpha(alpha);
-		solver_RL.setNbTenant(nbTenant);
+		
+//		solver_RL.setNbTenant(nbTenant);
+//		solver_RL.train(nbCases);
+		
 		solver_RL.setFileprefix(fileprefix);
 		solver_RL.setServices(services);
 		solver_RL.initService();
 		
-		solver_RL.train(nbCases);
+		
+		
+		
+		
+		
 		
 		// TODO Here for the CP to initialize
 		CPsolver solver_CP = new CPsolver(0.5);
@@ -95,11 +109,36 @@ public class Solver {
 			}
 		}
 		
-		solver_RL.solve(tenants,active);
-		System.out.println(solver_RL.getObjValue());
-		
 		solver_CP.solve(tenants);
 		System.out.println(solver_CP.getObjValue());
+		
+		
+		double cp_obj = solver_CP.getObjValue();
+		
+		List<String> trainTimes = new ArrayList<String>();
+		List<String> trainObj = new ArrayList<String>();
+		for (nbCases = 1; nbCases <= 5; nbCases++) {
+			String caseTime = "";
+			String caseObj = "";
+
+			for (nbTrainTenant = 5; nbTrainTenant <= 25; nbTrainTenant+=5) {
+				solver_RL.setNbTenant(nbTrainTenant);
+				solver_RL.train(nbCases);
+				solver_RL.solve(tenants, active);
+				caseTime += Double.toString(solver_RL.getSolve_time()) + ",";
+				caseObj += Double.toString(solver_RL.getObjValue() / cp_obj) + ",";
+			}
+			trainTimes.add(caseTime);
+			trainObj.add(caseObj);
+		}
+		
+		Files.write(Paths.get("Output/times.csv"), trainTimes);
+		Files.write(Paths.get("Output/objs.csv"), trainObj);
+	
+//		solver_RL.solve(tenants,active);
+//		System.out.println(solver_RL.getObjValue());
+		
+		
 	}
 
 }

@@ -14,6 +14,24 @@ public class RLsolver {
 	
 	private double objValue, objDelay, objLogistic;
 	
+	private double solve_time, trainnint_time;
+	
+	public double getTrainnint_time() {
+		return trainnint_time;
+	}
+
+	public void setTrainnint_time(double trainnint_time) {
+		this.trainnint_time = trainnint_time;
+	}
+
+	public double getSolve_time() {
+		return solve_time;
+	}
+
+	public void setSolve_time(double solve_time) {
+		this.solve_time = solve_time;
+	}
+
 	public RLsolver() {
 		Comparator<TenantS> comparator = new Comparator<TenantS>(){
 			public int compare(TenantS o1, TenantS o2){
@@ -51,6 +69,7 @@ public class RLsolver {
 		* 2. Set the bench as the first pass (Done)
 		* 3. Go through the passes (Done)
 		*/
+		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < nbCases; i++) {
 			List<TenantC> tenants = this.genTenants();
 			this.initActiveList(tenants);
@@ -61,6 +80,9 @@ public class RLsolver {
 			}
 			
 		}
+		long stopTme = System.currentTimeMillis();
+		double duration = (stopTme - startTime)/1000;
+		this.setTrainnint_time(duration);
 	}
 	
 	public List<TenantC> genTenants() {
@@ -126,8 +148,12 @@ public class RLsolver {
 	public void solve(List<TenantC> tenants, PriorityQueue<TenantS> active){
 		// Masturbation work
 		// init the list first
+		long startTime = System.currentTimeMillis();
 		this.gen.setActive(active);
 		Objective obj = this.getGen().Masterbation(tenants, this.getServices(), this.getAlpha());
+		long stopTime = System.currentTimeMillis();
+		double duration = (stopTime - startTime)/1000;
+		this.setSolve_time(duration);
 		this.setObjValue(obj.getValue());
 		this.setObjDelay(obj.getObjDelay());
 		this.setObjLogistic(obj.getObjLogistic());

@@ -29,6 +29,16 @@ public class CPsolver {
 	
 	private double objValue, objDelay, objLogistic;
 	
+	private double solve_time;
+	
+	public double getSolve_time() {
+		return solve_time;
+	}
+
+	public void setSolve_time(double solve_time) {
+		this.solve_time = solve_time;
+	}
+
 	public CPsolver(double alpha) {
 		this.setAlpha(alpha);
 		this.Logistic = new ArrayList<Double>();
@@ -134,10 +144,11 @@ public class CPsolver {
 		int n = tC.size();
 		IloObjective obj = cp.minimize(cp.sum(cp.prod((1-alpha)/n, obj_delay),cp.prod(alpha/n, obj_log)));
 		
-		
 		cp.add(obj);
 		cp.setParameter(IloCP.IntParam.FailLimit, 2000);
+		cp.setOut(null);
 		if (cp.solve()) {
+			this.setSolve_time(cp.getInfo(IloCP.DoubleInfo.SolveTime));
 			for (TenantC  tenantC : tC) {
 				this.Delay.add(cp.getValue(dels.get(tenantC.getId())));
 				this.Logistic.add(cp.getValue(logs.get(tenantC.getId())));
@@ -145,6 +156,7 @@ public class CPsolver {
 			this.setObjValue(cp.getObjValue());
 			this.setObjDelay(cp.getValue(obj_delay));
 			this.setObjLogistic(cp.getValue(obj_log));
+//			System.out.println("Time is:" + IloCP.ParameterValues.ElapsedTime);
 		}
 	}
 	

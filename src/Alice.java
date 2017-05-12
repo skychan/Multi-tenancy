@@ -42,15 +42,15 @@ public class Alice {
 		
 		List<String> outputData_raw = new ArrayList<String>();
 		List<String> outputData_filter = new ArrayList<String>();
-		List<String> ServiceDraw = new ArrayList<String>();
+		List<String> TenantDraw = new ArrayList<String>();
 
 		String headString = "pass,obj,delay,logistic"; 
 		outputData_raw.add(headString);	
 		outputData_filter.add(headString);
 		
-		String headDraw = "x,y,rad";
+		String headDraw = "x,y";
 		
-		ServiceDraw.add(headDraw);
+		TenantDraw.add(headDraw);
 
 		/**
 		 * 
@@ -127,7 +127,12 @@ public class Alice {
 			if (tenants.indexOf(t) == tenants.size() -1 ) {
 				t.setFinal(true);
 			}
+			double x = t.getX();
+			double y = t.getY();
+			TenantDraw.add(x + "," + y);
 		}
+		
+		Files.write(Paths.get("Output/tenantS.csv"), TenantDraw);
 		
 		
 		/**
@@ -254,15 +259,19 @@ public class Alice {
 	public static void outputDraw(int end, Service resources, String outputName) throws IOException {
 		System.out.println(end);
 		List<String> output = new ArrayList<String>();
+		List<String> output_abs = new ArrayList<String>();
 		output.add("x,y,rad");
+		output_abs.add("x,y,rad");
 		for (Resource resource : resources.getResources()) {
 			double x = resource.getX();
 			double y = resource.getY();
-			double rad = (resource.getTotalUse() + 0.0)/end;
-			output.add(x + "," + y + "," + rad);
+			double rad = (resource.getTotalUse() + 0.0);
+			output.add(x + "," + y + "," + rad/end);
+			output_abs.add(x + "," + y + "," + rad);
 			
 		}
 		Files.write(Paths.get(outputName), output);
+		Files.write(Paths.get(outputName + "abs"), output_abs);
 	}
 	
 	public static int getEnd(List<TenantS> tenants) {
