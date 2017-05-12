@@ -3,7 +3,9 @@ import java.util.*;
 public class Service {
 	private int id;
 	private List<Resource> resources;
-	
+	private int capacity;
+	private double decay;
+
 	private List<Cell> stateSpace;
 	
 	public Service(int id) {
@@ -66,6 +68,16 @@ public class Service {
 		for (Resource resource : this.resources) {
 			resource.reset();
 		}
+	}
+	
+	public void initState() {
+		// init for the service with state space
+		Cell originCell = new Cell();
+		originCell.setCapacity(this.getCapacity());
+		originCell.setDecay(this.getDecay());
+		List<Cell> stateCells = new ArrayList<Cell>();
+		stateCells.add(originCell);			
+		this.setStateSpace(stateCells);
 	}
 	
 	public int getAmount() {
@@ -140,5 +152,21 @@ public class Service {
 			this.get(entry.getKey()).addUse(entry.getValue());
 		}
 		
+	}
+	
+	public int getCapacity() {
+		return capacity;
+	}
+
+	public void setCapacity(int capacity) {
+		this.capacity = capacity;
+	}
+	
+	public double getDecay() {
+		return decay;
+	}
+	
+	public void setDecay(double decay) {
+		this.decay = decay;
 	}
 }

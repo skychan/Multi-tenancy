@@ -29,7 +29,7 @@ public class Solver {
 		 * The parameters for the learner
 		 */
 		double gamma = 0.9;
-		int pass = 1000;
+		int pass = 2000;
 		int cellCapacity = 50;
 		double decay = 0.0;
 		int nbCases;
@@ -47,15 +47,15 @@ public class Solver {
 		
 		
 		List<Service> services = gen.generateServices(nbService, avg_res);
-		
+		for (Service service : services) {
+			service.setCapacity(cellCapacity);
+			service.setDecay(decay);
+		}
 		// TODO Here for the RL to initialize
 		RLsolver solver_RL = new RLsolver();
 
 		solver_RL.setGen(gen);
-		solver_RL.setCellCapacity(cellCapacity);
-		solver_RL.setDecay(decay);
 		solver_RL.setGamma(gamma);
-		solver_RL.setPass(pass);
 		solver_RL.setAlpha(alpha);
 		
 //		solver_RL.setNbTenant(nbTenant);
@@ -63,7 +63,7 @@ public class Solver {
 		
 		solver_RL.setFileprefix(fileprefix);
 		solver_RL.setServices(services);
-		solver_RL.initService();
+
 		
 		
 		
@@ -111,7 +111,7 @@ public class Solver {
 		
 		solver_CP.solve(tenants);
 		System.out.println(solver_CP.getObjValue());
-		
+		System.out.println(solver_CP.getSolve_time() + " s");
 		
 		double cp_obj = solver_CP.getObjValue();
 		
@@ -120,13 +120,17 @@ public class Solver {
 		for (nbCases = 1; nbCases <= 5; nbCases++) {
 			String caseTime = "";
 			String caseObj = "";
-
+			int casepass = pass/nbCases;
+			solver_RL.setPass(casepass);
+			System.out.println("case = " + nbCases);
 			for (nbTrainTenant = 5; nbTrainTenant <= 25; nbTrainTenant+=5) {
 				solver_RL.setNbTenant(nbTrainTenant);
 				solver_RL.train(nbCases);
 				solver_RL.solve(tenants, active);
-				caseTime += Double.toString(solver_RL.getSolve_time()) + ",";
-				caseObj += Double.toString(solver_RL.getObjValue() / cp_obj) + ",";
+				System.out.println(solver_RL.getObjValue());
+				System.out.println(solver_RL.getTrainnint_time() + " s");
+				caseTime += Double.toString(solver_RL.getTrainnint_time()) + ",";
+				caseObj += Double.toString(cp_obj/solver_RL.getObjValue()) + ",";
 			}
 			trainTimes.add(caseTime);
 			trainObj.add(caseObj);

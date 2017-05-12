@@ -1,7 +1,5 @@
 import java.util.*;
 
-import com.sun.org.glassfish.external.statistics.annotations.Reset;
-
 
 public class Resource {
 	private double x,y;

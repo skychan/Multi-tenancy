@@ -4,8 +4,8 @@ import java.util.*;
 
 public class RLsolver {
 	private GeneratorC gen;
-	private double decay, gamma;
-	private int pass, cellCapacity;
+	private double gamma;
+	private int pass;
 	private double alpha;
 	private List<Service> services;
 	private String fileprefix;
@@ -49,17 +49,7 @@ public class RLsolver {
 
 	}
 	
-	public void initService() {
-		// init for the service with state space
-		for (Service service : services) {
-			Cell originCell = new Cell();
-			originCell.setCapacity(this.getCellCapacity());
-			originCell.setDecay(this.getDecay());
-			List<Cell> stateCells = new ArrayList<Cell>();
-			stateCells.add(originCell);			
-			service.setStateSpace(stateCells);
-		}
-	}
+
 	
 	public void train(int nbCases) throws IOException{
 		/** train with the number of cases,
@@ -69,6 +59,9 @@ public class RLsolver {
 		* 2. Set the bench as the first pass (Done)
 		* 3. Go through the passes (Done)
 		*/
+		for (Service service : services) {
+			service.initState();
+		}
 		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < nbCases; i++) {
 			List<TenantC> tenants = this.genTenants();
@@ -81,7 +74,7 @@ public class RLsolver {
 			
 		}
 		long stopTme = System.currentTimeMillis();
-		double duration = (stopTme - startTime)/1000;
+		double duration = (stopTme - startTime + 0.0)/1000;
 		this.setTrainnint_time(duration);
 	}
 	
@@ -152,7 +145,7 @@ public class RLsolver {
 		this.gen.setActive(active);
 		Objective obj = this.getGen().Masterbation(tenants, this.getServices(), this.getAlpha());
 		long stopTime = System.currentTimeMillis();
-		double duration = (stopTime - startTime)/1000;
+		double duration = (stopTime - startTime + 0.0)/1000;
 		this.setSolve_time(duration);
 		this.setObjValue(obj.getValue());
 		this.setObjDelay(obj.getObjDelay());
@@ -165,14 +158,6 @@ public class RLsolver {
 
 	public void setGen(GeneratorC gen) {
 		this.gen = gen;
-	}
-
-	public double getDecay() {
-		return decay;
-	}
-
-	public void setDecay(double decay) {
-		this.decay = decay;
 	}
 
 	public double getGamma() {
@@ -189,14 +174,6 @@ public class RLsolver {
 
 	public void setPass(int pass) {
 		this.pass = pass;
-	}
-
-	public int getCellCapacity() {
-		return cellCapacity;
-	}
-
-	public void setCellCapacity(int cellCapacity) {
-		this.cellCapacity = cellCapacity;
 	}
 
 	public List<Service> getServices() {
