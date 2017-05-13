@@ -29,7 +29,7 @@ public class Solver {
 		 * The parameters for the learner
 		 */
 		double gamma = 0.9;
-		int pass = 2000;
+		int pass = 1000;
 		int cellCapacity = 50;
 		double decay = 0.0;
 		int nbCases;
