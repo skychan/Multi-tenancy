@@ -18,7 +18,7 @@ public class Solver {
 		
 		int nbService = 10;
 		int avg_res = 10;
-		int nbTenant = 20;
+		int nbTenant = 10;
 		int maxTime = nbTenant*5;
 		
 		
@@ -123,7 +123,7 @@ public class Solver {
 			int casepass = pass/nbCases;
 			solver_RL.setPass(casepass);
 			System.out.println("case = " + nbCases);
-			for (nbTrainTenant = 5; nbTrainTenant <= 25; nbTrainTenant+=5) {
+			for (nbTrainTenant = 2; nbTrainTenant < 20; nbTrainTenant+=4) {
 				solver_RL.setNbTenant(nbTrainTenant);
 				solver_RL.train(nbCases);
 				solver_RL.solve(tenants, active);
