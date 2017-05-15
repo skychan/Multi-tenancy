@@ -17,7 +17,7 @@ public class GeneratorC extends Generator{
 		List<Service> services = new ArrayList<Service>();
 		
 		for (int i = 0; i < num; i++) {
-			int nbResource = generator.nextInt(avg_res/2 + avg_res) + avg_res/2;
+			int nbResource = generator.nextInt(avg_res/2 + avg_res)+avg_res/2;
 			Service S = new Service(i);
 			S.setResources(this.generateResources(nbResource,i));
 			services.add(S);
@@ -155,6 +155,7 @@ public class GeneratorC extends Generator{
 				
 				Cell cell = service.getCell(state);
 				container = cell.getAction();
+//				System.out.println(container);
 //				container = 1;
 //				container = service.getAmount();
 				this.processing(tS, service, container);
