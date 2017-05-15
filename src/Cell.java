@@ -270,7 +270,12 @@ public class Cell {
 	}
 	
 	public int getAction() {
-		int action = Collections.max(this.getQvalue().entrySet(), Map.Entry.comparingByValue()).getKey();
+		int action;
+		if (this.getQvalue().size() == 0) {
+			action = 1;
+		} else {
+			action = Collections.max(this.getQvalue().entrySet(), Map.Entry.comparingByValue()).getKey();
+		}
 		return action;
 	}
 	

@@ -145,8 +145,8 @@ public class CPsolver {
 		IloObjective obj = cp.minimize(cp.sum(cp.prod((1-alpha)/n, obj_delay),cp.prod(alpha/n, obj_log)));
 		
 		cp.add(obj);
-		cp.setParameter(IloCP.IntParam.FailLimit, 2000);
-		cp.setOut(null);
+		cp.setParameter(IloCP.IntParam.FailLimit, 100);
+//		cp.setOut(null);
 		if (cp.solve()) {
 			this.setSolve_time(cp.getInfo(IloCP.DoubleInfo.SolveTime));
 			for (TenantC  tenantC : tC) {

@@ -1,4 +1,6 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 
@@ -63,14 +65,21 @@ public class RLsolver {
 			service.initState();
 		}
 		long startTime = System.currentTimeMillis();
+//		System.out.println("nbCases=" + nbCases + ", pass=" + this.getPass());
 		for (int i = 0; i < nbCases; i++) {
 			List<TenantC> tenants = this.genTenants();
 			this.initActiveList(tenants);
 			this.setBench(tenants);
-			
+//			List<String> result = new ArrayList<String>();
+//			result.add("pass,obj,delay,logistic");
 			for (int j = 0; j < this.getPass(); j++) {
+				System.out.println("nbCases" + nbCases + ", nbPass" + this.getPass() +"case" + i + ", pass" + j);
 				this.getGen().onePass(tenants, this.services, this.getAlpha());
+//				Objective obj = this.getGen().Masterbation(tenants, getServices(), 0.5);
+//				result.add(j + "," + obj.getValue() + "," + obj.getDelay() + "," +obj.getLogistic() );
+				
 			}
+//			Files.write(Paths.get("Output/filter.csv"), result);
 			
 		}
 		long stopTme = System.currentTimeMillis();
