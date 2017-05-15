@@ -11,18 +11,23 @@ public class Solver {
 
 	public static void main(String[] args) throws IOException, IloException {
 		
-//		List<String> cpresult = new ArrayList<String>();
-//		cpresult.add("group,nbTenant,obj,time");
-//		for (int i = 1; i <= 5; i++) {
-//			experiment(i,cpresult);
-//		}
-//		Files.write(Paths.get("Output/CPresult.csv"), cpresult);
+		List<String> cpresult = new ArrayList<String>();
+		cpresult.add("group,nbTenant,obj,time");
+		for (int nbGroup = 1; nbGroup <= 5; nbGroup++) {
+			
+			for (int nbTenant = 10; nbTenant <= 50; nbTenant+=10) {
+				System.out.println("Group " + nbGroup + ", nbTenant " + nbTenant);
+				experiment(nbGroup,nbTenant,cpresult);
+				}			
+		}
+		Files.write(Paths.get("Output/CPresult.csv"), cpresult);
+		
 //		experiment(3);
-		experiment(3, 50);
+//		experiment(3, 50);
 		
 	}
 	
-	public static void experiment(int nbGroup, int nbTenant) throws IOException, IloException {
+	public static void experiment(int nbGroup, int nbTenant, List<String> cpresult) throws IOException, IloException {
 		// TODO Here for the preparation, data set, basic parameter...
 		int width = 20;
 		int height = 20;
@@ -123,11 +128,12 @@ public class Solver {
 		}
 		
 		solver_CP.solve(tenants);
-		System.out.println(solver_CP.getObjValue());
-		System.out.println(solver_CP.getObjDelay());
-		System.out.println(solver_CP.getObjLogistic());
-		System.out.println(solver_CP.getSolve_time() + " s");
-//		cpresult.add(nbGroup+"," + nbTenant  + "," + solver_CP.getObjValue() + "," + solver_CP.getSolve_time() );
+//		System.out.println(solver_CP.getObjValue());
+//		System.out.println(solver_CP.getObjDelay());
+//		System.out.println(solver_CP.getObjLogistic());
+//		System.out.println(solver_CP.getSolve_time() + " s");
+//		cpresult.add("group,nbTenant,obj,time");
+		cpresult.add(nbGroup+"," + nbTenant  + "," + solver_CP.getObjValue() + "," + solver_CP.getSolve_time());
 		
 		double cp_obj = solver_CP.getObjValue();
 
@@ -156,8 +162,8 @@ public class Solver {
 				solver_RL.setNbTenant(nbTrainTenant * nbt); 
 				solver_RL.train(nbCases);
 				solver_RL.solve(tenants, active);
-				System.out.println(solver_RL.getObjValue());
-				System.out.println(solver_RL.getTrainnint_time() + " s");
+//				System.out.println(solver_RL.getObjValue());
+//				System.out.println(solver_RL.getTrainnint_time() + " s");
 				caseTime += Double.toString(solver_RL.getTrainnint_time()) + ",";
 				caseObj += Double.toString(cp_obj/solver_RL.getObjValue()) + ",";
 			}
