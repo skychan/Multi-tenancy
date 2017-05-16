@@ -36,7 +36,7 @@ public class Solver {
 		int nbService = 10;
 		int avg_res = 10;
 //		int nbTenant = 30;
-		int maxTime = nbTenant*5;
+		int maxTime = nbTenant*3;
 		
 		
 		
